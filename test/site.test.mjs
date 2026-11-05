@@ -50,12 +50,17 @@ test('Public OAuth privacy pages disclose Google identity use, approval and dele
   const enPrivacy = read('privacy/index.html');
   for (const required of ['Google sign-in', 'Google account identifier',
     'GDPR Article 6(1)(b)', 'seven days', 'legitimate interests',
-    'BitTorrent', 'CNPD', 'support.starlit@rrmtools.uk']) {
+    'BitTorrent', 'CNPD', 'support.starlit@rrmtools.uk',
+    'Optional app usage analytics', 'Optional crash reports', 'Sentry',
+    'GDPR Article 6(1)(a)', '30 days', 'Settings']) {
     assert.ok(enPrivacy.includes(required), 'Missing privacy concept: ' + required);
   }
   const ptPrivacy = read('pt/privacidade/index.html');
   assert.match(ptPrivacy, /RGPD/);
   assert.match(ptPrivacy, /BitTorrent/);
+  assert.match(ptPrivacy, /Estatísticas opcionais da aplicação/);
+  assert.match(ptPrivacy, /Artigo 6.º, n.º 1, alínea a\)/);
+  assert.match(ptPrivacy, /30 dias/);
   assert.match(read('index.html'), /administrator must approve/i);
   assert.match(read('pt/index.html'), /administrador tem de aprovar/i);
   assert.match(read('delete-account/index.html'), /Starlit account deletion/);

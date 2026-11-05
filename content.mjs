@@ -31,6 +31,15 @@ export const en = {
       watch history, playback position, settings, addon/plugin configuration, and where a
       sync feature explicitly supports them, connected-provider credentials or tokens.
       Device metadata can include a client identifier, platform, app version or device name.</li>
+      <li><strong>Optional app usage analytics:</strong> only after you opt in, Starlit
+      sends fixed app-open, screen-visit, playback-status and download-status events,
+      the app version, platform and a random installation identifier to our gateway.
+      The identifier is pseudonymized with a keyed hash before storage. Analytics
+      records do not include media titles, watched items, searches, streaming URLs,
+      account identifiers or email addresses.</li>
+      <li><strong>Optional crash reports:</strong> a separate opt-in allows sanitized
+      error reports and technical stack traces to be sent to Sentry. This choice is
+      independent of usage analytics and neither category is required to use Starlit.</li>
       <li><strong>Technical/security records:</strong> connection and request metadata, such
       as IP addresses, can be processed by infrastructure and security providers. The
       signup rate-limiter stores keyed IP fingerprints instead of plaintext IPs.</li>
@@ -45,7 +54,10 @@ export const en = {
       account protection, and security investigations, subject to balancing your rights
       against those legitimate interests.</li>
       <li><strong>GDPR Article 6(1)(c):</strong> any processing needed to meet an applicable
-      legal obligation.</li></ul>
+      legal obligation.</li>
+      <li><strong>GDPR Article 6(1)(a):</strong> your voluntary consent to optional
+      usage analytics and, separately, crash reporting. You can withdraw either
+      choice at any time without losing access to Starlit.</li></ul>
       <p>Google sign-in is optional if an alternative is offered. An approved account
       needs essential identity and session data to function. Approval is a human
       decision, not a decision based solely on automated profiling.</p>
@@ -74,7 +86,18 @@ export const en = {
       retention schedules must be verified against deployed infrastructure
       before being described as fixed periods; these may temporarily retain
       copies after an account deletion.</p>
+      <p>Optional usage analytics are retained as pseudonymous, daily records for
+      approximately <strong>30 days</strong>, using the analytics service's
+      configured retention period.
+      Turning usage analytics off deletes the local installation identifier and stops
+      further reporting; previously received records are not immediately erased.
+      Crash reports are processed separately by Sentry when enabled.</p>
       <h2>6. Your rights</h2>
+      <p>You may decline both optional diagnostics categories in the app, or enable
+      or disable them independently under <strong>Settings → Advanced</strong> at any
+      time. Neither account creation nor cloud synchronization is required to make
+      that choice. Our gateway necessarily receives a connection address to service
+      a request, but does not save it as part of usage analytics records.</p>
       <p>Subject to applicable law, you may request access, rectification,
       erasure, restriction, data portability or object to processing based on
       legitimate interests. Contact ${CONTACT_LINK} and include the email
@@ -268,6 +291,18 @@ export const pt = {
       de addons/plugins e, quando a funcionalidade o suportar, credenciais ou
       tokens de serviços associados. Podem ser incluídos nome e identificador
       do dispositivo, plataforma e versão da aplicação.</li>
+      <li><strong>Estatísticas opcionais da aplicação:</strong> só após o teu
+      consentimento, o Starlit envia eventos fixos de abertura da aplicação,
+      visitas a ecrãs, estado de reprodução e transferências, versão,
+      plataforma e um identificador de instalação aleatório para o nosso servidor.
+      O identificador é pseudonimizado com uma função criptográfica com chave
+      antes de ser guardado. Estes registos não incluem títulos, histórico de
+      conteúdos vistos, pesquisas, endereços de transmissão, identificadores
+      de conta ou emails.</li>
+      <li><strong>Relatórios de erros opcionais:</strong> uma autorização
+      separada permite enviar ao Sentry relatórios técnicos de erros e
+      rastos de execução sujeitos a filtragem de dados. Estas opções são
+      independentes e nenhuma é obrigatória para utilizar o Starlit.</li>
       <li><strong>Dados técnicos e de segurança:</strong> informações sobre
       ligações e pedidos, incluindo endereços IP, podem ser processadas
       por serviços de infraestrutura e segurança. O limitador de pedidos
@@ -283,7 +318,11 @@ export const pt = {
       proporcional de abuso, proteção das contas e investigação de incidentes,
       ponderando os interesses legítimos e os direitos dos titulares.</li>
       <li><strong>Artigo 6.º, n.º 1, alínea c), do RGPD:</strong> cumprimento
-      de obrigações legais aplicáveis.</li></ul>
+      de obrigações legais aplicáveis.</li>
+      <li><strong>Artigo 6.º, n.º 1, alínea a), do RGPD:</strong>
+      consentimento livre para as estatísticas opcionais e, de forma
+      independente, os relatórios de erros. Podes retirar cada autorização
+      a qualquer momento sem perder o acesso ao Starlit.</li></ul>
       <p>O início de sessão Google é opcional quando existir outro método
       de autenticação disponível. O funcionamento da conta exige dados de
       identidade e sessão essenciais. A aprovação é uma decisão humana e não
@@ -315,7 +354,19 @@ export const pt = {
       de ser verificados na infraestrutura antes de serem anunciados
       como prazos fixos; as cópias podem persistir temporariamente após
       a eliminação da conta.</p>
+      <p>As estatísticas opcionais são conservadas em registos diários
+      pseudonimizados durante cerca de <strong>30 dias</strong>, de acordo com
+      a política de retenção do serviço privado de estatísticas. Desativar
+      as estatísticas apaga o identificador
+      local e impede novos envios, mas não elimina imediatamente os registos
+      já recebidos. Os relatórios de erros, quando autorizados, são tratados
+      separadamente pelo Sentry.</p>
       <h2>6. Os teus direitos</h2>
+      <p>Podes recusar ambas as categorias opcionais ou ativá-las e desativá-las
+      independentemente em <strong>Definições → Avançadas</strong>, a qualquer
+      momento, sem criar conta. O servidor recebe necessariamente o endereço
+      de ligação para responder aos pedidos, mas não o guarda nos registos
+      de estatísticas da aplicação.</p>
       <p>Nos termos aplicáveis, podes pedir acesso, retificação, apagamento,
       limitação, portabilidade ou opor-te ao tratamento baseado em interesses
       legítimos. Contacta ${CONTACT_LINK} a partir do email da conta,
