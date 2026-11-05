@@ -2,8 +2,8 @@
 // Starlit releases and the account service before publishing.
 export const ORIGIN = 'https://starlit.rrmtools.uk';
 export const CONTACT = 'support.starlit@rrmtools.uk';
-export const UPDATED = '1 November 2026';
-export const UPDATED_PT = '1 de novembro de 2026';
+export const UPDATED = '5 November 2026';
+export const UPDATED_PT = '5 de novembro de 2026';
 export const CONTACT_LINK = '<a href="mailto:' + CONTACT + '">' + CONTACT + '</a>';
 export const API = 'https://starlit-api.rrmtools.uk';
 
