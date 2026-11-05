@@ -3,6 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": { "build": "node build.mjs", "test": "node --test test/site.test.mjs" },
-  "engines": { "node": ">=20" }
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test test/site.test.mjs",
+    "preview": "node tools/preview.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }

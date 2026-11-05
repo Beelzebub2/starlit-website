@@ -1,41 +1,14 @@
 // Public-facing content must match deployed Starlit behavior. Review after
 // backend / addon / account lifecycle changes and before public launch.
-export const CONTACT = 'support.starlit@rrmtools.uk';
-export const UPDATED = '1 November 2026';
-export const CONTACT_LINK = '<a href="mailto:' + CONTACT + '">' + CONTACT + '</a>';
-export const API = 'https://starlit-api.rrmtools.uk';
+// Legal page text below is a drafted transparency notice: change wording only
+// with the operator's approval, never as part of a visual redesign.
+import { CONTACT, CONTACT_LINK, mailto } from './constants.mjs';
+import { homeMeta, renderHome } from './home.mjs';
 
-export const routes = {
-  en: { home:'/', privacy:'/privacy/', terms:'/terms/', cookies:'/cookies/',
-    delete:'/delete-account/', contact:'/contact/', legal:'/legal/' },
-  pt: { home:'/pt/', privacy:'/pt/privacidade/', terms:'/pt/termos/',
-    cookies:'/pt/cookies/', delete:'/pt/apagar-conta/',
-    contact:'/pt/contacto/', legal:'/pt/informacoes-legais/' },
-};
+export { CONTACT, CONTACT_LINK, UPDATED, UPDATED_PT, API, routes } from './constants.mjs';
 
 export const en = {
-  home: {
-    title:'Your watchlist, your world.',
-    description:'Starlit is a cross-device media library and player from RRMTools. Manage watch history, profiles, sources and progress in one place.',
-    html:`
-      <div class="hero"><p class="eyebrow">RRMTools presents Starlit</p>
-      <h1>Your watchlist.<br><em>Your world.</em></h1>
-      <p class="lede">A modern home for your personal film and series library, viewing progress,
-      and media sources you choose, with optional cross-device synchronization.</p>
-      <div class="actions"><a class="btn primary" href="/contact/">Contact the team</a>
-      <a class="btn" href="/privacy/">How we protect your data</a></div>
-      <div class="note"><p><strong>Access by approval:</strong> Anyone can request Starlit access using a Google
-      account. Google verifies identity; an administrator must approve the request before
-      the account can use Starlit. No one is approved automatically.</p></div></div>
-      <section class="features" aria-label="Starlit features">
-      <div class="feature"><div class="glyph" aria-hidden="true">✧</div><h2>Your library, organized</h2>
-      <p>Manage films, series, collections and the things you plan to watch.</p></div>
-      <div class="feature"><div class="glyph" aria-hidden="true">◈</div><h2>Progress across devices</h2>
-      <p>Approved accounts can synchronize supported watch progress and profiles.</p></div>
-      <div class="feature"><div class="glyph" aria-hidden="true">▷</div><h2>Your sources, your choice</h2>
-      <p>Play media from services and addons you select. Starlit does not grant media distribution rights.</p></div>
-      </section><p class="subtle">Starlit is an independent player and library application, not a streaming content provider.</p>`,
-  },
+  home: { ...homeMeta.en, html: renderHome('en') },
   privacy: {
     title:'Privacy policy', description:'What Starlit collects, why, with whom it is shared, and your GDPR rights.',
     html:`
@@ -185,6 +158,9 @@ export const en = {
   },
   delete: {
     title:'Account deletion and data requests', description:'Request deletion, access or export of your Starlit data.',
+    actions:{ note:'Send your request from the email address on your Starlit account.',
+      links:[[mailto('Starlit account deletion'), 'Email a deletion request'],
+        [mailto('Starlit data access/export'), 'Ask for a copy of your data']] },
     html:`
       <h2>Delete a Starlit account</h2>
       <p>Send an email to ${CONTACT_LINK} from your account's email address
@@ -214,6 +190,8 @@ export const en = {
   },
   contact: {
     title:'Contact and support', description:'Get help with Starlit accounts, privacy, copyright and security.',
+    actions:{ note:'Starlit support is handled by email at ' + CONTACT + '.',
+      links:[[mailto('Starlit support'), 'Email support']] },
     html:`
       <h2>Official Starlit support</h2>
       <p>Contact <strong>${CONTACT_LINK}</strong> for account approval,
@@ -263,30 +241,7 @@ export const en = {
 };
 
 export const pt = {
-  home: {
-    title:'A tua lista, o teu universo.',
-    description:'Starlit é uma aplicação da RRMTools para organizar filmes, séries e progresso de visualização entre dispositivos.',
-    html:`
-      <div class="hero"><p class="eyebrow">RRMTools apresenta Starlit</p>
-      <h1>A tua lista.<br><em>O teu universo.</em></h1>
-      <p class="lede">Um espaço moderno para organizares os teus filmes e séries,
-      guardares o progresso e utilizares as fontes multimédia que escolheres,
-      com sincronização opcional entre dispositivos.</p>
-      <div class="actions"><a class="btn primary" href="/pt/contacto/">Contactar a equipa</a>
-      <a class="btn" href="/pt/privacidade/">Conhecer a privacidade</a></div>
-      <div class="note"><p><strong>Acesso sujeito a aprovação:</strong> qualquer pessoa pode
-      pedir acesso ao Starlit com uma conta Google. A Google confirma a identidade,
-      mas um administrador tem de aprovar o pedido antes de ser concedido acesso.
-      Não existe aprovação automática.</p></div></div>
-      <section class="features" aria-label="Funcionalidades Starlit">
-      <div class="feature"><div class="glyph" aria-hidden="true">✧</div><h2>Biblioteca organizada</h2>
-      <p>Organiza filmes, séries, coleções e conteúdos para veres mais tarde.</p></div>
-      <div class="feature"><div class="glyph" aria-hidden="true">◈</div><h2>Progresso sincronizado</h2>
-      <p>Contas aprovadas podem sincronizar perfis e progresso de visualização suportados.</p></div>
-      <div class="feature"><div class="glyph" aria-hidden="true">▷</div><h2>Fontes à tua escolha</h2>
-      <p>Usa os serviços e addons que escolheres. O Starlit não concede direitos de distribuição multimédia.</p></div>
-      </section><p class="subtle">O Starlit é uma aplicação independente de biblioteca e reprodução; não é um serviço de distribuição de conteúdos.</p>`,
-  },
+  home: { ...homeMeta.pt, html: renderHome('pt') },
   privacy: {
     title:'Política de privacidade', description:'Os dados tratados pelo Starlit, as finalidades, os destinatários e os teus direitos ao abrigo do RGPD.',
     html:`
@@ -439,6 +394,9 @@ export const pt = {
   },
   delete: {
     title:'Apagar conta e pedir dados', description:'Como pedir a eliminação, acesso, retificação ou exportação dos teus dados Starlit.',
+    actions:{ note:'Envia o pedido a partir do endereço de email associado à tua conta Starlit.',
+      links:[[mailto('Eliminação de conta Starlit'), 'Pedir a eliminação por email'],
+        [mailto('Acesso/exportação de dados Starlit'), 'Pedir uma cópia dos dados']] },
     html:`
       <h2>Apagar a conta Starlit</h2><p>Envia um email para
       ${CONTACT_LINK} a partir do endereço associado à conta,
@@ -464,6 +422,8 @@ export const pt = {
   },
   contact: {
     title:'Contacto e suporte', description:'Apoio a contas, privacidade, acessibilidade, direitos de autor e segurança.',
+    actions:{ note:'O suporte do Starlit é feito por email, através de ' + CONTACT + '.',
+      links:[[mailto('Suporte Starlit'), 'Enviar email ao suporte']] },
     html:`
       <h2>Suporte oficial Starlit</h2><p>Contacta
       <strong>${CONTACT_LINK}</strong> para aprovação de contas,
