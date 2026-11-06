@@ -120,6 +120,8 @@ test('Logo is official, size-bounded and security headers forbid active tracking
   assert.ok(statSync(logo).size < 1024 * 1024);
   assert.match(read('assets/starlit-mark.svg'), /#45D6EB[\s\S]*#3965D4[\s\S]*#B250EF/);
   const headers = read('_headers');
+  assert.match(headers, /Strict-Transport-Security: max-age=31536000/);
+  assert.doesNotMatch(headers, /Strict-Transport-Security:.*includeSubDomains/);
   assert.match(headers, /script-src 'none'/);
   assert.match(headers, /connect-src 'none'/);
   assert.match(headers, /form-action 'none'/);
