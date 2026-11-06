@@ -36,7 +36,7 @@ domain `starlit.rrmtools.uk`. For a clean environment,
 | --- | --- |
 | `constants.mjs` | Contact email, routes, homepage anchors and release links |
 | `home.mjs` | Homepage copy in English and Portuguese, and its markup |
-| `content.mjs` | Policy pages. Their wording is a legal draft: change it only with the operator's approval |
+| `content.mjs` | Policy pages. Their wording is a legal draft: change it only with the operator's authorization |
 | `art.mjs` | The official mark, the sparkle shape and the generated night sky |
 | `build.mjs` | Page layout, policy anchors and contents lists, sitemap, headers and redirects |
 | `assets/site.css` | All styles; minified at build time |

@@ -46,23 +46,29 @@ test('The language switch points at the equivalent page in the other language', 
   }
 });
 
-test('Public OAuth privacy pages disclose Google identity use, approval and deletion', () => {
+test('Public privacy pages disclose open registration, aggregate account metrics and deletion', () => {
   const enPrivacy = read('privacy/index.html');
   for (const required of ['Google sign-in', 'Google account identifier',
-    'GDPR Article 6(1)(b)', 'seven days', 'legitimate interests',
+    'GDPR Article 6(1)(b)', 'legitimate interests',
     'BitTorrent', 'CNPD', 'support.starlit@rrmtools.uk',
     'Optional app usage analytics', 'Optional crash reports', 'Sentry',
-    'GDPR Article 6(1)(a)', '30 days', 'Settings']) {
+    'GDPR Article 6(1)(a)', '30 days', 'Settings',
+    'Operational account statistics', 'verified accounts']) {
     assert.ok(enPrivacy.includes(required), 'Missing privacy concept: ' + required);
   }
   const ptPrivacy = read('pt/privacidade/index.html');
   assert.match(ptPrivacy, /RGPD/);
   assert.match(ptPrivacy, /BitTorrent/);
   assert.match(ptPrivacy, /Estatísticas opcionais da aplicação/);
+  assert.match(ptPrivacy, /Estatísticas operacionais agregadas/);
   assert.match(ptPrivacy, /Artigo 6.º, n.º 1, alínea a\)/);
   assert.match(ptPrivacy, /30 dias/);
-  assert.match(read('index.html'), /administrator must approve/i);
-  assert.match(read('pt/index.html'), /administrador tem de aprovar/i);
+  assert.match(read('index.html'), /Verify your email/i);
+  assert.match(read('pt/index.html'), /Confirma o teu e-mail/i);
+  for (const { key, html } of allPages()) {
+    assert.doesNotMatch(html, /account approval|administrator must approve|approved account|owner approval/i, key);
+    assert.doesNotMatch(html, /aprovação de contas|contas aprovadas|administrador tem de aprovar/i, key);
+  }
   assert.match(read('delete-account/index.html'), /Starlit account deletion/);
   assert.match(read('pt/apagar-conta/index.html'), /Eliminação de conta Starlit/);
 });
