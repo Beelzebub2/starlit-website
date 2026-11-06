@@ -1,17 +1,21 @@
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { en, pt } from './content.mjs';
-import { ORIGIN, CONTACT, UPDATED, UPDATED_PT, routes, anchors, REPO, RELEASES,
+import { ORIGIN, CONTACT, UPDATED, UPDATED_PT, routes, KEYS, PRODUCT, DOCS, REPO, RELEASES,
   ISSUES, NUVIO, LICENSE_URL } from './constants.mjs';
-import { skySvg, sparkleSvg, mark } from './art.mjs';
+import { hash, asset, markImg } from './ui.mjs';
+import * as home from './pages/home.mjs';
+import * as remote from './pages/remote.mjs';
+import * as anime from './pages/anime.mjs';
+import * as watch from './pages/watch.mjs';
+import * as sync from './pages/sync.mjs';
+import * as download from './pages/download.mjs';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 const dist = join(root, 'dist');
-const pages = { en, pt };
-const KEYS = ['home', 'privacy', 'terms', 'cookies', 'delete', 'contact', 'legal'];
-const DOCS = ['privacy', 'terms', 'cookies', 'delete', 'contact', 'legal'];
+const docs = { en, pt };
+const product = { home, remote, anime, watch, sync, download };
 
 const escape = value => String(value).replace(/[&"<>]/g, c =>
   ({ '&':'&amp;', '"':'&quot;', '<':'&lt;', '>':'&gt;' }[c]));
@@ -22,38 +26,40 @@ const slug = html => text(html).normalize('NFD').replace(/[̀-ͯ]/g, '')
 const ui = {
   en: {
     htmlLang:'en', ogLocale:'en_GB', other:'pt', otherLang:'pt-PT', otherShort:'PT', otherName:'Português',
-    skip:'Skip to content', mainNav:'Main', menu:'Menu',
+    skip:'Skip to content', mainNav:'Main', home:'Starlit home',
+    nav:{ remote:'PC remote', anime:'Anime', watch:'Watch &amp; download', sync:'Account &amp; sync', download:'Download' },
     labels:{ home:'Home', privacy:'Privacy policy', terms:'Terms of use', cookies:'Cookies and storage',
       delete:'Delete account', contact:'Contact and support', legal:'Legal information' },
-    short:{ privacy:'Privacy', contact:'Contact' },
-    nav:{ features:'Features', download:'Download', faq:'FAQ' },
     onThisPage:'On this page', documents:'Policies and help', updated:'Last updated:',
     readOther:'Ler em português', backToTop:'Back to top',
     ogAlt:'The Starlit logo, a play button holding a four-point star, on a night sky',
-    footer:{ project:'An RRMTools project. Support, privacy and legal contact:',
-      rights:'Information on data processing and rights is in the', rightsLink:'privacy policy',
-      product:'Starlit', help:'Help', legalNav:'Legal links', legal:'Legal', source:'Source code', releases:'Releases',
-      bug:'Report a bug', languages:'Language',
-      credit:`Starlit is based on <a href="${NUVIO}">Nuvio Desktop</a> by Tapframe and friends and is licensed under <a href="${LICENSE_URL}">GPL-3.0</a>.` },
+    footer:{
+      about:`Anime and TV for Windows and Android. Based on <a href="${NUVIO}">Nuvio</a> by Tapframe and friends, and maintained by Beelzebub2. Not an official Nuvio release.`,
+      product:'Product', project:'Project', legal:'Legal',
+      projectLinks:[[RELEASES, 'Release notes'], [REPO, 'Source code'], [ISSUES, 'Report a problem'], [LICENSE_URL, 'GPL-3.0 licence']],
+      legalLinks:{ privacy:'Privacy', terms:'Terms', cookies:'Cookies', delete:'Delete account', contact:'Contact', legal:'Legal information' },
+      client:'Starlit is a client. It plays media from add-ons and sources you install, and it doesn’t host, store or distribute media. It isn’t affiliated with any add-on, catalogue, tracking service or content provider.',
+    },
     notFound:{ title:'Page not found', heading:'This page doesn’t exist',
       body:'The link may be out of date, or the address may contain a typo. These pages can help:',
       description:'The page you asked for doesn’t exist on the Starlit website.' },
   },
   pt: {
     htmlLang:'pt-PT', ogLocale:'pt_PT', other:'en', otherLang:'en', otherShort:'EN', otherName:'English',
-    skip:'Saltar para o conteúdo', mainNav:'Principal', menu:'Menu',
+    skip:'Saltar para o conteúdo', mainNav:'Principal', home:'Início do Starlit',
+    nav:{ remote:'Comando do PC', anime:'Anime', watch:'Ver e transferir', sync:'Conta e sincronização', download:'Transferir' },
     labels:{ home:'Início', privacy:'Política de privacidade', terms:'Termos de utilização', cookies:'Cookies e armazenamento',
       delete:'Apagar conta', contact:'Contacto e suporte', legal:'Informações legais' },
-    short:{ privacy:'Privacidade', contact:'Contacto' },
-    nav:{ features:'Funcionalidades', download:'Transferir', faq:'Perguntas' },
     onThisPage:'Nesta página', documents:'Políticas e ajuda', updated:'Última atualização:',
     readOther:'Read in English', backToTop:'Voltar ao início',
     ogAlt:'O logótipo do Starlit, um botão de reprodução com uma estrela de quatro pontas, num céu noturno',
-    footer:{ project:'Projeto RRMTools. Suporte, privacidade e contactos legais:',
-      rights:'Informações sobre tratamento de dados e direitos disponíveis na', rightsLink:'política de privacidade',
-      product:'Starlit', help:'Ajuda', legalNav:'Ligações legais', legal:'Legal', source:'Código-fonte', releases:'Versões',
-      bug:'Comunicar um erro', languages:'Idioma',
-      credit:`O Starlit baseia-se no <a href="${NUVIO}">Nuvio Desktop</a>, da Tapframe e amigos, e está licenciado sob a <a href="${LICENSE_URL}">GPL-3.0</a>.` },
+    footer:{
+      about:`Anime e séries para Windows e Android. Baseado no <a href="${NUVIO}">Nuvio</a>, da Tapframe e amigos, e mantido por Beelzebub2. Não é uma versão oficial do Nuvio.`,
+      product:'Produto', project:'Projeto', legal:'Legal',
+      projectLinks:[[RELEASES, 'Notas de versão'], [REPO, 'Código-fonte'], [ISSUES, 'Comunicar um problema'], [LICENSE_URL, 'Licença GPL-3.0']],
+      legalLinks:{ privacy:'Privacidade', terms:'Termos', cookies:'Cookies', delete:'Apagar conta', contact:'Contacto', legal:'Informações legais' },
+      client:'O Starlit é um cliente. Reproduz conteúdos a partir dos addons e fontes que instalas e não aloja, guarda nem distribui conteúdos multimédia. Não tem ligação a qualquer addon, catálogo, serviço de acompanhamento ou fornecedor de conteúdos.',
+    },
     notFound:{ title:'Página não encontrada', heading:'Esta página não existe',
       body:'A ligação pode estar desatualizada ou o endereço pode ter um erro. Estas páginas podem ajudar:',
       description:'A página que pediste não existe no site do Starlit.' },
@@ -62,35 +68,19 @@ const ui = {
 
 // ---------------------------------------------------------------- assets
 
-// Files written by this script rather than copied from assets/.
-const generated = {
-  '/assets/sky-night.svg': skySvg('#ffffff'),
-  '/assets/sky-dawn.svg': skySvg('#2b3a8f', 0.55),
-  '/assets/sparkle.svg': sparkleSvg,
-};
-// Asset URLs carry a content hash so browsers and Cloudflare never keep a stale copy.
-const hash = data => createHash('sha256').update(data).digest('hex').slice(0, 10);
-const asset = path => path + '?v=' + hash(generated[path] ?? readFileSync(join(root, path)));
-
 // Cloudflare doesn't compress these responses (Cache-Control: no-transform),
 // so the stylesheet is shipped with comments and whitespace removed.
 const minifyCss = css => css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ')
-  .replace(/\s*([{};,])\s*/g, '$1').replace(/;}/g, '}').trim() + '\n';
+  .replace(/\s*([{};,>])\s*/g, '$1').replace(/:\s+/g, ':').replace(/;}/g, '}').trim() + '\n';
 const css = minifyCss(readFileSync(join(root, 'assets', 'site.css'), 'utf8'))
   .replace(/url\((\/assets\/[^)?]+)\)/g, (_, path) => `url(${asset(path)})`);
 const cssHref = '/assets/site.css?v=' + hash(css);
-const FONT_SANS = asset('/assets/fonts/mona-sans-latin-wdth.woff2');
-const FONT_SERIF = asset('/assets/fonts/source-serif-4-latin-wght.woff2');
-const WORDMARK_DARK = asset('/assets/starlit-wordmark-dark.png');
-const WORDMARK_LIGHT = asset('/assets/starlit-wordmark-light.png');
-
-const wordmark = lang => `<a class="brand" href="${routes[lang].home}">` +
-  `<picture><source srcset="${WORDMARK_LIGHT}" media="(prefers-color-scheme: light)">` +
-  `<img src="${WORDMARK_DARK}" alt="Starlit" width="139" height="32"></picture></a>`;
+const FONT_SANS = asset('/assets/fonts/geist-latin.woff2');
+const FONT_DISPLAY = asset('/assets/fonts/bricolage-grotesque-latin.woff2');
 
 // ---------------------------------------------------------------- layout
 
-function head(lang, { title, description, path, alternates, serif, noindex }) {
+function head(lang, { title, description, path, alternates, noindex }) {
   const t = ui[lang];
   const links = alternates ? `
 <link rel="canonical" href="${ORIGIN + path}">
@@ -103,14 +93,13 @@ function head(lang, { title, description, path, alternates, serif, noindex }) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escape(title)}</title>
 <meta name="description" content="${escape(description)}">${noindex ? '\n<meta name="robots" content="noindex">' : ''}
-<meta name="color-scheme" content="dark light">
-<meta name="theme-color" content="#0a0e27" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f2f4fc" media="(prefers-color-scheme: light)">${links}
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#06070F">${links}
 <link rel="icon" href="/assets/starlit-mark.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/starlit-logo.png" type="image/png" sizes="120x120">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="${FONT_SANS}" as="font" type="font/woff2" crossorigin>${serif ? `
-<link rel="preload" href="${FONT_SERIF}" as="font" type="font/woff2" crossorigin>` : ''}
+<link rel="preload" href="${FONT_SANS}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${FONT_DISPLAY}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${cssHref}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Starlit">
@@ -127,57 +116,48 @@ function head(lang, { title, description, path, alternates, serif, noindex }) {
 </head>`;
 }
 
+const brand = (lang, cls, size) => `<a class="brand ${cls}" href="${routes[lang].home}">${markImg('brand-mark', size)}<span>Starlit</span></a>`;
+
 function header(lang, key, otherPath) {
-  const t = ui[lang], r = routes[lang], a = anchors[lang];
+  const t = ui[lang], r = routes[lang];
   const current = item => key === item ? ' aria-current="page"' : '';
-  const items = [
-    `<a href="${r.home}#${a.features}">${t.nav.features}</a>`,
-    `<a href="${r.home}#${a.download}">${t.nav.download}</a>`,
-    `<a href="${r.home}#${a.faq}">${t.nav.faq}</a>`,
-    `<a href="${r.privacy}"${current('privacy')}>${t.short.privacy}</a>`,
-    `<a href="${r.contact}"${current('contact')}>${t.short.contact}</a>`,
-  ].join('');
+  const items = ['remote', 'anime', 'watch', 'sync'].map(item =>
+    `<a href="${r[item]}"${current(item)}>${t.nav[item]}</a>`).join('');
   return `
 <a href="#main" class="skip">${t.skip}</a>
 <header class="site-header">
   <div class="wrap header-inner">
-    ${wordmark(lang)}
-    <nav class="nav-inline" aria-label="${t.mainNav}">${items}</nav>
-    <a class="lang-switch" href="${otherPath}" hreflang="${t.otherLang}" lang="${t.otherLang}"><span class="lang-short">${t.otherShort}</span> <span class="lang-long">${t.otherName}</span></a>
-    <details class="menu">
-      <summary><span class="menu-icon" aria-hidden="true"></span>${t.menu}</summary>
-      <nav class="menu-panel" aria-label="${t.mainNav}">${items}</nav>
-    </details>
+    ${brand(lang, 'brand-header', 32)}
+    <nav class="nav-main" aria-label="${t.mainNav}">${items}</nav>
+    <div class="header-actions">
+      <a class="lang-switch" href="${otherPath}" hreflang="${t.otherLang}" lang="${t.otherLang}"><span aria-hidden="true">${t.otherShort}</span><span class="vh">${t.otherName}</span></a>
+      <a class="nav-gh" href="${REPO}">GitHub</a>
+      <a class="btn btn-accent btn-sm" href="${r.download}"${current('download')}>${t.nav.download}</a>
+    </div>
   </div>
 </header>`;
 }
 
 function footer(lang, otherPath) {
-  const t = ui[lang], f = t.footer, r = routes[lang], a = anchors[lang];
+  const t = ui[lang], f = t.footer, r = routes[lang];
   const li = (href, label) => `<li><a href="${href}">${label}</a></li>`;
-  const languages = lang === 'en'
-    ? `<span aria-current="true">English</span><a href="${otherPath}" hreflang="pt-PT" lang="pt-PT">Português</a>`
-    : `<a href="${otherPath}" hreflang="en" lang="en">English</a><span aria-current="true">Português</span>`;
+  const column = (id, title, links) => `<nav class="footer-col" aria-labelledby="fn-${id}"><h2 id="fn-${id}" class="label-mono">${title}</h2><ul role="list">${links}</ul></nav>`;
   return `
 <footer class="site-footer">
-  <div class="wrap footer-grid">
-    <div class="footer-brand">
-      ${wordmark(lang)}
-      <p>${f.project} <a href="mailto:${CONTACT}">${CONTACT}</a>.</p>
-      <p>${f.rights} <a href="${r.privacy}">${f.rightsLink}</a>.</p>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        ${brand(lang, 'brand-footer', 28)}
+        <p>${f.about}</p>
+      </div>
+      ${column('product', f.product, ['remote', 'anime', 'watch', 'sync', 'download'].map(k => li(r[k], t.nav[k])).join(''))}
+      ${column('project', f.project, f.projectLinks.map(([href, label]) => li(href, label)).join(''))}
+      ${column('legal', f.legal, DOCS.map(k => li(r[k], f.legalLinks[k])).join(''))}
     </div>
-    <div class="footer-cols">
-      <nav aria-labelledby="fn-product"><h2 id="fn-product">${f.product}</h2><ul role="list">
-        ${li(r.home + '#' + a.features, t.nav.features)}${li(r.home + '#' + a.download, t.nav.download)}${li(r.home + '#' + a.faq, t.nav.faq)}${li(REPO, f.source)}${li(RELEASES, f.releases)}</ul></nav>
-      <nav aria-labelledby="fn-help"><h2 id="fn-help">${f.help}</h2><ul role="list">
-        ${li(r.contact, t.labels.contact)}${li(r.delete, t.labels.delete)}${li(ISSUES, f.bug)}</ul></nav>
-      <nav aria-label="${f.legalNav}"><h2 aria-hidden="true">${f.legal}</h2><ul role="list" class="footer-links">
-        ${li(r.privacy, t.labels.privacy)}${li(r.terms, t.labels.terms)}${li(r.cookies, t.labels.cookies)}${li(r.legal, t.labels.legal)}</ul></nav>
+    <div class="footer-base">
+      <p>${f.client}</p>
+      <p class="footer-contact"><a href="mailto:${CONTACT}">${CONTACT}</a> · <a href="${otherPath}" hreflang="${t.otherLang}" lang="${t.otherLang}">${t.otherName}</a></p>
     </div>
-  </div>
-  <div class="wrap footer-base">
-    <p>${f.credit}</p>
-    <p class="footer-lang"><span class="vh">${f.languages}: </span>${languages}</p>
   </div>
 </footer>`;
 }
@@ -211,8 +191,8 @@ function renderDoc(lang, key, content) {
   const actions = content.actions ? `
     <div class="callout">
       <p>${escape(content.actions.note)}</p>
-      <p class="actions">${content.actions.links.map(([href, label], i) =>
-        `<a class="btn ${i === 0 ? 'btn-primary' : 'btn-quiet'}" href="${escape(href)}">${label}</a>`).join('')}</p>
+      <p class="cta-row">${content.actions.links.map(([href, label], i) =>
+        `<a class="btn ${i === 0 ? 'btn-accent' : 'btn-ghost'}" href="${escape(href)}">${label}</a>`).join('')}</p>
     </div>` : '';
   const otherPath = routes[t.other][key];
   return `
@@ -239,13 +219,13 @@ function renderDoc(lang, key, content) {
 }
 
 function renderNotFound(lang) {
-  const t = ui[lang], n = t.notFound, r = routes[lang], a = anchors[lang];
-  const links = [[r.home, t.labels.home], [r.home + '#' + a.download, t.nav.download],
+  const t = ui[lang], n = t.notFound, r = routes[lang];
+  const links = [[r.home, t.labels.home], [r.download, t.nav.download],
     [r.privacy, t.labels.privacy], [r.contact, t.labels.contact]];
   return `
 <section class="not-found" aria-labelledby="nf-title">
   <div class="wrap not-found-inner">
-    ${mark('nf', 'mark nf-mark')}
+    ${markImg('nf-mark', 160)}
     <div>
       <h1 id="nf-title">${n.heading}</h1>
       <p>${n.body}</p>
@@ -267,7 +247,6 @@ mkdirSync(dist, { recursive: true });
 cpSync(join(root, 'assets'), join(dist, 'assets'), { recursive: true,
   filter: source => !source.includes(join('assets', 'icons')) });
 write(join(dist, 'assets', 'site.css'), css);
-for (const [path, data] of Object.entries(generated)) write(join(dist, path), data);
 // Browsers ask for these two at the site root.
 for (const file of ['apple-touch-icon.png', 'favicon.ico']) {
   cpSync(join(root, 'assets', 'icons', file), join(dist, file));
@@ -276,18 +255,21 @@ for (const file of ['apple-touch-icon.png', 'favicon.ico']) {
 let count = 0;
 for (const lang of ['en', 'pt']) {
   const other = ui[lang].other;
+  // Section anchors each page exposes, so pages can link into one another.
+  const pageIds = Object.fromEntries(PRODUCT.map(key => [key, product[key].ids?.[lang] ?? {}]));
   for (const key of KEYS) {
-    const content = pages[lang][key];
-    const isHome = key === 'home';
+    const isProduct = PRODUCT.includes(key);
+    const info = isProduct ? product[key].meta[lang] : docs[lang][key];
+    const main = isProduct ? product[key].render(lang, { r: routes[lang], pageIds })
+      : renderDoc(lang, key, docs[lang][key]);
     const html = page(lang, key, {
-      title: isHome ? content.title : content.title + ' | Starlit',
-      description: content.description,
+      title: key === 'home' ? info.title : info.title + (isProduct ? '' : ' | Starlit'),
+      description: info.description,
       path: routes[lang][key],
       alternates: { en: routes.en[key], pt: routes.pt[key] },
       otherPath: routes[other][key],
-      bodyClass: isHome ? 'page-home' : 'page-doc',
-      serif: !isHome,
-    }, isHome ? content.html : renderDoc(lang, key, content));
+      bodyClass: isProduct ? 'page-' + key : 'page-doc',
+    }, main);
     write(join(dist, routes[lang][key].replace(/^\/+|\/+$/g, ''), 'index.html'), html);
     count++;
   }

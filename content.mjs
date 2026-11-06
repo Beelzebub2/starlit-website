@@ -3,12 +3,10 @@
 // Legal page text below is a drafted transparency notice: change wording only
 // with the operator's approval, never as part of a visual redesign.
 import { CONTACT, CONTACT_LINK, mailto } from './constants.mjs';
-import { homeMeta, renderHome } from './home.mjs';
 
 export { CONTACT, CONTACT_LINK, UPDATED, UPDATED_PT, API, routes } from './constants.mjs';
 
 export const en = {
-  home: { ...homeMeta.en, html: renderHome('en') },
   privacy: {
     title:'Privacy policy', description:'What Starlit collects, why, with whom it is shared, and your GDPR rights.',
     html:`
@@ -264,7 +262,6 @@ export const en = {
 };
 
 export const pt = {
-  home: { ...homeMeta.pt, html: renderHome('pt') },
   privacy: {
     title:'Política de privacidade', description:'Os dados tratados pelo Starlit, as finalidades, os destinatários e os teus direitos ao abrigo do RGPD.',
     html:`
