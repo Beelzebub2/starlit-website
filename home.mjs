@@ -66,8 +66,8 @@ const copy = {
       title: 'Accounts are optional',
       intro: 'Without an account, Starlit runs in guest mode and your library, profiles and progress stay on that device. An account lets you sync them between Windows and Android.',
       steps: [
-        ['Request an account', 'From the sign-in screen in the app, request an account with your email and a password, or use your Google account.'],
-        ['An administrator reviews it', 'An administrator must approve each request before the account can sign in. No one is approved automatically, and pending requests expire after seven days.'],
+        ['Create an account', 'From the sign-in screen, register with an email address and password or continue with Google.'],
+        ['Verify your email', 'If you registered with email and password, open the confirmation link in your inbox. Google verifies your identity during sign-in.'],
         ['Sign in on each device', 'Use the same account and profile on Windows and Android to keep your library, watch history and progress in sync.'],
       ],
       aside: 'You can ask us to delete your account or send you a copy of your data at any time.',
@@ -86,7 +86,7 @@ const copy = {
       items: [
         ['Is Starlit free?', `Yes. Starlit is free, open-source software licensed under GPL-3.0, and its <a href="${REPO}">source code is public on GitHub</a>. This website has no paid plans or checkout.`],
         ['Does Starlit come with films or series?', 'No. Starlit is a library and player. What you can watch depends on the add-ons, plugins and services you set up.'],
-        ['Do I need an account?', 'No. Guest mode works without one. You only need an approved account to sync between devices.'],
+        ['Do I need an account?', 'No. Guest mode works without one. Create a free account to sync between devices.'],
         ['Which devices can I use?', 'Windows 10 and 11 (64-bit) and Android 7.0 or later. There are no releases for macOS, Linux or iPhone.'],
         ['Which Android file should I download?', 'Most phones need the <code>arm64-v8a</code> APK. Choose <code>armeabi-v7a</code> for older 32-bit phones, and <code>x86</code> or <code>x86_64</code> for emulators and Intel-based devices.'],
         ['How do updates work?', 'On Windows, Starlit checks for updates at startup, every six hours and from Settings > About, and verifies the installer’s SHA-256 checksum before installing it. On Android, the app checks GitHub releases and downloads the APK that matches your phone.'],
@@ -96,7 +96,7 @@ const copy = {
     },
     support: {
       title: 'Need help?',
-      body: 'Write to us about account approval, bugs, accessibility, data requests or anything else. Please don’t include passwords or access tokens.',
+      body: 'Write to us about accounts, bugs, accessibility, data requests or anything else. Please don’t include passwords or access tokens.',
       links: [[ISSUES, 'Report a bug on GitHub'], [routes.en.contact, 'Contact and support'], [routes.en.delete, 'Delete your account']],
     },
   },
@@ -162,8 +162,8 @@ const copy = {
       title: 'As contas são opcionais',
       intro: 'Sem conta, o Starlit funciona em modo convidado e a biblioteca, os perfis e o progresso ficam nesse dispositivo. Com uma conta, podes sincronizá-los entre o Windows e o Android.',
       steps: [
-        ['Pede uma conta', 'No ecrã de início de sessão da aplicação, pede uma conta com o teu email e uma palavra-passe, ou usa a tua conta Google.'],
-        ['Um administrador analisa o pedido', 'Um administrador tem de aprovar cada pedido antes de a conta poder iniciar sessão. Ninguém é aprovado automaticamente e os pedidos pendentes expiram ao fim de sete dias.'],
+        ['Cria uma conta', 'No ecrã de início de sessão, regista-te com e-mail e palavra-passe ou continua com Google.'],
+        ['Confirma o teu e-mail', 'Se te registaste com e-mail e palavra-passe, abre a ligação de confirmação na caixa de entrada. O Google verifica a identidade durante o início de sessão.'],
         ['Inicia sessão em cada dispositivo', 'Usa a mesma conta e o mesmo perfil no Windows e no Android para manteres a biblioteca, o histórico e o progresso sincronizados.'],
       ],
       aside: 'Podes pedir-nos a qualquer momento que apaguemos a tua conta ou te enviemos uma cópia dos teus dados.',
@@ -182,7 +182,7 @@ const copy = {
       items: [
         ['O Starlit é gratuito?', `Sim. O Starlit é software gratuito e de código aberto, licenciado sob a GPL-3.0, e o <a href="${REPO}">código-fonte é público no GitHub</a>. Este site não tem planos pagos nem pagamentos.`],
         ['O Starlit inclui filmes ou séries?', 'Não. O Starlit é uma biblioteca e um leitor. O que podes ver depende dos addons, plugins e serviços que configurares.'],
-        ['Preciso de uma conta?', 'Não. O modo convidado funciona sem conta. Só precisas de uma conta aprovada para sincronizar entre dispositivos.'],
+        ['Preciso de uma conta?', 'Não. O modo convidado funciona sem conta. Cria uma conta gratuita para sincronizar entre dispositivos.'],
         ['Em que dispositivos posso usar o Starlit?', 'Windows 10 e 11 (64 bits) e Android 7.0 ou posterior. Não existem versões para macOS, Linux ou iPhone.'],
         ['Que ficheiro devo transferir para Android?', 'A maioria dos telemóveis precisa do APK <code>arm64-v8a</code>. Escolhe <code>armeabi-v7a</code> para telemóveis mais antigos de 32 bits, e <code>x86</code> ou <code>x86_64</code> para emuladores e dispositivos com processador Intel.'],
         ['Como funcionam as atualizações?', 'No Windows, o Starlit procura atualizações ao iniciar, a cada seis horas e em Definições > Acerca, e verifica a soma SHA-256 do instalador antes de o instalar. No Android, a aplicação consulta as versões do GitHub e transfere o APK adequado ao teu telemóvel.'],
@@ -192,7 +192,7 @@ const copy = {
     },
     support: {
       title: 'Precisas de ajuda?',
-      body: 'Escreve-nos sobre aprovação de contas, erros, acessibilidade, pedidos de dados ou qualquer outro assunto. Não incluas palavras-passe nem tokens de acesso.',
+      body: 'Escreve-nos sobre contas, erros, acessibilidade, pedidos de dados ou qualquer outro assunto. Não incluas palavras-passe nem tokens de acesso.',
       links: [[ISSUES, 'Comunicar um erro no GitHub'], [routes.pt.contact, 'Contacto e suporte'], [routes.pt.delete, 'Apagar a conta']],
     },
   },
