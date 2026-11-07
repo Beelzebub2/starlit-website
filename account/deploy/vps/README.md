@@ -34,9 +34,11 @@ account frontend. The public marketing website is not moved by this change.
    test `/_headers`, dotfiles and `/mock/*` return 404, deep links load,
    HTTPS redirects from port 80, TLS is valid, CSP is present, caching is
    disabled for dynamic files, and the marketing/ntfy/API sites remain healthy.
-6. Create a DNS-only A record for `account.starlit.rrmtools.uk` pointing
-   to the VPS address; then add a separate production host block in the
-   existing Caddyfile. DNS-only avoids hosting content at Cloudflare Pages.
+6. A production Caddy vhost is already prepared for
+   `account.starlit.rrmtools.uk`. Create a **DNS-only** A record pointing
+   to the VPS IP `62.171.179.229`. Caddy can then issue the public TLS
+   certificate; verify it before calling the vanity domain live. The staging
+   hostname works now and its certificate is already valid.
 7. Run the live two-account E2E smoke suite and enable writes in a separately
    reviewed release only after real server authorization/conflict checks pass.
 
@@ -51,8 +53,8 @@ cd /opt/starlit-account
 docker compose config -q
 docker compose up -d
 docker inspect --format '{{.State.Health.Status}}' starlit-account-web
-# Save a copy of /opt/rrm-ntfy/Caddyfile before editing. Append ONE
-# account-stage or account.starlit.rrmtools.uk vhost, validate/reload.
+# Save a copy of /opt/rrm-ntfy/Caddyfile before editing. Append the two
+# edge.Caddyfile host blocks once, validate and reload without disturbing ntfy.
 ```
 
 If external TLS/DNS cannot be changed, do not disable HTTPS or ship the mock

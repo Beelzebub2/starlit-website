@@ -26,6 +26,14 @@ test('VPS service is rootless, read-only and has no published host ports', () =>
   assert.match(compose, /:\/srv\/releases:ro/);
 });
 
+test('VPS HTTPS edge routes the staging and production hosts internally only', () => {
+  const edge = read(join(deploy, 'edge.Caddyfile'));
+  assert.match(edge, /account-stage\.62-171-179-229\.sslip\.io \{/);
+  assert.match(edge, /account\.starlit\.rrmtools\.uk \{/);
+  assert.equal((edge.match(/reverse_proxy starlit-account-web:8080/g) || []).length, 2);
+  assert.doesNotMatch(edge, /cloudflare\.com|pages\.dev|http:\/\/62\.171\.179\.229/);
+});
+
 test('VPS Caddy headers exactly preserve the live app CSP', () => {
   const output = mkdtempSync(join(tmpdir(), 'starlit-vps-headers-'));
   try {
