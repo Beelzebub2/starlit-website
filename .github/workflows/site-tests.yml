@@ -16,4 +16,8 @@ jobs:
           node-version: '22'
       - run: npm run build
       - run: npm test
+      - name: Test combined VPS site + account distribution
+        run: npm run test:combined
+      - name: Validate unified VPS Caddy config
+        run: docker run --rm --network none -v "$PWD/deploy/vps/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.10.2 caddy validate --config /etc/caddy/Caddyfile
       - run: node --check tools/check-freshness.mjs

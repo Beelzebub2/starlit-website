@@ -101,6 +101,37 @@ test('live build: no mock code, API origin in connect-src, read-only by default'
   } finally { rmSync(out, { recursive: true, force: true }); }
 });
 
+test('nested /account/ live build prefixes assets and preserves strict policies', () => {
+  const { out, status, stderr } = build({
+    STARLIT_ACCOUNT_MODE: 'live',
+    STARLIT_ACCOUNT_BASE_PATH: '/account/',
+    STARLIT_ANON_KEY: jwt({ role: 'anon' }),
+  }, 'nested');
+  try {
+    assert.equal(status, 0, stderr);
+    const cfg = readFileSync(join(out, 'config.js'), 'utf8');
+    assert.match(cfg, /"basePath": "\/account\/"/);
+    assert.match(cfg, /"writesEnabled": false/);
+    const html = readFileSync(join(out, 'index.html'), 'utf8');
+    for (const path of ['/account/app.js', '/account/styles/account.css', '/account/fonts/geist-latin.woff2', '/account/favicon.ico']) {
+      assert.ok(html.includes(path), path);
+    }
+    assert.doesNotMatch(html, /src="\/app\.js"|href="\/styles\/|href="\/fonts\//);
+    const css = readFileSync(join(out, 'styles', 'account.css'), 'utf8');
+    assert.match(css, /url\(\/account\/fonts\/geist-latin\.woff2\)/);
+    assert.ok(!existsSync(join(out, 'mock')));
+    assert.match(readFileSync(join(out, '_headers'), 'utf8'), /script-src 'self'/);
+  } finally { rmSync(out, { recursive: true, force: true }); }
+});
+
+test('invalid account base paths cannot be used', () => {
+  for (const path of ['/account', '//account/', '/account/../', 'http://evil.test/']) {
+    const { out, status } = build({ STARLIT_ACCOUNT_BASE_PATH: path }, 'bad-prefix');
+    rmSync(out, { recursive: true, force: true });
+    assert.notEqual(status, 0, path);
+  }
+});
+
 test('live build refuses service keys, missing keys and plain http', () => {
   for (const [env, why] of [
     [{ STARLIT_ANON_KEY: jwt({ role: 'service_role' }) }, /anon key/],

@@ -1,4 +1,6 @@
 dist/
+combined-dist/
+account/dist/
 node_modules/
 .wrangler/
 .env

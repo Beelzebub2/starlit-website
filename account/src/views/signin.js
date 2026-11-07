@@ -45,7 +45,7 @@ export default {
     }
 
     async function google() {
-      try { location.assign(await ctx.auth.googleRedirectUrl(`${location.origin}/auth/callback`)); }
+      try { location.assign(await ctx.auth.googleRedirectUrl(location.origin + ctx.accountUrl('/auth/callback'))); }
       catch { status.replaceChildren(notice({ tone: 'danger', title: t('signin.googleFailed'), live: true })); }
     }
 

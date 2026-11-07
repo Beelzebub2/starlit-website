@@ -1,18 +1,18 @@
 # Starlit Account
 
-The web dashboard for a Starlit account, meant for its own origin,
-`https://account.starlit.rrmtools.uk`. It's a separate app from the public
-website in this repository: it has its own build, its own VPS-hosted static
-container and its own Content-Security-Policy. The website's pages, build and
-`script-src 'none'` policy aren't changed.
+The Starlit account dashboard is mounted at
+`https://starlit.rrmtools.uk/account/` on the **same VPS-hosted
+website** as the marketing pages. It remains an independently built browser
+app with its own Content-Security-Policy; the public pages keep their stricter
+`script-src 'none'` policy. The backend API remains at
+`https://starlit-api.rrmtools.uk`.
 
-**Status (2026-11-07):** IN_PR (website PR #6). A **live, read-only** build is
-hosted on the VPS at
-`https://account-stage.62-171-179-229.sslip.io/`; this is NOT a mock
-deployment. Backend migrations `20261107*` are installed on the VPS and
-the GoTrue browser CORS allowlist has been validated. The final
-`account.starlit.rrmtools.uk` DNS record and full authenticated two-account
-live E2E are still pending. The local default remains synthetic mock data.
+**Status (2026-11-07):** IN_PR (website PR #6). The combined VPS
+read-only staging address is
+`https://site-stage.62-171-179-229.sslip.io/account/`, and the
+previous standalone account staging site remains available temporarily.
+Neither staging site ships a mock backend. The final shared-domain DNS cutover
+and full authenticated two-account E2E are still pending.
 
 ## What it does
 
@@ -63,16 +63,15 @@ STARLIT_ACCOUNT_MODE=live STARLIT_ANON_KEY=<public anon key> npm run build
   only after the staged read checks and the two-account checks pass. This is
   the feature flag the backend rollout plan asks for.
 * Google sign-in stays hidden unless `STARLIT_GOOGLE_SIGNIN=1`. Before you set
-  it, add `https://account.starlit.rrmtools.uk/auth/callback` to GoTrue's
+  it, add `https://starlit.rrmtools.uk/account/auth/callback` to GoTrue's
   redirect allow list.
 * The CSP adds the API origin to `connect-src`, and nothing else.
 
-The VPS deployment uses the existing HTTPS Caddy edge and an isolated,
-rootless static container with no public listening ports. The deployment
-recipe, protected headers, release/rollback layout and production safety
-gates are documented in [`deploy/vps/README.md`](deploy/vps/README.md).
-Cloudflare Pages is **not** used for the account dashboard; the separate
-public `starlit-official` marketing website stays unchanged.
+The combined VPS deployment uses the existing HTTPS Caddy edge and an
+isolated, non-root static container with no separate public port. See the
+[combined deployment runbook](../deploy/vps/README.md). The legacy
+[standalone staging runbook](deploy/vps/README.md) remains as a rollback
+reference until the public domain cutover has been verified.
 
 ## Security notes
 

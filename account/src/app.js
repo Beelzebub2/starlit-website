@@ -43,6 +43,16 @@ const NAV = {
   account: [['profiles', '/profiles', 'profiles'], ['security', '/security', 'security']],
 };
 
+// Keep the account router scoped under /account/ when both sections share a
+// website. Standalone staging remains at / for backwards compatibility.
+const basePath = config.basePath ?? '/';
+const accountUrl = path => basePath === '/' ? path : basePath.slice(0, -1) + path;
+const localPath = pathname => {
+  if (basePath === '/') return pathname;
+  if (pathname === basePath || pathname === basePath.slice(0, -1)) return '/';
+  return pathname.startsWith(basePath) ? '/' + pathname.slice(basePath.length) : null;
+};
+
 // ------------------------------------------------------------------ services
 const auth = createAuth({
   baseUrl: config.apiUrl, anonKey: config.anonKey, transport,
@@ -77,14 +87,14 @@ document.documentElement.lang = lang() === 'pt' ? 'pt-PT' : 'en';
 let current = null;   // { route, ctx, controller }
 
 function brand() {
-  return h('a', { class: 'brand', href: '/', 'data-link': '' },
-    h('img', { class: 'brand-mark', src: '/starlit-mark.svg', alt: '', width: '28', height: '28' }),
+  return h('a', { class: 'brand', href: accountUrl('/'), 'data-link': '' },
+    h('img', { class: 'brand-mark', src: accountUrl('/starlit-mark.svg'), alt: '', width: '28', height: '28' }),
     h('span', { class: 'brand-name' }, 'Starlit'), h('span', { class: 'brand-sub' }, t('shell.account')));
 }
 
 function navList(active, { onNavigate } = {}) {
   const item = ([id, href, ic]) => h('li', {}, h('a', {
-    href, 'data-link': '', class: 'nav-link', 'aria-current': id === active ? 'page' : undefined, onclick: onNavigate,
+    href: accountUrl(href), 'data-link': '', class: 'nav-link', 'aria-current': id === active ? 'page' : undefined, onclick: onNavigate,
   }, icon(ic), h('span', {}, t(`nav.${id}`))));
   const p = activeProfile();
   return h('nav', { class: 'nav', 'aria-label': t('shell.navLabel') },
@@ -110,18 +120,23 @@ function langButton() {
     icon('globe', { size: 16 }), next === 'pt' ? 'Português' : 'English');
 }
 
+function websiteLink() {
+  return h('a', { class: 'site-back', href: basePath === '/' ? config.siteUrl : '/' }, t('shell.website'));
+}
+
 function renderShell() {
   const signedIn = Boolean(state.user);
   shell.classList.toggle('shell-signed-out', !signedIn);
   const active = current?.route?.nav;
-  if (!signedIn) { replace(rail); replace(topbar, h('div', { class: 'topbar-inner' }, brand(), langButton())); renderBanners(); return; }
+  if (!signedIn) { replace(rail); replace(topbar, h('div', { class: 'topbar-inner' }, brand(), websiteLink(), langButton())); renderBanners(); return; }
   replace(rail,
     h('div', { class: 'rail-top' }, brand(), scopeButton()),
     navList(active),
     h('div', { class: 'rail-foot' },
+      websiteLink(),
       h('p', { class: 'rail-user', title: state.user.email }, state.user.email),
       h('div', { class: 'rail-actions' }, langButton(), button(t('shell.signOut'), { variant: 'quiet', icon: 'signout', size: 's', onClick: signOutLocal }))));
-  replace(topbar, h('div', { class: 'topbar-inner' }, brand(), scopeButton(true),
+  replace(topbar, h('div', { class: 'topbar-inner' }, brand(), scopeButton(true), websiteLink(),
     h('button', { type: 'button', class: 'icon-btn icon-btn-quiet menu-btn', 'aria-label': t('shell.menu'), onclick: openMenu }, icon('menu'))));
   renderBanners();
 }
@@ -196,7 +211,7 @@ function match(pathname) {
 
 export async function navigate(path, { replace: swap = false, force = false } = {}) {
   if (!force && current?.ctx?.isDirty?.() && !(await confirmLeave())) return false;
-  history[swap ? 'replaceState' : 'pushState']({}, '', path);
+  history[swap ? 'replaceState' : 'pushState']({}, '', accountUrl(path));
   await render();
   return true;
 }
@@ -210,17 +225,18 @@ async function render() {
   current?.controller.abort();
   current?.ctx?.destroy?.();
   const url = new URL(location.href);
-  const path = url.pathname;
+  const path = localPath(url.pathname);
+  if (path === null) { location.assign(basePath); return; }
 
   if (path === '/auth/callback') return completeGoogle(url);
   if (!state.user) {
     if (path !== '/signin') state.returnTo = path + url.search;
-    if (path !== '/signin') history.replaceState({}, '', '/signin');
+    if (path !== '/signin') history.replaceState({}, '', accountUrl('/signin'));
     return mount({ nav: null }, signin, {});
   }
-  if (path === '/signin') { history.replaceState({}, '', '/'); return render(); }
+  if (path === '/signin') { history.replaceState({}, '', accountUrl('/')); return render(); }
   if (path === '/choose-profile' || !state.profileId) {
-    if (path !== '/choose-profile') { state.returnTo = path + url.search; history.replaceState({}, '', '/choose-profile'); }
+    if (path !== '/choose-profile') { state.returnTo = path + url.search; history.replaceState({}, '', accountUrl('/choose-profile')); }
     return mount({ nav: null }, chooseProfile, {});
   }
   const found = match(path);
@@ -231,7 +247,7 @@ async function render() {
 function mount(route, view, params, query = new URLSearchParams()) {
   const controller = new AbortController();
   const ctx = {
-    api, auth, config, params, query, navigate, selectProfile, canWrite, refreshProfiles,
+    api, auth, config, params, query, navigate, accountUrl, selectProfile, canWrite, refreshProfiles,
     signal: controller.signal, profileId: state.profileId, profile: activeProfile(),
     isDirty: () => false, destroy: null,
     finishSignIn,
@@ -251,8 +267,10 @@ document.addEventListener('click', e => {
   const a = e.target.closest?.('a[data-link]');
   if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   if (a.origin !== location.origin) return;
+  const path = localPath(a.pathname);
+  if (path === null) return;
   e.preventDefault();
-  if (a.pathname + a.search !== location.pathname + location.search) navigate(a.pathname + a.search);
+  if (a.pathname + a.search !== location.pathname + location.search) navigate(path + a.search);
 });
 
 let restoring = false;
@@ -291,7 +309,7 @@ async function finishSignIn() {
 
 async function completeGoogle(url) {
   const code = url.searchParams.get('code');
-  history.replaceState({}, '', '/signin');   // never keep the code in the address bar
+  history.replaceState({}, '', accountUrl('/signin'));   // never keep the code in the address bar
   try {
     await auth.completeGoogle(code);
     await auth.loadUser().catch(() => null);

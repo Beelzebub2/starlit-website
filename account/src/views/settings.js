@@ -36,7 +36,7 @@ export default {
         picker.value = String(TARGETS.indexOf(target)); return;
       }
       target = next;
-      history.replaceState({}, '', `/settings?scope=${target[0]}&platform=${target[1]}`);
+      history.replaceState({}, '', ctx.accountUrl(`/settings?scope=${target[0]}&platform=${target[1]}`));
       load();
     });
 

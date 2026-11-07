@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Builds the Starlit account dashboard into account/dist/.
-// This is a separate app for account.starlit.rrmtools.uk: it never touches the
-// public website's build, pages or Content-Security-Policy.
+// This app can run standalone at / or under /account/ alongside the public
+// marketing pages without weakening the marketing Content-Security-Policy.
 //
 //   node build.mjs                 mock API with synthetic data (default)
 //   node build.mjs --mode=live     real account API; needs STARLIT_ANON_KEY
@@ -22,6 +22,10 @@ const fail = message => { console.error(`Account build refused: ${message}`); pr
 const arg = name => process.argv.find(a => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 
 const mode = arg('mode') ?? process.env.STARLIT_ACCOUNT_MODE ?? 'mock';
+const basePath = process.env.STARLIT_ACCOUNT_BASE_PATH ?? '/';
+if (!/^\/(?:[a-z0-9-]+\/)*$/.test(basePath) || basePath.includes('//')) {
+  fail('STARLIT_ACCOUNT_BASE_PATH must be an absolute directory path ending in /');
+}
 if (!['mock', 'live'].includes(mode)) fail(`unknown mode "${mode}"`);
 
 const apiUrl = (process.env.STARLIT_API_URL ?? 'https://starlit-api.rrmtools.uk').replace(/\/+$/, '');
@@ -56,8 +60,22 @@ cpSync(src, dist, {
   filter: from => mode === 'mock' || !from.split(/[/\\]/).includes('mock'),
 });
 
+// Prefix document assets when the account UI is mounted under /account/.
+// Absolute paths avoid incorrect asset loads on deeply nested SPA routes.
+if (basePath !== '/') {
+  const indexPath = join(dist, 'index.html');
+  let html = readFileSync(indexPath, 'utf8');
+  for (const name of ['/favicon.ico', '/fonts/', '/styles/', '/app.js']) {
+    html = html.replaceAll('"' + name, '"' + basePath + name.slice(1));
+  }
+  writeFileSync(indexPath, html);
+  const cssPath = join(dist, 'styles', 'account.css');
+  writeFileSync(cssPath, readFileSync(cssPath, 'utf8').replaceAll('url(/fonts/', 'url(' + basePath + 'fonts/'));
+}
+
 const config = {
   mode,
+  basePath,
   apiUrl: mode === 'live' ? apiUrl : '',
   anonKey: mode === 'live' ? anonKey : 'mock-anon-key',
   writesEnabled: writes,

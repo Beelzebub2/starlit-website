@@ -88,6 +88,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .brand-mark { width: 28px; height: 28px; }
 .brand-name { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -.02em; }
 .brand-sub { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
+.site-back { color: var(--text-2); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.site-back:hover { color: var(--link); }
 .main { padding: 24px var(--gutter) 120px; outline: none; }
 .view { max-width: 980px; margin: 0 auto; }
 .banners { max-width: 980px; margin: 0 auto 28px; display: grid; gap: 8px; }

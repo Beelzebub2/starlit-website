@@ -13,6 +13,7 @@ const en = {
   'shell.accountGroup': 'Whole account', 'shell.profile': 'Managing', 'shell.switch': 'Switch profile', 'shell.signOut': 'Sign out',
   'shell.menu': 'Menu', 'shell.switchTitle': 'Switch profile', 'shell.switchBody': 'Library, history, collections, addons and settings belong to one profile.',
   'shell.current': 'Current', 'shell.switched': 'Now managing {name}',
+  'shell.website': 'Website',
 
   'nav.overview': 'Overview', 'nav.library': 'Library', 'nav.progress': 'Continue watching', 'nav.history': 'Watched history',
   'nav.collections': 'Collections', 'nav.addons': 'Addons', 'nav.plugins': 'Plugins', 'nav.settings': 'Synced settings',
@@ -267,6 +268,7 @@ const pt = {
   'shell.accountGroup': 'Toda a conta', 'shell.profile': 'A gerir', 'shell.switch': 'Mudar de perfil', 'shell.signOut': 'Terminar sessão',
   'shell.menu': 'Menu', 'shell.switchTitle': 'Mudar de perfil', 'shell.switchBody': 'A biblioteca, o histórico, as coleções, os addons e as definições pertencem a um perfil.',
   'shell.current': 'Atual', 'shell.switched': 'A gerir {name}',
+  'shell.website': 'Website',
 
   'nav.overview': 'Resumo', 'nav.library': 'Biblioteca', 'nav.progress': 'Continuar a ver', 'nav.history': 'Histórico',
   'nav.collections': 'Coleções', 'nav.addons': 'Addons', 'nav.plugins': 'Plugins', 'nav.settings': 'Definições sincronizadas',

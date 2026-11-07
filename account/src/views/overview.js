@@ -26,7 +26,7 @@ export default {
       fetch: () => ctx.api.overview(ctx.profileId, { signal: ctx.signal }),
       render: data => h('div', {},
         h('ul', { role: 'list', class: 'ledger' }, ROWS.map(([field, key, href, ic]) => h('li', {},
-          h('a', { href, 'data-link': '', class: 'ledger-row' },
+          h('a', { href: ctx.accountUrl(href), 'data-link': '', class: 'ledger-row' },
             h('span', { class: 'ledger-icon' }, icon(ic)),
             h('span', { class: 'ledger-text' }, h('span', { class: 'ledger-label' }, t(`nav.${key}`)), h('span', { class: 'ledger-desc' }, t(`overview.desc.${key}`))),
             h('span', { class: 'ledger-num', 'aria-label': t('overview.count', { n: data[field] ?? 0 }) }, formatNumber(data[field] ?? 0)),
@@ -48,7 +48,7 @@ export default {
     return h('section', { class: 'page' }, head.el,
       section(t('overview.dataTitle'), ledgerHost, { id: 'ov-data', description: t('overview.dataDesc', { name: p.name }) }),
       section(t('overview.accountTitle'), h('div', { class: 'stack' }, account,
-        h('p', { class: 'muted' }, t('overview.manageInApp'), ' ', h('a', { href: '/security', 'data-link': '', class: 'text-link' }, t('overview.securityLink')))),
+        h('p', { class: 'muted' }, t('overview.manageInApp'), ' ', h('a', { href: ctx.accountUrl('/security'), 'data-link': '', class: 'text-link' }, t('overview.securityLink')))),
       { id: 'ov-account' }));
   },
 };

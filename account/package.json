@@ -2,7 +2,7 @@
   "name": "starlit-account",
   "private": true,
   "version": "0.1.0",
-  "description": "Starlit account and sync dashboard (separate origin, no runtime dependencies)",
+  "description": "Starlit account and sync dashboard (/account on the shared VPS website, no runtime dependencies)",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",

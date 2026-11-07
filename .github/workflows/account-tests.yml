@@ -2,10 +2,10 @@ name: Account dashboard checks
 on:
   pull_request:
     branches: [main]
-    paths: ['account/**', 'assets/fonts/**', 'assets/starlit-mark.svg', '.github/workflows/account-tests.yml']
+    paths: ['account/**', 'assets/fonts/**', 'assets/starlit-mark.svg', 'deploy/vps/**', '.github/workflows/account-tests.yml']
   push:
     branches: [main]
-    paths: ['account/**', 'assets/fonts/**', 'assets/starlit-mark.svg', '.github/workflows/account-tests.yml']
+    paths: ['account/**', 'assets/fonts/**', 'assets/starlit-mark.svg', 'deploy/vps/**', '.github/workflows/account-tests.yml']
 permissions:
   contents: read
 jobs:
