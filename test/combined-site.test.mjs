@@ -28,6 +28,7 @@ test('one immutable release contains the real marketing site and a nested read-o
     }
     assert.match(read(join(out, 'index.html')), /href="\/account\?tab=overview"/);
     assert.match(read(join(out, 'pt/index.html')), /A minha conta/);
+    assert.match(read(join(out, 'pt/index.html')), /href="\/account\?tab=overview"/);
     assert.match(read(join(out, 'account', 'config.js')), /"basePath": "\/account\/"/);
     assert.match(read(join(out, 'account', 'config.js')), /"writesEnabled": false/);
     assert.doesNotMatch(read(join(out, 'account', 'config.js')), /service_role/);

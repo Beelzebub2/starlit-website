@@ -12,6 +12,15 @@ https://site-stage.62-171-179-229.sslip.io/account?tab=overview . The public pro
 hostname still points to Cloudflare Pages because DNS cutover has not been
 authorized/configured. Do not confuse staging with the live public site.
 
+**Safe merge before DNS cutover:** The regular `npm run build` (used by the
+legacy Cloudflare Pages marketing deployment) deliberately omits links to
+`/account?tab=...`, because Pages does not host the account UI. The
+combined VPS builder explicitly enables those links and bundles the account
+app, with its separate CSP. Merging this repository therefore cannot create a
+broken account navigation link on the legacy Pages site while the DNS record
+still points there. This is a temporary compatibility measure; hosting moves
+to the VPS only when the actual DNS record changes.
+
 ## Pages
 
 | English | Portuguese (Portugal) | Contents |

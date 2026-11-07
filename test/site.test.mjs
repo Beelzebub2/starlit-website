@@ -245,12 +245,11 @@ test('All same-origin links, images and in-page anchors resolve', () => {
   }
 });
 
-test('Marketing pages link to the same-domain account dashboard in both locales', () => {
+test('Standalone Pages build never advertises an account route it cannot serve', () => {
   assert.match(read('robots.txt'), /Disallow: \/account\n/);
   for (const { lang, html } of allPages()) {
-    assert.match(html, /class="nav-account" href="\/account\?tab=overview"/);
-    assert.match(html, /<a href="\/account\?tab=overview">/);
-    assert.ok(html.includes(lang === 'pt' ? 'A minha conta' : 'My account'));
+    assert.doesNotMatch(html, /href="\/account\?tab=/);
+    assert.doesNotMatch(html, /class="nav-account"/);
     assert.doesNotMatch(html, /<script\b/);
   }
 });

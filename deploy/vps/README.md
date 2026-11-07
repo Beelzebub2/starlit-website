@@ -69,6 +69,14 @@ The install script refuses existing release IDs, mock builds, missing
 artifacts, service-role mode and enabled account writes. A failed build
 must never replace the current release.
 
+**Merge/Pages safety:** `npm run build` without the VPS distribution
+step does not include the account app and MUST NOT advertise links to it.
+`deploy/vps/build-combined.mjs` sets
+`STARLIT_COMBINED_VPS_SITE=1` exclusively for the marketing build in the
+same release as the real `/account` frontend. Tests assert that the
+ordinary Pages build has no dead `/account?tab=` navigation, while
+the combined VPS build includes both locales' account links.
+
 ## Production DNS cutover (requires DNS-edit access)
 
 Currently the public starlit.rrmtools.uk hostname still resolves via the

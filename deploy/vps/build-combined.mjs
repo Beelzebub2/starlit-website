@@ -21,6 +21,7 @@ const env = {
   STARLIT_ACCOUNT_MODE: 'live',
   STARLIT_ACCOUNT_WRITES: '0',
   STARLIT_ACCOUNT_BASE_PATH: '/account/',
+  STARLIT_COMBINED_VPS_SITE: '1',
   STARLIT_API_URL: process.env.STARLIT_API_URL ?? 'https://starlit-api.rrmtools.uk',
 };
 // These scripts only write their own ignored dist folders; neither changes
