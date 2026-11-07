@@ -21,6 +21,13 @@ broken account navigation link on the legacy Pages site while the DNS record
 still points there. This is a temporary compatibility measure; hosting moves
 to the VPS only when the actual DNS record changes.
 
+**Cloudflare Tunnel deployment:** See
+[dedicated VPS Cloudflare Tunnel configuration](deploy/vps/cloudflare-tunnel/README.md)
+for the preferred future production route, preserving the Cloudflare edge
+without exposing another VPS port. The Cloudflare account DNS route and
+connector token must be configured before public cutover. The legacy Pages
+site stays live until that external configuration is complete.
+
 ## Pages
 
 | English | Portuguese (Portugal) | Contents |

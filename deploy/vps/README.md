@@ -1,5 +1,11 @@
 # Unified Starlit website on the VPS
 
+**Preferred production ingress (November 2026): Cloudflare Tunnel.** See
+[Cloudflare Tunnel deployment](cloudflare-tunnel/README.md) for the safe
+staging, host/DNS routing and rollback workflow. The direct-public-IP
+DNS-only A-record procedure later in this document is retained as historical
+context only and **must not be used for the Tunnel cutover**.
+
 The Starlit marketing website and authenticated Account & Sync dashboard are
 two separate static builds **served by one VPS container and one hostname**:
 
@@ -77,7 +83,7 @@ same release as the real `/account` frontend. Tests assert that the
 ordinary Pages build has no dead `/account?tab=` navigation, while
 the combined VPS build includes both locales' account links.
 
-## Production DNS cutover (requires DNS-edit access)
+## Superseded: direct-public-IP DNS cutover (do not use with Tunnel)
 
 Currently the public starlit.rrmtools.uk hostname still resolves via the
 Cloudflare Pages/proxy service. Do **not** modify that record before staging

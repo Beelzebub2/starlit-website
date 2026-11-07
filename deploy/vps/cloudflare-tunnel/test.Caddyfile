@@ -1,0 +1,14 @@
+{
+    admin off
+    auto_https off
+}
+
+# Minimal stub for CI Caddy syntax validation. Live Caddy imports the real
+# query-stripping, header-redacting CrowdSec logger.
+(crowdsec-access) {
+    log {
+        output stdout
+        format json
+    }
+}
+import edge.Caddyfile
