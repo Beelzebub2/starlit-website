@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Starlit Account — three design directions</title>
+<!-- Design document only. Low-fidelity wireframes; never part of the account build. -->
+<style>
+  :root { --bg:#06070f; --panel:#0b0d1a; --panel-2:#090b17; --line:#161a33; --edge:#1f2445;
+    --text:#eef0fa; --muted:#a2a8c3; --dim:#7c83a3; --accent:#45d6eb; --link:#7fe3f2; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 Geist, system-ui, sans-serif; padding:40px; }
+  h1 { font:700 34px/1.1 "Bricolage Grotesque", system-ui; letter-spacing:-.02em; margin:0 0 6px; }
+  .lede { color:var(--muted); max-width:860px; margin:0 0 32px; }
+  .eyebrow { font:500 12px/1.4 "Geist Mono", ui-monospace, monospace; letter-spacing:.14em; text-transform:uppercase; color:var(--link); }
+  .dirs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:28px; }
+  .dir h2 { font:700 22px/1.2 "Bricolage Grotesque", system-ui; margin:6px 0 4px; }
+  .dir p { color:var(--muted); font-size:14px; margin:0 0 14px; }
+  .dir.pick { outline:2px solid var(--accent); outline-offset:14px; border-radius:6px; }
+  .frames { display:flex; gap:14px; align-items:flex-start; }
+  .desk { flex:1; height:300px; border:1px solid var(--edge); border-radius:12px; background:var(--panel-2); padding:10px; display:flex; gap:8px; }
+  .phone { width:96px; height:200px; border:1px solid var(--edge); border-radius:16px; background:var(--panel-2); padding:8px 6px; display:flex; flex-direction:column; gap:5px; }
+  .b { background:#12152b; border-radius:4px; }
+  .a { background:rgba(69,214,235,.35); border-radius:4px; }
+  .l { height:1px; background:var(--edge); }
+  .col { display:flex; flex-direction:column; gap:6px; }
+  .t { height:7px; border-radius:3px; background:#1d2140; }
+  .tt { height:12px; width:60%; border-radius:3px; background:#2a3060; }
+  .row { display:flex; justify-content:space-between; gap:6px; align-items:center; }
+  .num { width:18px; height:7px; border-radius:3px; background:var(--accent); opacity:.55; }
+  .av { width:22px; height:22px; border-radius:999px; background:#2a3060; flex:none; }
+  .av.on { box-shadow:0 0 0 2px var(--accent); }
+  ul { margin:10px 0 0; padding-left:18px; color:var(--muted); font-size:13px; }
+  li { margin:3px 0; }
+  .verdict { margin-top:36px; border-top:1px solid var(--line); padding-top:22px; max-width:980px; color:var(--muted); }
+  .verdict b { color:var(--text); }
+</style>
+</head>
+<body>
+<p class="eyebrow">Starlit account · design exploration</p>
+<h1>Three directions, judged by real tasks</h1>
+<p class="lede">Each direction uses only the Starlit website palette and type. None reuses another product's layout. Wireframes show 1440 px (left) and 390 px (right). The chosen direction is outlined.</p>
+
+<div class="dirs">
+  <section class="dir pick" aria-labelledby="d1">
+    <p class="eyebrow">Direction A · chosen</p>
+    <h2 id="d1">Ledger</h2>
+    <p>Editorial single column with a quiet left rail. Data reads like a ledger: hairline rows, mono numbers, one sentence of context per row. The active profile is a persistent scope bar.</p>
+    <div class="frames">
+      <div class="desk">
+        <div class="col" style="width:26%">
+          <div class="tt"></div><div class="row b" style="height:26px;padding:4px"><span class="av on"></span><span class="t" style="width:50%"></span></div>
+          <div class="t"></div><div class="a" style="height:9px"></div><div class="t"></div><div class="t"></div><div class="t"></div><div class="t"></div>
+          <div class="l"></div><div class="t" style="width:70%"></div><div class="t" style="width:60%"></div>
+        </div>
+        <div class="col" style="flex:1;padding:6px 10px">
+          <div class="t" style="width:30%;background:var(--accent);opacity:.5"></div><div class="tt" style="height:18px"></div>
+          <div class="l"></div><div class="row"><span class="t" style="width:50%"></span><span class="num"></span></div>
+          <div class="l"></div><div class="row"><span class="t" style="width:44%"></span><span class="num"></span></div>
+          <div class="l"></div><div class="row"><span class="t" style="width:56%"></span><span class="num"></span></div>
+          <div class="l"></div><div class="row"><span class="t" style="width:38%"></span><span class="num"></span></div>
+          <div class="l"></div><div class="row"><span class="t" style="width:48%"></span><span class="num"></span></div>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="row"><span class="av on"></span><span class="t" style="width:40%"></span></div>
+        <div class="tt"></div><div class="l"></div>
+        <div class="row"><span class="t" style="width:50%"></span><span class="num"></span></div><div class="l"></div>
+        <div class="row"><span class="t" style="width:40%"></span><span class="num"></span></div><div class="l"></div>
+        <div class="row"><span class="t" style="width:55%"></span><span class="num"></span></div>
+        <div style="flex:1"></div><div class="a" style="height:16px;border-radius:999px"></div>
+      </div>
+    </div>
+    <ul>
+      <li>Profile scope always visible: lowest risk of editing the wrong profile.</li>
+      <li>Calm, scannable; counts are text, not coloured tiles.</li>
+      <li>Editors open as full routes with a sticky save bar.</li>
+    </ul>
+  </section>
+
+  <section class="dir" aria-labelledby="d2">
+    <p class="eyebrow">Direction B</p>
+    <h2 id="d2">Profile constellation</h2>
+    <p>Profiles are the home screen, like the app's "who's watching" picker. Pick a profile, then tabs for its data. Account items sit in a separate tab.</p>
+    <div class="frames">
+      <div class="desk" style="flex-direction:column">
+        <div class="row" style="justify-content:center;gap:14px;padding:8px"><span class="av on" style="width:34px;height:34px"></span><span class="av" style="width:34px;height:34px"></span><span class="av" style="width:34px;height:34px"></span><span class="av" style="width:34px;height:34px;opacity:.4"></span></div>
+        <div class="row" style="justify-content:center;gap:6px"><span class="a" style="width:44px;height:12px"></span><span class="b" style="width:44px;height:12px"></span><span class="b" style="width:44px;height:12px"></span><span class="b" style="width:44px;height:12px"></span><span class="b" style="width:44px;height:12px"></span></div>
+        <div class="row" style="gap:8px;flex:1;padding:6px"><span class="b" style="flex:1;height:100%"></span><span class="b" style="flex:1;height:100%"></span><span class="b" style="flex:1;height:100%"></span></div>
+      </div>
+      <div class="phone">
+        <div class="row" style="justify-content:center;gap:4px"><span class="av on"></span><span class="av"></span><span class="av"></span></div>
+        <div class="row" style="gap:3px"><span class="a" style="flex:1;height:9px"></span><span class="b" style="flex:1;height:9px"></span><span class="b" style="flex:1;height:9px"></span></div>
+        <div class="b" style="height:40px"></div><div class="b" style="height:40px"></div><div class="b" style="height:40px"></div>
+      </div>
+    </div>
+    <ul>
+      <li>Familiar from the app; strong profile identity.</li>
+      <li>Account tasks (sessions, installations) feel buried.</li>
+      <li>Tab strip overflows on phones with 8+ data types.</li>
+    </ul>
+  </section>
+
+  <section class="dir" aria-labelledby="d3">
+    <p class="eyebrow">Direction C</p>
+    <h2 id="d3">Workbench</h2>
+    <p>Three panes: data type, item list, detail editor. Dense and fast for power users; on phones it becomes a drill-down stack.</p>
+    <div class="frames">
+      <div class="desk">
+        <div class="col" style="width:18%"><div class="a" style="height:9px"></div><div class="t"></div><div class="t"></div><div class="t"></div><div class="t"></div><div class="t"></div></div>
+        <div class="col" style="width:34%;border-left:1px solid var(--edge);padding-left:8px"><div class="b" style="height:22px"></div><div class="b" style="height:22px;outline:1px solid var(--accent)"></div><div class="b" style="height:22px"></div><div class="b" style="height:22px"></div><div class="b" style="height:22px"></div></div>
+        <div class="col" style="flex:1;border-left:1px solid var(--edge);padding-left:8px"><div class="tt"></div><div class="t"></div><div class="b" style="height:24px"></div><div class="b" style="height:24px"></div><div class="b" style="height:24px"></div><div style="flex:1"></div><div class="a" style="height:14px;width:40%;align-self:flex-end"></div></div>
+      </div>
+      <div class="phone">
+        <div class="row"><span class="t" style="width:20%"></span><span class="t" style="width:40%"></span></div>
+        <div class="b" style="height:22px"></div><div class="b" style="height:22px"></div><div class="b" style="height:22px"></div><div class="b" style="height:22px"></div>
+      </div>
+    </div>
+    <ul>
+      <li>Fast bulk edits, but three levels of context on a phone.</li>
+      <li>Profile scope is easy to lose in a dense layout.</li>
+      <li>Collections need more room than a third pane.</li>
+    </ul>
+  </section>
+</div>
+
+<div class="verdict">
+  <p class="eyebrow">Decision</p>
+  <p><b>Ledger (A), with B's explicit profile scope.</b> The main tasks are profile-scoped: fix a resume point, reorder addons, tidy collections, check where you are signed in. The biggest risk is editing the wrong profile or overwriting a change from another device. A puts the profile in a persistent scope bar, keeps counts as readable text, gives long editors (collections, settings) a whole route with a sticky save bar, and collapses to a single column on phones without hiding account tasks.</p>
+</div>
+</body>
+</html>
