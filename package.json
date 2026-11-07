@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test test/site.test.mjs",
+    "test": "node --test test/site.test.mjs test/cloudflare-tunnel.test.mjs",
     "test:combined": "node --test test/combined-site.test.mjs",
     "build:combined": "node deploy/vps/build-combined.mjs",
     "preflight": "node tools/check-freshness.mjs --mode=check",

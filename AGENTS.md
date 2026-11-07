@@ -19,6 +19,12 @@ Before starting *any* code, release, site, or deployment task in this repository
    changing the production DNS record. Do not interrupt the still-live
    Cloudflare Pages deployment until DNS authority and rollback are ready.
    A GitHub merge alone does **not** prove the production website changed.
+6. Preferred final ingress is a **dedicated Cloudflare Tunnel**, not an open
+   website origin port or a DNS-only A record to the VPS. Read
+   deploy/vps/cloudflare-tunnel/README.md. The internal Caddy :8088 listener
+   must stay Docker-only, preserve CrowdSec logging and deny unexpected
+   Host headers. Cloudflare authorization/DNS, WAF, connector and origin
+   tests must pass before claiming public cutover. Never commit tunnel tokens.
 
 If network access or PR inspection is unavailable, explicitly report that
 freshness is unverified and stop any risky overwrite or publication.

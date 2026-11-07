@@ -1,0 +1,44 @@
+# Dedicated Starlit Cloudflare Tunnel. Start ONLY after an authorized tunnel
+# and its token exist in the Cloudflare account that owns rrmtools.uk.
+# The Cloudflare origin points to http://tokview-ntfy-https:8088, not the
+# site's public URL or API. No inbound ports are published.
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.7
+    container_name: starlit-cloudflared
+    restart: unless-stopped
+    user: "65532:65532"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.5
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+      - --token-file
+      - /run/secrets/starlit-tunnel-token
+    volumes:
+      - type: bind
+        source: /etc/starlit/cloudflare/starlit-tunnel.token
+        target: /run/secrets/starlit-tunnel-token
+        read_only: true
+        bind:
+          create_host_path: false
+    tmpfs:
+      - /tmp:uid=65532,gid=65532,mode=0700,noexec,nosuid,nodev
+    networks:
+      - edge
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"
+
+networks:
+  edge:
+    external: true
+    name: rrm-ntfy_tokview-push

@@ -20,4 +20,10 @@ jobs:
         run: npm run test:combined
       - name: Validate unified VPS Caddy config
         run: docker run --rm --network none -v "$PWD/deploy/vps/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.10.2 caddy validate --config /etc/caddy/Caddyfile
+      - name: Validate Starlit Cloudflare Tunnel connector and private Caddy origin
+        run: |
+          docker compose -f deploy/vps/cloudflare-tunnel/compose.yml config -q
+          docker run --rm --network none \
+            -v "$PWD/deploy/vps/cloudflare-tunnel:/etc/caddy:ro" \
+            caddy:2.10.2 caddy validate --config /etc/caddy/test.Caddyfile
       - run: node --check tools/check-freshness.mjs

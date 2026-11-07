@@ -1,0 +1,20 @@
+# Append this INTERNAL ONLY HTTP listener to the existing
+# /opt/rrm-ntfy/Caddyfile. It must NOT be added to Docker's host port mappings.
+# The Cloudflare tunnel container uses:
+#   Service URL: http://tokview-ntfy-https:8088
+#   HTTP Host Header: the corresponding hostname below.
+# Public TLS and WAF terminate at Cloudflare; this hop stays on the Docker
+# bridge network. Include the existing sanitized CrowdSec access log.
+:8088 {
+    import crowdsec-access
+    @starlit host starlit.rrmtools.uk starlit-tunnel-stage.rrmtools.uk
+    handle @starlit {
+        encode zstd gzip
+        reverse_proxy starlit-site-web:8081 {
+            header_up Host {http.request.host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+    # Fail closed if the Host header was not specifically authorized.
+    respond 404
+}
