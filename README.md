@@ -1,8 +1,25 @@
 # Starlit official website
 
-Static EN/PT-PT website for `https://starlit.rrmtools.uk/`.
-Keep it **separate** from the production account API at
-`https://starlit-api.rrmtools.uk/` (no API proxying or account tokens on this website).
+One Starlit website for the public marketing pages and the account dashboard,
+hosted together on the Ubuntu VPS under `https://starlit.rrmtools.uk/`.
+The backend API remains a separate service at `https://starlit-api.rrmtools.uk`.
+The static marketing pages never receive account tokens or execute JavaScript;
+only the `/account?tab=...` page runs the login UI.
+
+**Rollout (2026-11-07):** a real combined read-only build is available on VPS
+staging at https://site-stage.62-171-179-229.sslip.io/ with its account at
+https://site-stage.62-171-179-229.sslip.io/account?tab=overview . The public production
+hostname still points to Cloudflare Pages because DNS cutover has not been
+authorized/configured. Do not confuse staging with the live public site.
+
+**Safe merge before DNS cutover:** The regular `npm run build` (used by the
+legacy Cloudflare Pages marketing deployment) deliberately omits links to
+`/account?tab=...`, because Pages does not host the account UI. The
+combined VPS builder explicitly enables those links and bundles the account
+app, with its separate CSP. Merging this repository therefore cannot create a
+broken account navigation link on the legacy Pages site while the DNS record
+still points there. This is a temporary compatibility measure; hosting moves
+to the VPS only when the actual DNS record changes.
 
 ## Pages
 
@@ -19,8 +36,10 @@ Plus the six policy pages (privacy, terms, cookies, delete account, contact,
 legal operator) in both languages, and `404.html` / `pt/404.html`: Cloudflare
 Pages serves the nearest one with a real 404 status.
 
-No contact form, no JavaScript at all, no tracking or ad scripts; all email
-links use `support.starlit@rrmtools.uk`.
+Plus `/account?tab=overview` (profile manager, synced library, account settings,
+sessions and devices) on the same website. The public pages have no forms,
+tracking or JavaScript; the account area uses self-hosted JS and the existing
+authenticated Starlit API. Support is `support.starlit@rrmtools.uk`.
 
 ## Build, test and preview
 
@@ -28,6 +47,8 @@ links use `support.starlit@rrmtools.uk`.
 npm run build     # writes dist/
 npm test          # checks pages, links, anchors, metadata, headers, policy text and feature labels
 npm run preview   # serves dist/ at http://localhost:8788 like Cloudflare Pages
+npm run test:combined # verifies one VPS release contains both apps, with separate CSPs
+npm run build:combined # requires STARLIT_ANON_KEY (public JWT, never service-role)
 npm run preflight # fetches and compares remote code, open PRs and local checkout
 npm run prepublish # blocks publication if the checkout is behind main/unverified
 ```
@@ -43,10 +64,11 @@ They fetch remote-tracking refs, identify newer branches and list open PRs
 before work begins. Other coding agents follow the same workflow through
 `AGENTS.md`. Never treat a merge as proof of a production deployment.
 
-Deploy `dist` to the Cloudflare Pages project `starlit-official`, with the custom
-domain `starlit.rrmtools.uk`. For a clean environment,
-`npx wrangler pages project create starlit-official` then
-`npx wrangler pages deploy dist --project-name starlit-official --branch main`.
+**New deployment:** build a combined read-only release with
+`deploy/vps/build-combined.mjs` and serve it from the existing VPS HTTPS
+edge using `deploy/vps/compose.yml`. See [VPS rollout and rollback](deploy/vps/README.md).
+The former Cloudflare Pages project is **historical live infrastructure**:
+do not republish there or change DNS until the VPS is fully validated.
 
 ## Source layout
 
@@ -60,6 +82,8 @@ domain `starlit.rrmtools.uk`. For a clean environment,
 | `assets/site.css` | All styles; minified at build time |
 | `tools/make-brand-images.py` | Rebuilds the wordmarks, social image and icons from the app repository's branding |
 | `tools/preview.mjs` | Local preview server |
+| `account/` | Account dashboard assets mounted under `/account/`, with all navigation via `/account?tab=plugins`, `?tab=library`, etc. Separate CSP, session scope, tests and API access. See [account/README.md](account/README.md) |
+| `deploy/vps/` | Combined immutable release build, Caddy routing, Docker isolation, staging/cutover/rollback |
 
 Feature claims must match the current public releases (the app's README,
 `docs/` and `docs/RELEASE-NOTES.md` on the `Dev` branch). Current labels:

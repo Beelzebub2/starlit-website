@@ -1,0 +1,22 @@
+{
+  "name": "starlit-account",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Starlit account and sync dashboard (/account on the shared VPS website, no runtime dependencies)",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:live": "node build.mjs --mode=live",
+    "preview": "node tools/preview.mjs",
+    "test": "node --test \"test/unit/*.test.mjs\"",
+    "e2e": "playwright test",
+    "e2e:live": "playwright test --project=live"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

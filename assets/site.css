@@ -281,6 +281,8 @@ main:focus { outline: none; }
 .lang-switch:hover { color: var(--text); }
 .nav-gh { padding: 10px 12px; border-radius: 8px; color: var(--text-2); font-size: 14px; font-weight: 500; text-decoration: none; }
 .nav-gh:hover { color: var(--text); }
+.nav-account { padding: 10px 12px; border-radius: 8px; color: var(--text-2); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.nav-account:hover { color: var(--accent); }
 @media (max-width: 960px) {
   .nav-main { order: 3; flex-basis: 100%; margin-left: -12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 }

@@ -1,0 +1,41 @@
+# VPS-hosted account UI: static files only, no runtime API keys or app database.
+# Reuses the already-running Caddy edge network; exposes NO host ports.
+services:
+  web:
+    image: caddy:2.10.2
+    container_name: starlit-account-web
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    # The official Caddy binary has a file capability for privileged ports.
+    # Keep only that capability in the bounding set so exec works under
+    # no-new-privileges, even though this server listens on port 8080.
+    cap_add: [NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 128m
+    cpus: 0.50
+    tmpfs:
+      - /config:uid=10001,gid=10001,mode=0700
+      - /data:uid=10001,gid=10001,mode=0700
+      - /tmp:uid=10001,gid=10001,mode=0700
+    volumes:
+      - ./releases:/srv/releases:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    expose:
+      - "8080"
+    networks:
+      - edge
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 4s
+      retries: 3
+      start_period: 5s
+
+networks:
+  edge:
+    external: true
+    name: rrm-ntfy_tokview-push

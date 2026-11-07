@@ -1,0 +1,13 @@
+# Add staging now to the existing /opt/rrm-ntfy/Caddyfile on the VPS.
+# Do NOT activate the production block before moving starlit.rrmtools.uk
+# DNS away from Cloudflare Pages: existing visitor traffic must stay live.
+site-stage.62-171-179-229.sslip.io {
+    encode zstd gzip
+    reverse_proxy starlit-site-web:8081
+}
+
+# Activate only after the zone's record points at the VPS (DNS-only).
+# starlit.rrmtools.uk {
+#     encode zstd gzip
+#     reverse_proxy starlit-site-web:8081
+# }

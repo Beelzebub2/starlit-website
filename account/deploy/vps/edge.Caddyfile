@@ -1,0 +1,13 @@
+# Both hostnames are served by the VPS edge, not Cloudflare Pages.
+# Add these blocks to the *existing* /opt/rrm-ntfy/Caddyfile with a validated
+# reload. The production name cannot obtain TLS until its DNS A record points
+# to the VPS. Keep staging available for pre-production smoke tests.
+account-stage.62-171-179-229.sslip.io {
+    encode zstd gzip
+    reverse_proxy starlit-account-web:8080
+}
+
+account.starlit.rrmtools.uk {
+    encode zstd gzip
+    reverse_proxy starlit-account-web:8080
+}

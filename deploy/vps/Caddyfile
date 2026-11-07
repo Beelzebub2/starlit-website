@@ -1,0 +1,63 @@
+{
+    admin off
+    auto_https off
+}
+
+# One static server, distinct CSP for public pages and the account SPA.
+# HTTPS terminates in the existing VPS edge. No database or private keys here.
+:8081 {
+    root * /srv/releases/current
+    encode zstd gzip
+    @private path /_headers /_redirects /.env* /.git/* /node_modules/* /account/_headers /account/_redirects /account/.env* /account/.git/* /account/mock/* /account/src/* /account/docs/* /account/test/* /account/node_modules/*
+
+    route {
+        # Important: deny BEFORE account SPA fallback or private paths would 200.
+        respond @private 404
+        # /account?tab=plugins is canonical. Rewrite the bare directory to the
+        # built SPA entry without the file server's automatic slash redirect.
+        @accountRoot path /account
+        rewrite @accountRoot /account/index.html
+
+        @account path /account/*
+        handle @account {
+            header {
+                Strict-Transport-Security "max-age=31536000"
+                X-Content-Type-Options "nosniff"
+                Referrer-Policy "no-referrer"
+                X-Frame-Options "DENY"
+                X-Robots-Tag "noindex, nofollow"
+                Cross-Origin-Opener-Policy "same-origin"
+                Cross-Origin-Resource-Policy "same-origin"
+                Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+                Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://starlit-api.rrmtools.uk; manifest-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
+            }
+            @accountFonts path /account/fonts/*
+            header @accountFonts Cache-Control "public, max-age=31536000, immutable"
+            @accountOther not path /account/fonts/*
+            header @accountOther Cache-Control "private, no-store, max-age=0"
+            try_files {path} /account/index.html
+            file_server
+        }
+
+        handle {
+            @oldEnglish path /en
+            redir @oldEnglish / 301
+            @oldEnglishPath path_regexp enredirect ^/en/(.*)$
+            redir @oldEnglishPath /{re.enredirect.1} 301
+            header {
+                Strict-Transport-Security "max-age=31536000"
+                X-Content-Type-Options "nosniff"
+                Referrer-Policy "strict-origin-when-cross-origin"
+                X-Frame-Options "DENY"
+                Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+                Content-Security-Policy "default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; script-src 'none'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
+            }
+            @assets path /assets/*
+            header @assets Cache-Control "public, max-age=86400, no-transform"
+            @pages not path /assets/*
+            header @pages Cache-Control "public, max-age=300, no-transform"
+            try_files {path} {path}/index.html
+            file_server
+        }
+    }
+}

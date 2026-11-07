@@ -66,6 +66,10 @@ const ui = {
   },
 };
 
+// The account manager lives at /account?tab=overview on the same site.
+ui.en.accountNav = 'My account';
+ui.pt.accountNav = 'A minha conta';
+
 // ---------------------------------------------------------------- assets
 
 // Cloudflare doesn't compress these responses (Cache-Control: no-transform),
@@ -118,6 +122,11 @@ function head(lang, { title, description, path, alternates, noindex }) {
 
 const brand = (lang, cls, size) => `<a class="brand ${cls}" href="${routes[lang].home}">${markImg('brand-mark', size)}<span>Starlit</span></a>`;
 
+// Until DNS has been transferred from Pages to the VPS, Cloudflare Pages must
+// NOT advertise an account route it does not serve. The combined VPS build
+// explicitly enables these links, alongside the actual account app.
+const accountLinksAvailable = process.env.STARLIT_COMBINED_VPS_SITE === '1';
+
 function header(lang, key, otherPath) {
   const t = ui[lang], r = routes[lang];
   const current = item => key === item ? ' aria-current="page"' : '';
@@ -130,6 +139,7 @@ function header(lang, key, otherPath) {
     ${brand(lang, 'brand-header', 32)}
     <nav class="nav-main" aria-label="${t.mainNav}">${items}</nav>
     <div class="header-actions">
+      ${accountLinksAvailable ? `<a class="nav-account" href="/account?tab=overview">${t.accountNav}</a>` : ''}
       <a class="lang-switch" href="${otherPath}" hreflang="${t.otherLang}" lang="${t.otherLang}"><span aria-hidden="true">${t.otherShort}</span><span class="vh">${t.otherName}</span></a>
       <a class="nav-gh" href="${REPO}">GitHub</a>
       <a class="btn btn-accent btn-sm" href="${r.download}"${current('download')}>${t.nav.download}</a>
@@ -150,7 +160,7 @@ function footer(lang, otherPath) {
         ${brand(lang, 'brand-footer', 28)}
         <p>${f.about}</p>
       </div>
-      ${column('product', f.product, ['remote', 'anime', 'watch', 'sync', 'download'].map(k => li(r[k], t.nav[k])).join(''))}
+      ${column('product', f.product, ['remote', 'anime', 'watch', 'sync', 'download'].map(k => li(r[k], t.nav[k])).join('') + (accountLinksAvailable ? li('/account?tab=overview', t.accountNav) : ''))}
       ${column('project', f.project, f.projectLinks.map(([href, label]) => li(href, label)).join(''))}
       ${column('legal', f.legal, DOCS.map(k => li(r[k], f.legalLinks[k])).join(''))}
     </div>
@@ -282,7 +292,7 @@ for (const lang of ['en', 'pt']) {
   }, renderNotFound(lang)));
 }
 
-write(join(dist, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: ' + ORIGIN + '/sitemap.xml\n');
+write(join(dist, 'robots.txt'), 'User-agent: *\nAllow: /\nDisallow: /account\nSitemap: ' + ORIGIN + '/sitemap.xml\n');
 const sitemap = ['en', 'pt'].flatMap(lang => KEYS.map(key => `  <url>
     <loc>${ORIGIN + routes[lang][key]}</loc>
     <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN + routes.en[key]}"/>

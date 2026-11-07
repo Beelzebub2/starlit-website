@@ -231,6 +231,9 @@ test('All same-origin links, images and in-page anchors resolve', () => {
   for (const { route, html } of pagesToCheck) {
     const refs = [...html.matchAll(/(?:href|src|srcset)="(\/[^"#?\s]*)/g)].map(m => m[1]);
     for (const ref of refs) {
+      // /account?tab=... is mounted by the combined VPS release, not by the
+      // standalone marketing build (which intentionally contains no JS).
+      if (ref === '/account') continue;
       const output = ref.endsWith('/') ? ref.slice(1) + 'index.html' : ref.slice(1);
       assert.ok(existsSync(new URL(output, buildDir)), 'Broken site link ' + ref + ' in ' + route);
     }
@@ -239,5 +242,14 @@ test('All same-origin links, images and in-page anchors resolve', () => {
       assert.ok(target, 'Anchor to unknown page ' + path + ' in ' + route);
       assert.ok(target.includes(`id="${id}"`), `Missing anchor #${id} on ${path || route} (from ${route})`);
     }
+  }
+});
+
+test('Standalone Pages build never advertises an account route it cannot serve', () => {
+  assert.match(read('robots.txt'), /Disallow: \/account\n/);
+  for (const { lang, html } of allPages()) {
+    assert.doesNotMatch(html, /href="\/account\?tab=/);
+    assert.doesNotMatch(html, /class="nav-account"/);
+    assert.doesNotMatch(html, /<script\b/);
   }
 });
