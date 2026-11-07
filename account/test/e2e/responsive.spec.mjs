@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { signIn, go, remoteEdit } from './helpers.mjs';
 
-const PAGES = ['/', '/library', '/progress', '/collections', '/collections/new', '/addons', '/settings', '/profiles', '/security'];
+const PAGES = ['/', '/library', '/progress', '/collections', '/collections/new', '/addons', '/plugins', '/settings', '/profiles', '/security'];
 const shots = process.env.SCREENSHOTS === '1';
 const dir = new URL('../../docs/screenshots/', import.meta.url);
 if (shots) mkdirSync(dir, { recursive: true });
@@ -47,7 +47,7 @@ test('small screens use a menu dialog that returns focus', async ({ page }, info
   await expect(menu).toBeFocused();
   await menu.click();
   await dialog.getByRole('link', { name: 'Collections' }).click();
-  await expect(page).toHaveURL(/\/collections$/);
+  await expect(page).toHaveURL(/\?tab=collections$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 

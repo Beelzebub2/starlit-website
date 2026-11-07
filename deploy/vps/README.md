@@ -4,7 +4,7 @@ The Starlit marketing website and authenticated Account & Sync dashboard are
 two separate static builds **served by one VPS container and one hostname**:
 
 - Public pages: https://starlit.rrmtools.uk/
-- Accounts: https://starlit.rrmtools.uk/account/
+- Accounts: https://starlit.rrmtools.uk/account?tab=overview
 - Backend API: https://starlit-api.rrmtools.uk/ (already hosted separately).
 
 Cloudflare may still act as the authoritative DNS provider, but the new
@@ -17,7 +17,7 @@ self-hosted scripts and the HTTPS API. Account content has noindex/no-store.
 
 Combined staging: https://site-stage.62-171-179-229.sslip.io/
 
-Account staging: https://site-stage.62-171-179-229.sslip.io/account/
+Account staging: https://site-stage.62-171-179-229.sslip.io/account?tab=overview
 
 The combined container is healthy. HTTPS, home/pt/download/privacy routes,
 account deep-link fallback, account CSS/JS, private 404 responses, CORS
@@ -85,7 +85,8 @@ and rollback checks are complete. When ready:
    Caddy edge file, validate and gracefully reload Caddy. It will issue
    its normal Let's Encrypt certificate once DNS points at the VPS.
 4. Verify a real valid HTTPS certificate, /, /pt/, /download/, /account/,
-   /account/signin, /account/library, /assets/site.css,
+- /account?tab=overview, /account?tab=signin, /account?tab=library,
+  /assets/site.css,
    /account/app.js, separate CSPs and a genuine 404 for unknown public
    pages. Verify the login invalid-credentials path without leaking data.
 5. Confirm unrelated services and all existing downloads are still healthy.
@@ -116,7 +117,7 @@ The account app defaults to read-only. Before changing that:
 - Confirm server-side authorization checks remain in place; a client flag
   must never be the server's security boundary.
 - Verify OAuth callback is allowlisted as
-  https://starlit.rrmtools.uk/account/auth/callback before enabling Google.
+  https://starlit.rrmtools.uk/account?tab=auth-callback before enabling Google.
 - Recheck CSP, 404, brute-force protections and cross-origin CORS after every
   deployment. Avoid passwords, raw account records and tokens in logs.
 

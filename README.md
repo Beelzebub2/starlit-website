@@ -4,11 +4,11 @@ One Starlit website for the public marketing pages and the account dashboard,
 hosted together on the Ubuntu VPS under `https://starlit.rrmtools.uk/`.
 The backend API remains a separate service at `https://starlit-api.rrmtools.uk`.
 The static marketing pages never receive account tokens or execute JavaScript;
-only pages under `/account/` run the login UI.
+only the `/account?tab=...` page runs the login UI.
 
 **Rollout (2026-11-07):** a real combined read-only build is available on VPS
 staging at https://site-stage.62-171-179-229.sslip.io/ with its account at
-https://site-stage.62-171-179-229.sslip.io/account/ . The public production
+https://site-stage.62-171-179-229.sslip.io/account?tab=overview . The public production
 hostname still points to Cloudflare Pages because DNS cutover has not been
 authorized/configured. Do not confuse staging with the live public site.
 
@@ -27,7 +27,7 @@ Plus the six policy pages (privacy, terms, cookies, delete account, contact,
 legal operator) in both languages, and `404.html` / `pt/404.html`: Cloudflare
 Pages serves the nearest one with a real 404 status.
 
-Plus `/account/` (profile manager, synced library, account settings,
+Plus `/account?tab=overview` (profile manager, synced library, account settings,
 sessions and devices) on the same website. The public pages have no forms,
 tracking or JavaScript; the account area uses self-hosted JS and the existing
 authenticated Starlit API. Support is `support.starlit@rrmtools.uk`.
@@ -73,7 +73,7 @@ do not republish there or change DNS until the VPS is fully validated.
 | `assets/site.css` | All styles; minified at build time |
 | `tools/make-brand-images.py` | Rebuilds the wordmarks, social image and icons from the app repository's branding |
 | `tools/preview.mjs` | Local preview server |
-| `account/` | Account dashboard mounted at `/account/` by the combined VPS build, with separate CSP, session scope, tests and API access. See [account/README.md](account/README.md) |
+| `account/` | Account dashboard assets mounted under `/account/`, with all navigation via `/account?tab=plugins`, `?tab=library`, etc. Separate CSP, session scope, tests and API access. See [account/README.md](account/README.md) |
 | `deploy/vps/` | Combined immutable release build, Caddy routing, Docker isolation, staging/cutover/rollback |
 
 Feature claims must match the current public releases (the app's README,

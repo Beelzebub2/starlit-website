@@ -5,6 +5,8 @@ import { h, icon, replace, nextId } from './dom.js';
 import { t } from './i18n.js';
 import { state } from './state.js';
 import { scrubText } from './redact.js';
+import { config } from '../config.js';
+import { accountUrl } from './routes.js';
 
 export function button(label, { variant = 'ghost', icon: ic, onClick, type = 'button', disabled, size, ariaLabel, describedBy, id, busy } = {}) {
   return h('button', {
@@ -21,7 +23,8 @@ export function iconButton(name, label, onClick, { disabled, variant = 'quiet', 
 }
 
 export function link(label, href, { variant, icon: ic, current } = {}) {
-  return h('a', { href, class: variant ? ['btn', `btn-${variant}`] : 'text-link', 'aria-current': current ? 'page' : undefined, 'data-link': '' },
+  const url = href.startsWith('/') && !href.startsWith('//') ? accountUrl(href, config.basePath ?? '/') : href;
+  return h('a', { href: url, class: variant ? ['btn', `btn-${variant}`] : 'text-link', 'aria-current': current ? 'page' : undefined, 'data-link': '' },
     ic ? icon(ic) : null, h('span', {}, label));
 }
 

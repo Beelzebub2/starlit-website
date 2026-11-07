@@ -143,7 +143,7 @@ test('collections: build one from a preset, step by step, and save', async ({ pa
   await page.locator('.steps').getByRole('button', { name: /Review/ }).click();
   await expect(page.getByText('Ready to save').first()).toBeVisible();
   await page.getByRole('button', { name: 'Save collection' }).click();
-  await expect(page).toHaveURL(/\/collections$/);
+  await expect(page).toHaveURL(/\?tab=collections$/);
   await expect(page.locator('.coll-title').last()).toContainText('Netflix');
   const saved = await stored(page, '1|collections|collections');
   const netflix = saved.at(-1);
@@ -207,7 +207,7 @@ test('sessions: sign out the others, then everywhere', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Sign out 0 other sessions/ })).toBeDisabled();
   await page.getByRole('button', { name: 'Sign out everywhere' }).first().click();
   await page.getByRole('dialog').getByRole('button', { name: 'Sign out everywhere' }).click();
-  await expect(page).toHaveURL(/\/signin$/);
+  await expect(page).toHaveURL(/\?tab=signin$/);
 });
 
 test('leaving with unsaved edits asks first', async ({ page }) => {
@@ -217,6 +217,6 @@ test('leaving with unsaved edits asks first', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Leave without saving?' });
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'Cancel' }).click();
-  await expect(page).toHaveURL(/\/addons$/);
+  await expect(page).toHaveURL(/\?tab=addons$/);
   await expect(page.getByRole('switch').first()).not.toBeChecked();
 });

@@ -28,7 +28,7 @@ test('a 401 on any request returns to sign-in', async ({ page }) => {
   await signIn(page, 'a');
   await mock(page, { failNext: '401' });
   await go(page, '/history');
-  await expect(page).toHaveURL(/\/signin$/);
+  await expect(page).toHaveURL(/\?tab=signin$/);
   await expect(page.getByText('You were signed out')).toBeVisible();
 });
 

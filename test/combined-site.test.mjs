@@ -26,7 +26,7 @@ test('one immutable release contains the real marketing site and a nested read-o
       'account/app.js', 'account/styles/account.css', 'account/fonts/geist-latin.woff2']) {
       assert.ok(existsSync(join(out, file)), 'Missing combined file: ' + file);
     }
-    assert.match(read(join(out, 'index.html')), /href="\/account\/"/);
+    assert.match(read(join(out, 'index.html')), /href="\/account\?tab=overview"/);
     assert.match(read(join(out, 'pt/index.html')), /A minha conta/);
     assert.match(read(join(out, 'account', 'config.js')), /"basePath": "\/account\/"/);
     assert.match(read(join(out, 'account', 'config.js')), /"writesEnabled": false/);
@@ -51,7 +51,8 @@ test('combined deployment keeps ports closed and separate per-path CSPs', () => 
   assert.doesNotMatch(compose, /^\s+ports:/m);
   assert.match(caddy, /route \{\s*# [^\n]*\n\s*respond @private 404/);
   assert.match(caddy, /@account path \/account\/\*/);
-  assert.match(caddy, /redir @accountNoSlash \/account\/ 308/);
+  assert.match(caddy, /@accountRoot path \/account/);
+  assert.match(caddy, /rewrite @accountRoot \/account\/index\.html/);
   assert.match(caddy, /script-src 'self'/);
   assert.match(caddy, /script-src 'none'/);
   assert.match(caddy, /@accountFonts path \/account\/fonts\/\*/);

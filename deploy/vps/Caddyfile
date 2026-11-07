@@ -13,8 +13,10 @@
     route {
         # Important: deny BEFORE account SPA fallback or private paths would 200.
         respond @private 404
-        @accountNoSlash path /account
-        redir @accountNoSlash /account/ 308
+        # /account?tab=plugins is canonical. Rewrite the bare directory to the
+        # built SPA entry without the file server's automatic slash redirect.
+        @accountRoot path /account
+        rewrite @accountRoot /account/index.html
 
         @account path /account/*
         handle @account {

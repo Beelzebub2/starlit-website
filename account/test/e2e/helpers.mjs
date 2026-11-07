@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { TEST_ACCOUNTS } from '../../src/mock/fixtures.js';
+import { accountUrl, readAccountUrl } from '../../src/lib/routes.js';
 
 export { TEST_ACCOUNTS };
 
@@ -29,7 +30,7 @@ export async function stored(page, key) {
 }
 
 export async function signIn(page, which = 'a', { path = '/', profile = which === 'a' ? 'Ana' : null, latency = 0, wait = true } = {}) {
-  await page.goto(path);
+  await page.goto(accountUrl(path));
   await mock(page, { latencyMs: latency });
   await page.getByLabel('Email').fill(TEST_ACCOUNTS[which].email);
   await page.getByLabel('Password').fill(TEST_ACCOUNTS[which].password);
@@ -43,7 +44,11 @@ export async function signIn(page, which = 'a', { path = '/', profile = which ==
 
 /** Navigate inside the app without a reload (a reload signs you out by design). */
 export async function go(page, path) {
-  await page.evaluate(p => { const a = Object.assign(document.createElement('a'), { href: p }); a.dataset.link = ''; document.body.append(a); a.click(); a.remove(); }, path);
+  const href = accountUrl(path);
+  await page.evaluate(p => { const a = Object.assign(document.createElement('a'), { href: p }); a.dataset.link = ''; document.body.append(a); a.click(); a.remove(); }, href);
   // A revoked session redirects to sign-in instead.
-  await page.waitForURL(u => u.pathname === path.split('?')[0] || u.pathname === '/signin');
+  await page.waitForURL(u => {
+    const route = readAccountUrl(u.href);
+    return route?.path === path.split('?')[0] || route?.path === '/signin';
+  });
 }

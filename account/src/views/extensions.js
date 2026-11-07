@@ -25,7 +25,7 @@ function render(ctx, kind) {
   const host = h('div', {});
   const conflictHost = h('div', {});
   const bar = saveBar({ onSave: save, onDiscard: discard });
-  let base = [], draft = [], removed = [], revision = 0, busy = false, loaded = false;
+  let base = [], draft = [], removed = [], revision = 0, busy = false, loaded = false, addOpen = false;
 
   ctx.isDirty = () => changeCount() > 0;
 
@@ -57,7 +57,7 @@ function render(ctx, kind) {
     host.replaceChildren(loading(4, 'card'));
     try {
       const data = await ctx.api.extensions(ctx.profileId, kind, { signal: ctx.signal });
-      base = data.items; draft = clone(data.items); removed = []; revision = data.revision; loaded = true;
+      base = data.items; draft = clone(data.items); removed = []; revision = data.revision; loaded = true; addOpen = false;
       conflictHost.replaceChildren();
       draw();
     } catch (error) {
@@ -76,6 +76,14 @@ function render(ctx, kind) {
 
   function draw(focusKey) {
     const writable = ctx.canWrite() && !busy;
+    const toolbar = h('div', { class: 'ext-toolbar' },
+      h('p', { class: 'ext-count', 'aria-live': 'polite' },
+        h('span', { class: 'ext-count-number' }, String(draft.length)),
+        h('span', { class: 'ext-count-label' }, t(`ext.${kind}.configured`, { n: draft.length }))),
+      h('div', { class: 'ext-toolbar-actions' },
+        button(t('ext.refresh'), { icon: 'refresh', size: 's', onClick: refresh, disabled: busy }),
+        button(t('ext.deleteAll'), { variant: 'danger', icon: 'trash', size: 's', disabled: !writable || draft.length === 0, onClick: deleteAll }),
+        button(t(`ext.${kind}.addAction`), { variant: 'accent', icon: 'plus', size: 's', disabled: !writable, onClick: openAdd })));
     const rows = draft.map((item, i) => {
       const was = base.find(b => b.url === item.url);
       const { display, hidden } = redactUrl(item.url);
@@ -97,17 +105,51 @@ function render(ctx, kind) {
 
     const list = draft.length
       ? h('ol', { class: 'ext-list', role: 'list', 'aria-label': t(`nav.${kind}`) }, rows)
-      : emptyState({ title: t(`ext.${kind}.emptyTitle`), body: t(`ext.${kind}.emptyBody`), iconName: kind });
+      : emptyState({ title: t(`ext.${kind}.emptyTitle`), body: t(`ext.${kind}.emptyBody`), iconName: kind,
+        action: writable ? button(t(`ext.${kind}.addFirst`), { icon: 'plus', variant: 'accent', onClick: openAdd }) : null });
     const removedList = removed.length ? h('div', { class: 'removed' }, h('h3', { class: 'sub-title' }, t('ext.removedTitle', { n: removed.length })),
       h('ul', { role: 'list', class: 'removed-list' }, removed.map((item, i) => h('li', {}, h('span', {}, item.name || redactUrl(item.url).display),
         button(t('common.undo'), { size: 's', onClick: () => { draft.push(removed.splice(i, 1)[0]); draw(); } }))))) : null;
 
-    replace(host, list, removedList, addForm(writable));
+    replace(host, toolbar, list, removedList, addOpen ? addForm(writable) : null);
     sync();
     if (focusKey) host.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
   }
 
   function withKey(el, key) { el.dataset.focusKey = key; return el; }
+
+  function openAdd() {
+    if (!ctx.canWrite() || busy) return;
+    addOpen = true;
+    draw();
+    const el = host.querySelector('.add-form input[type="url"]');
+    el?.scrollIntoView({ block: 'center' });
+    el?.focus({ preventScroll: true });
+  }
+
+  async function refresh() {
+    if (busy) return;
+    const formHasText = addOpen && [...host.querySelectorAll('.add-form input')].some(el => el.value.trim());
+    if ((changeCount() || formHasText) && !(await confirmDialog({
+      title: t('ext.refreshTitle'), body: t('ext.refreshBody'), confirmLabel: t('common.discard'), danger: true,
+    }))) return;
+    await load();
+  }
+
+  async function deleteAll() {
+    if (!ctx.canWrite() || busy || !draft.length) return;
+    if (!(await confirmDialog({
+      title: t('ext.deleteAllTitle', { type: t(`ext.${kind}.type`) }),
+      body: t('ext.deleteAllBody'), confirmLabel: t('ext.deleteAll'),
+      danger: true, typed: t('ext.deletePhrase'),
+    }))) return;
+    draft = [];
+    // Remove only saved rows on commit; new unsaved rows simply disappear.
+    removed = clone(base);
+    addOpen = false;
+    draw();
+    announce(t('ext.deleteAllStaged'));
+  }
 
   function addForm(writable) {
     const url = input({ type: 'url', inputmode: 'url', placeholder: 'https://', spellcheck: 'false', autocapitalize: 'none' });
@@ -128,9 +170,10 @@ function render(ctx, kind) {
       if (problem) { url.focus(); return; }
       draft.push({ url: value, name: name.value.trim(), enabled: true, sort_order: draft.length });
       url.value = ''; name.value = '';
+      addOpen = false;
       draw();
       announce(t('ext.added'));
-      url.focus();
+      host.querySelector('.ext-toolbar-actions .btn-accent')?.focus();
     } }, h('div', { class: 'add-grid' }, urlField, nameField), button(t('ext.add'), { icon: 'plus', type: 'submit', disabled: !writable }));
     return section(t(`ext.${kind}.addTitle`), form, { id: `add-${kind}` });
   }

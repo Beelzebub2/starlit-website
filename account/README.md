@@ -1,7 +1,7 @@
 # Starlit Account
 
 The Starlit account dashboard is mounted at
-`https://starlit.rrmtools.uk/account/` on the **same VPS-hosted
+`https://starlit.rrmtools.uk/account?tab=overview` on the **same VPS-hosted
 website** as the marketing pages. It remains an independently built browser
 app with its own Content-Security-Policy; the public pages keep their stricter
 `script-src 'none'` policy. The backend API remains at
@@ -9,7 +9,7 @@ app with its own Content-Security-Policy; the public pages keep their stricter
 
 **Status (2026-11-07):** IN_PR (website PR #6). The combined VPS
 read-only staging address is
-`https://site-stage.62-171-179-229.sslip.io/account/`, and the
+`https://site-stage.62-171-179-229.sslip.io/account?tab=overview`, and the
 previous standalone account staging site remains available temporarily.
 Neither staging site ships a mock backend. The final shared-domain DNS cutover
 and full authenticated two-account E2E are still pending.
@@ -63,7 +63,7 @@ STARLIT_ACCOUNT_MODE=live STARLIT_ANON_KEY=<public anon key> npm run build
   only after the staged read checks and the two-account checks pass. This is
   the feature flag the backend rollout plan asks for.
 * Google sign-in stays hidden unless `STARLIT_GOOGLE_SIGNIN=1`. Before you set
-  it, add `https://starlit.rrmtools.uk/account/auth/callback` to GoTrue's
+  it, add `https://starlit.rrmtools.uk/account?tab=auth-callback` to GoTrue's
   redirect allow list.
 * The CSP adds the API origin to `connect-src`, and nothing else.
 

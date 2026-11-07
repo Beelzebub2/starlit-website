@@ -6,6 +6,7 @@ import { createAuth } from './lib/auth.js';
 import { h, icon, replace } from './lib/dom.js';
 import { t, lang, setLang } from './lib/i18n.js';
 import { state, update, activeProfile, readPref, writePref } from './lib/state.js';
+import { accountUrl as routeUrl, readAccountUrl } from './lib/routes.js';
 import { announce, avatar, button, confirmDialog, notice, openDialog, setLiveRegion } from './lib/ui.js';
 import { pinGate } from './views/pin-gate.js';
 import signin from './views/signin.js';
@@ -43,15 +44,11 @@ const NAV = {
   account: [['profiles', '/profiles', 'profiles'], ['security', '/security', 'security']],
 };
 
-// Keep the account router scoped under /account/ when both sections share a
-// website. Standalone staging remains at / for backwards compatibility.
+// One account page with query-selected views: /account?tab=plugins, not a
+// collection of separate page paths. Old bookmarks remain compatible.
 const basePath = config.basePath ?? '/';
-const accountUrl = path => basePath === '/' ? path : basePath.slice(0, -1) + path;
-const localPath = pathname => {
-  if (basePath === '/') return pathname;
-  if (pathname === basePath || pathname === basePath.slice(0, -1)) return '/';
-  return pathname.startsWith(basePath) ? '/' + pathname.slice(basePath.length) : null;
-};
+const accountUrl = path => routeUrl(path, basePath);
+const assetUrl = path => (basePath === '/' ? '' : basePath.slice(0, -1)) + path;
 
 // ------------------------------------------------------------------ services
 const auth = createAuth({
@@ -88,7 +85,7 @@ let current = null;   // { route, ctx, controller }
 
 function brand() {
   return h('a', { class: 'brand', href: accountUrl('/'), 'data-link': '' },
-    h('img', { class: 'brand-mark', src: accountUrl('/starlit-mark.svg'), alt: '', width: '28', height: '28' }),
+    h('img', { class: 'brand-mark', src: assetUrl('/starlit-mark.svg'), alt: '', width: '28', height: '28' }),
     h('span', { class: 'brand-name' }, 'Starlit'), h('span', { class: 'brand-sub' }, t('shell.account')));
 }
 
@@ -225,23 +222,29 @@ async function render() {
   current?.controller.abort();
   current?.ctx?.destroy?.();
   const url = new URL(location.href);
-  const path = localPath(url.pathname);
-  if (path === null) { location.assign(basePath); return; }
+  const resolved = readAccountUrl(url.href, basePath);
+  if (resolved === null) { location.assign(basePath); return; }
+  const { path, query } = resolved;
+  // Canonicalize old /account/library bookmarks and the slash form of /account.
+  // replaceState prevents accidental back-button loops.
+  if (resolved.canonical && resolved.canonical !== url.pathname + url.search) {
+    history.replaceState({}, '', resolved.canonical);
+  }
 
   if (path === '/auth/callback') return completeGoogle(url);
   if (!state.user) {
-    if (path !== '/signin') state.returnTo = path + url.search;
+    if (path !== '/signin') state.returnTo = path + (query.size ? '?' + query.toString() : '');
     if (path !== '/signin') history.replaceState({}, '', accountUrl('/signin'));
     return mount({ nav: null }, signin, {});
   }
   if (path === '/signin') { history.replaceState({}, '', accountUrl('/')); return render(); }
   if (path === '/choose-profile' || !state.profileId) {
-    if (path !== '/choose-profile') { state.returnTo = path + url.search; history.replaceState({}, '', accountUrl('/choose-profile')); }
+    if (path !== '/choose-profile') { state.returnTo = path + (query.size ? '?' + query.toString() : ''); history.replaceState({}, '', accountUrl('/choose-profile')); }
     return mount({ nav: null }, chooseProfile, {});
   }
   const found = match(path);
   if (!found) return mount({ nav: null }, notFound, {});
-  return mount(found.route, found.route.view, found.params, url.searchParams);
+  return mount(found.route, found.route.view, found.params, query);
 }
 
 function mount(route, view, params, query = new URLSearchParams()) {
@@ -267,10 +270,12 @@ document.addEventListener('click', e => {
   const a = e.target.closest?.('a[data-link]');
   if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   if (a.origin !== location.origin) return;
-  const path = localPath(a.pathname);
-  if (path === null) return;
+  const target = readAccountUrl(a.href, basePath);
+  if (target === null || target.path === '/__unknown_tab__') return;
   e.preventDefault();
-  if (a.pathname + a.search !== location.pathname + location.search) navigate(path + a.search);
+  if (target.canonical !== location.pathname + location.search) {
+    navigate(target.path + (target.query.size ? '?' + target.query.toString() : ''));
+  }
 });
 
 let restoring = false;

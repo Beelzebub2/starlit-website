@@ -231,9 +231,9 @@ test('All same-origin links, images and in-page anchors resolve', () => {
   for (const { route, html } of pagesToCheck) {
     const refs = [...html.matchAll(/(?:href|src|srcset)="(\/[^"#?\s]*)/g)].map(m => m[1]);
     for (const ref of refs) {
-      // /account/ is mounted by the combined VPS release, not by the
+      // /account?tab=... is mounted by the combined VPS release, not by the
       // standalone marketing build (which intentionally contains no JS).
-      if (ref === '/account/') continue;
+      if (ref === '/account') continue;
       const output = ref.endsWith('/') ? ref.slice(1) + 'index.html' : ref.slice(1);
       assert.ok(existsSync(new URL(output, buildDir)), 'Broken site link ' + ref + ' in ' + route);
     }
@@ -246,10 +246,10 @@ test('All same-origin links, images and in-page anchors resolve', () => {
 });
 
 test('Marketing pages link to the same-domain account dashboard in both locales', () => {
-  assert.match(read('robots.txt'), /Disallow: \/account\//);
+  assert.match(read('robots.txt'), /Disallow: \/account\n/);
   for (const { lang, html } of allPages()) {
-    assert.match(html, /class="nav-account" href="\/account\/"/);
-    assert.match(html, /<a href="\/account\/">/);
+    assert.match(html, /class="nav-account" href="\/account\?tab=overview"/);
+    assert.match(html, /<a href="\/account\?tab=overview">/);
     assert.ok(html.includes(lang === 'pt' ? 'A minha conta' : 'My account'));
     assert.doesNotMatch(html, /<script\b/);
   }

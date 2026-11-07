@@ -2,8 +2,8 @@
 
 ## Automated (mock build, synthetic data)
 
-`npm test` runs 36 Node tests, including the three VPS-hosting hardening
-checks.
+`npm test` runs 46 Node tests, including VPS-hosting hardening and
+canonical `/account?tab=` navigation/legacy bookmark checks.
 
 | Area | Checked |
 | --- | --- |
@@ -22,6 +22,11 @@ and the responsive and accessibility specs at 768 and 390 px too.
 | `states` | skeleton at final size; 500 / 404 / 403 / network errors each with Try again; 401 → sign-in; offline banner with saving blocked and edits kept; empty states; reduced motion |
 | `a11y` | axe (WCAG 2.0, 2.1 and 2.2 A/AA) on sign-in, the profile picker, all 12 pages and 3 dialogs, at three widths: no serious or critical violations |
 | `responsive` | no sideways scrolling on 9 pages at 390, 768 and 1440 px; the small-screen menu dialog returning focus; documentation screenshots |
+
+The new `plugins.spec.mjs` covers configured counts, the refresh and add
+actions, short-token address redaction, typed confirmation before removing
+all, staged saves, and the warning before discarding edits on refresh.
+The responsive suite covers plugins at desktop, tablet and phone widths.
 
 ## Not yet verified
 
@@ -45,7 +50,7 @@ and the responsive and accessibility specs at 768 and 390 px too.
    checklist (backup, migrate, smoke test). **Completed 2026-11-07.**
 2. A **read-only** live build is served at a staging address
    (`STARLIT_ACCOUNT_MODE=live`, no `STARLIT_ACCOUNT_WRITES`).
-   **Completed: `https://account-stage.62-171-179-229.sslip.io/`.**
+   **Completed: `https://site-stage.62-171-179-229.sslip.io/account?tab=overview`.**
 3. An operator has created two disposable accounts.
 
 ```

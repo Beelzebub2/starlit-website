@@ -16,7 +16,7 @@ test('a wrong password shows an error and keeps focus on the password', async ({
 
 test('a deep link survives sign-in and the profile choice', async ({ page }) => {
   await signIn(page, 'a', { path: '/addons' });
-  await expect(page).toHaveURL(/\/addons$/);
+  await expect(page).toHaveURL(/\?tab=addons$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Addons' })).toBeVisible();
 });
 
@@ -25,7 +25,7 @@ test('two accounts never see each other’s data', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ana’s synced data');
   await expect(page.locator('.ledger-num').first()).toHaveText('62');
   await page.getByRole('button', { name: 'Sign out' }).click();
-  await expect(page).toHaveURL(/\/signin$/);
+  await expect(page).toHaveURL(/\?tab=signin$/);
 
   await signIn(page, 'b');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ben’s synced data');
@@ -42,7 +42,7 @@ test('a session revoked elsewhere returns to sign-in with an explanation', async
   await signIn(page, 'a');
   await remoteEdit(page, 'revoke');
   await go(page, '/library');
-  await expect(page).toHaveURL(/\/signin$/);
+  await expect(page).toHaveURL(/\?tab=signin$/);
   await expect(page.getByText('You were signed out')).toBeVisible();
 });
 
@@ -52,7 +52,7 @@ test('the session lives in memory only', async ({ page }) => {
   expect(JSON.stringify(storage)).not.toMatch(/mock-access|mock-refresh|token|password/i);
   expect(Object.keys(storage.local).sort()).toEqual(['starlit.account.profile']);
   await page.reload();
-  await expect(page).toHaveURL(/\/signin$/);
+  await expect(page).toHaveURL(/\?tab=signin$/);
 });
 
 test('Portuguese is available and remembered as a preference', async ({ page }) => {
