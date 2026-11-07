@@ -2,14 +2,17 @@
 
 The web dashboard for a Starlit account, meant for its own origin,
 `https://account.starlit.rrmtools.uk`. It's a separate app from the public
-website in this repository: it has its own build, its own Cloudflare Pages
-project and its own Content-Security-Policy. The website's pages, build and
+website in this repository: it has its own build, its own VPS-hosted static
+container and its own Content-Security-Policy. The website's pages, build and
 `script-src 'none'` policy aren't changed.
 
-**Status:** IN_PR. It isn't deployed anywhere yet. By default it runs against
-an in-browser mock API with two synthetic accounts, because the account RPCs
-(backend migrations `20261107*`) aren't yet deployed or checked on the live
-server.
+**Status (2026-11-07):** IN_PR (website PR #6). A **live, read-only** build is
+hosted on the VPS at
+`https://account-stage.62-171-179-229.sslip.io/`; this is NOT a mock
+deployment. Backend migrations `20261107*` are installed on the VPS and
+the GoTrue browser CORS allowlist has been validated. The final
+`account.starlit.rrmtools.uk` DNS record and full authenticated two-account
+live E2E are still pending. The local default remains synthetic mock data.
 
 ## What it does
 
@@ -34,7 +37,7 @@ doesn't support.
 cd account
 npm ci                     # dev tools only: Playwright and axe (no runtime dependencies)
 npm run build              # mock build -> account/dist
-npm run preview            # http://localhost:8789 (applies dist/_headers like Cloudflare Pages)
+npm run preview            # http://localhost:8789 (previews dist/_headers)
 npm test                   # unit, contract, policy and build tests (node:test)
 npx playwright install chromium
 npm run e2e                # E2E at 1440, 768 and 390 px against the mock build
@@ -47,7 +50,7 @@ network error), go offline, or have "another device" edit something to cause a
 real 409. The synthetic accounts and their test passwords are in
 `src/mock/fixtures.js`. A live build never includes them.
 
-## Live build (after the backend rollout is verified)
+## Live build
 
 ```
 STARLIT_ACCOUNT_MODE=live STARLIT_ANON_KEY=<public anon key> npm run build
@@ -64,11 +67,12 @@ STARLIT_ACCOUNT_MODE=live STARLIT_ANON_KEY=<public anon key> npm run build
   redirect allow list.
 * The CSP adds the API origin to `connect-src`, and nothing else.
 
-To deploy (not done in this PR), create a separate Cloudflare Pages project
-such as `starlit-account` with output directory `account/dist` and the custom
-domain `account.starlit.rrmtools.uk`. Don't add a top-level `404.html`: Pages
-needs to stay in single-page mode. The `starlit-official` website project stays
-exactly as it is.
+The VPS deployment uses the existing HTTPS Caddy edge and an isolated,
+rootless static container with no public listening ports. The deployment
+recipe, protected headers, release/rollback layout and production safety
+gates are documented in [`deploy/vps/README.md`](deploy/vps/README.md).
+Cloudflare Pages is **not** used for the account dashboard; the separate
+public `starlit-official` marketing website stays unchanged.
 
 ## Security notes
 
@@ -92,7 +96,7 @@ exactly as it is.
 
 | Path | Contents |
 | --- | --- |
-| `build.mjs`, `tools/preview.mjs` | Build (mock or live) and a local preview that behaves like Cloudflare Pages |
+| `build.mjs`, `tools/preview.mjs` | Build (mock or live) and a local preview that applies the generated headers |
 | `src/app.js` | Shell, routing, sign-in flow, profile scope |
 | `src/lib/` | API and GoTrue clients, errors, redaction, merge, collections model, settings model, UI kit, copy (EN/PT-PT) |
 | `src/views/` | One file per page |

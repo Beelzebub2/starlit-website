@@ -6,9 +6,13 @@ definition is the private backend's `account_*` migrations (PR #26, merged at
 `fc17191`). The mock in `src/mock/backend.js` mirrors them, and
 `test/unit/api-contract.test.mjs` checks the client against that mock.
 
-**Not verified against a live server.** The migrations haven't been deployed
-or smoke-tested at the time of writing. Treat every row below as "source
-contract", not "observed in production".
+**Rollout update (2026-11-07):** all three account migrations were restored
+and tested against an isolated PostgreSQL copy, then applied to the VPS. All
+18 account RPCs are present, anonymous RPC access is denied, and a real
+browser received GoTrue's safe error response to a deliberately invalid login.
+The staging UI is read-only and serves no mock data. **Successful sign-in,
+real per-profile reads and the two-account authenticated E2E have not yet
+been independently verified**. These remain security gates before writes.
 
 ## Transport
 

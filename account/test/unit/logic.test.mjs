@@ -124,6 +124,11 @@ test('settings: device values read-only, credentials hidden and never edited', (
 });
 
 test('addon addresses and error text never show secrets', () => {
+  const shortToken = redactUrl('https://catalog.example.test/abc123');
+  assert.equal(shortToken.display, 'https://catalog.example.test/…');
+  assert.equal(shortToken.hidden, true);
+  assert.ok(!scrubText('Failed for https://catalog.example.test/abc123').includes('abc123'));
+  assert.ok(!scrubText('API key: abc123').includes('abc123'));
   const r = redactUrl('https://streams.example.test/conf/SYNTHETIC-not-a-real-key-3f9a7c/manifest.json');
   assert.equal(r.display, 'https://streams.example.test/…/manifest.json');
   assert.equal(r.hidden, true);

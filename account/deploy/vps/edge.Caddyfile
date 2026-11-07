@@ -1,0 +1,7 @@
+# Add this block to /opt/rrm-ntfy/Caddyfile after validating the internal site.
+# This hostname is for a VPS-hosted pre-production smoke test. Replace it
+# with account.starlit.rrmtools.uk after its DNS A record points at this VPS.
+account-stage.62-171-179-229.sslip.io {
+    encode zstd gzip
+    reverse_proxy starlit-account-web:8080
+}

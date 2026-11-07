@@ -110,8 +110,8 @@ writeFileSync(join(dist, '_headers'), `/*
   Cache-Control: public, max-age=31536000, immutable
 `);
 
-// Cloudflare Pages serves index.html for unknown paths when there is no
-// top-level 404.html (single-page app mode). Keep it that way.
+// The VPS Caddy static server serves index.html for unknown frontend routes.
+// Keep 404.html absent so static and preview behavior do not diverge.
 if (existsSync(join(dist, '404.html'))) fail('dist/404.html would disable single-page routing');
 
 const count = readdirSync(dist, { recursive: true }).length;

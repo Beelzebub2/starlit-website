@@ -2,7 +2,8 @@
 
 ## Automated (mock build, synthetic data)
 
-`npm test` runs 33 Node tests.
+`npm test` runs 36 Node tests, including the three VPS-hosting hardening
+checks.
 
 | Area | Checked |
 | --- | --- |
@@ -10,7 +11,7 @@
 | Logic (`logic.test.mjs`) | The client's collection import rules plus the stricter TMDB, Trakt and https checks; templates and presets; normalisation that keeps unknown fields; list and object merges; settings classification (device, credential, opaque); URL and token redaction; time parsing |
 | Policy and build (`policy-and-build.test.mjs`) | No `innerHTML`, `eval` or `console.*`; tokens never in storage; full EN/PT key parity; no reference images or other brands; the mock build's CSP and headers; the live build has no mock code or test passwords, puts the API origin in `connect-src`, and is read-only by default; refusal of service keys, missing keys and http; the public website keeps `script-src 'none'` |
 
-`npm run e2e` runs 48 Playwright tests in Chromium: everything at 1440 px,
+`npm run e2e` runs the Playwright suite in Chromium: everything at 1440 px,
 and the responsive and accessibility specs at 768 and 390 px too.
 
 | Spec | Checked |
@@ -24,8 +25,11 @@ and the responsive and accessibility specs at 768 and 390 px too.
 
 ## Not yet verified
 
-* **A live API.** The migrations aren't deployed. Every result above is
-  against the mock, which follows the SQL source but isn't the server.
+* **Authenticated live API and per-profile data.** The migrations are
+  deployed and anonymous access is denied. Chromium loaded the live staging
+  sign-in page without console errors, then handled a fictitious invalid
+  sign-in through the real API. Successful authentication and isolation of
+  two independent live accounts have not yet been E2E tested.
 * **A screen reader.** Labels, roles, live regions and focus order are covered
   by axe and the keyboard tests, but nobody has used NVDA, VoiceOver or
   TalkBack on it yet.
@@ -33,14 +37,15 @@ and the responsive and accessibility specs at 768 and 390 px too.
   need a pass: `<dialog>`, `:has()` and `structuredClone` are all supported,
   but that isn't the same as tested.
 
-## Live E2E (after rollout)
+## Live E2E (next security gate)
 
 `test/e2e/live.spec.mjs` is skipped until all of these are true:
 
 1. The backend migrations are deployed, following the backend's rollout
-   checklist (backup, migrate, smoke test).
+   checklist (backup, migrate, smoke test). **Completed 2026-11-07.**
 2. A **read-only** live build is served at a staging address
    (`STARLIT_ACCOUNT_MODE=live`, no `STARLIT_ACCOUNT_WRITES`).
+   **Completed: `https://account-stage.62-171-179-229.sslip.io/`.**
 3. An operator has created two disposable accounts.
 
 ```
