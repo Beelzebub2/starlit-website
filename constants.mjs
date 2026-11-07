@@ -20,7 +20,7 @@ export const NUVIO = 'https://github.com/NuvioMedia/NuvioDesktop';
 
 // The release the pages describe. Bump it, the file names below and the
 // "What's new" entries in pages/download.mjs together after each release.
-export const VERSION = '1.12.0';
+export const VERSION = '1.12.2';
 export const WINDOWS_FILE = `Starlit-Windows-x64-${VERSION}.exe`;
 export const ANDROID_FILE = `Starlit-Android-arm64-v8a-${VERSION}.apk`;
 

@@ -297,6 +297,7 @@ write(join(dist, '.well-known', 'security.txt'),
   'Canonical: ' + ORIGIN + '/.well-known/security.txt\n');
 write(join(dist, '_redirects'), '/en / 301\n/en/* /:splat 301\n');
 write(join(dist, '_headers'), `/*
+  Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY

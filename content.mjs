@@ -1,7 +1,7 @@
 // Public-facing content must match deployed Starlit behavior. Review after
 // backend / addon / account lifecycle changes and before public launch.
 // Legal page text below is a drafted transparency notice: change wording only
-// with the operator's approval, never as part of a visual redesign.
+// with the operator's authorization, never as part of a visual redesign.
 import { CONTACT, CONTACT_LINK, mailto } from './constants.mjs';
 
 export { CONTACT, CONTACT_LINK, UPDATED, UPDATED_PT, API, routes } from './constants.mjs';
@@ -20,11 +20,15 @@ export const en = {
       <ul><li><strong>Google sign-in:</strong> Google verifies your identity and may supply a
       unique Google account identifier, verified email address, name, and profile image.
       We do not receive your Google password or request access to Gmail, Drive, or contacts.</li>
-      <li><strong>Account approval:</strong> verified applicant email, provider identifier,
-      request time, review status and a time-limited private review link. With email/password
-      signup, the proposed password is temporarily encrypted while the request is pending.</li>
-      <li><strong>Approved account:</strong> internal user ID, email, linked sign-in identifiers,
-      sessions and account administration records required for authentication.</li>
+      <li><strong>Account registration:</strong> email address, protected password hash
+      when used, verified Google identity when selected, linked sign-in methods,
+      account ID, sessions and security records. Email/password accounts must
+      verify their email address before signing in.</li>
+      <li><strong>Operational account statistics:</strong> the server counts current
+      accounts, verified accounts and new registrations within the past 24 hours.
+      Only these aggregate counts and a snapshot timestamp go to our private
+      analytics service. No email address, account ID or other individual
+      information is included.</li>
       <li><strong>Optional synchronization:</strong> profiles, library, saved collections,
       watch history, playback position, settings, addon/plugin configuration, and where a
       sync feature explicitly supports them, connected-provider credentials or tokens.
@@ -40,30 +44,29 @@ export const en = {
       independent of usage analytics and neither category is required to use Starlit.</li>
       <li><strong>Technical/security records:</strong> connection and request metadata, such
       as IP addresses, can be processed by infrastructure and security providers. The
-      signup rate-limiter stores keyed IP fingerprints instead of plaintext IPs.</li>
+      signup requests remain subject to per-IP rate limits.</li>
       <li><strong>Local-only items:</strong> downloaded media, caches and certain settings are
       stored on your device. Removing the cloud account does not automatically remove
       files from other devices.</li></ul>
       <h2>3. Purposes and legal grounds</h2>
-      <ul><li><strong>GDPR Article 6(1)(b):</strong> processing necessary to review an access
-      request, establish an approved account, authenticate you, and supply the optional
-      synchronization service you request.</li>
-      <li><strong>GDPR Article 6(1)(f):</strong> proportionate anti-abuse rate limiting,
-      account protection, and security investigations, subject to balancing your rights
-      against those legitimate interests.</li>
+      <ul><li><strong>GDPR Article 6(1)(b):</strong> processing necessary to create
+      and verify accounts, authenticate users and provide requested synchronization.</li>
+      <li><strong>GDPR Article 6(1)(f):</strong> proportionate anti-abuse measures,
+      account protection, security investigations and aggregate operational
+      account statistics, balanced against your rights.</li>
       <li><strong>GDPR Article 6(1)(c):</strong> any processing needed to meet an applicable
       legal obligation.</li>
       <li><strong>GDPR Article 6(1)(a):</strong> your voluntary consent to optional
       usage analytics and, separately, crash reporting. You can withdraw either
       choice at any time without losing access to Starlit.</li></ul>
-      <p>Google sign-in is optional if an alternative is offered. An approved account
-      needs essential identity and session data to function. Approval is a human
-      decision, not a decision based solely on automated profiling.</p>
+      <p>Google sign-in is optional if an alternative is offered. Account
+      verification and session data are necessary for cloud accounts.
+      Aggregate operational counts are separate from optional app usage analytics.</p>
       <h2>4. Who receives data and international transfers?</h2>
-      <p>Google handles your Google authentication; Cloudflare and hosting providers
-      help deliver and secure services; email infrastructure sends approval notices
-      to the designated administrator. The administrator sees application email
-      addresses and approval status. We do not sell personal data or use Google
+      <p>Google handles Google authentication; Cloudflare and hosting providers
+      help secure the service; email infrastructure delivers verification, recovery
+      and security messages; and our private analytics host processes anonymous
+      aggregate account totals. We do not sell personal data or use Google
       identity information for advertising.</p>
       <p>External addons, metadata services, media sources and linked providers
       are independent. They may receive media queries, service identifiers and
@@ -73,11 +76,10 @@ export const en = {
       depend on provider contracts and destinations. Request details through
       our contact email.</p>
       <h2>5. How long do we retain information?</h2>
-      <p>Pending sign-up requests expire after <strong>seven days</strong> and are
-      removed by the service's next cleanup operation; denied or completed
-      pending requests are removed from that store. Google OAuth request
-      states expire after around ten minutes, and admin-session cookies after
-      around four hours. Rate-limit records are periodically pruned.</p>
+      <p>Email confirmation and recovery links expire after their configured
+      security period. New email/password accounts remain unverified until
+      the owner follows the confirmation link. Rate-limit records are
+      periodically cleared.</p>
       <p>Active account and sync data remain as long as required to provide
       the account service or until a valid deletion request is implemented,
       subject to mandatory legal/security retention. Backup and operational-log
@@ -89,7 +91,9 @@ export const en = {
       configured retention period.
       Turning usage analytics off deletes the local installation identifier and stops
       further reporting; previously received records are not immediately erased.
-      Crash reports are processed separately by Sentry when enabled.</p>
+      Crash reports are processed separately by Sentry when enabled.
+      Anonymous aggregate account snapshots are also retained for around
+      30 days in the restricted analytics stream.</p>
       <h2>6. Your rights</h2>
       <p>You may decline both optional diagnostics categories in the app, or enable
       or disable them independently under <strong>Settings → Advanced</strong> at any
@@ -122,10 +126,10 @@ export const en = {
       <p>Starlit is a media library and player from the RRMTools project. It helps
       users organize content and use media sources they select. Availability and
       features can change as the application evolves.</p>
-      <h2>2. Membership and approval</h2>
-      <p>Any Google account may submit an access request. Authentication alone
-      does not grant access: new accounts require explicit administrator approval.
-      We may deny requests and limit or disable accounts for security, abuse,
+      <h2>2. Accounts</h2>
+      <p>Anyone may create an account with email and password or sign in with
+      Google. Email/password registrations must verify their email address
+      before signing in. Accounts may be restricted for security, abuse,
       legal compliance or other legitimate operational reasons.</p>
       <h2>3. Copyright, media, and independent sources</h2>
       <p>Starlit does not supply licences to stream or distribute copyrighted works.
@@ -135,7 +139,7 @@ export const en = {
       that apply to your chosen sources. Starlit does not represent that all
       external content is authorized by the relevant rights holder.</p>
       <h2>4. Acceptable use and security</h2>
-      <p>Do not circumvent account approval, access other people's data,
+      <p>Do not access other people's data,
       upload malicious software, compromise the platform, misuse credentials
       or use the service unlawfully. You are responsible for keeping your
       Google account and devices secure.</p>
@@ -160,11 +164,6 @@ export const en = {
       behavioral-analytics or preference-tracking cookies. It uses no external
       font scripts, analytics tags or consent pop-ups. Cloudflare may process
       technical requests or use necessary security cookies to protect the site.</p>
-      <h2>Starlit administrator dashboard</h2>
-      <p>On the separate API domain, authorized administrators who sign in
-      with Google receive an essential first-party <code>__Host-starlit_admin</code>
-      session cookie with Secure, HttpOnly and SameSite=Lax protections and
-      an approximate four-hour validity. It is not used for advertising.</p>
       <h2>Google and third-party services</h2>
       <p>Google may use its own authentication cookies on Google's domains.
       Addons, media sources and linked services you choose are independent and
@@ -215,7 +214,7 @@ export const en = {
       links:[[mailto('Starlit support'), 'Email support']] },
     html:`
       <h2>Official Starlit support</h2>
-      <p>Contact <strong>${CONTACT_LINK}</strong> for account approval,
+      <p>Contact <strong>${CONTACT_LINK}</strong> for account help,
       bugs, accessibility issues, data requests, or general support.
       We do not collect form submissions on this website.</p>
       <h2>Privacy and deletion</h2>
@@ -277,12 +276,16 @@ export const pt = {
       <li><strong>Início de sessão Google:</strong> identificador único da conta Google,
       endereço de correio eletrónico verificado e, se fornecidos, nome e fotografia.
       Não recebemos a palavra-passe Google nem pedimos acesso ao Gmail, Drive ou contactos.</li>
-      <li><strong>Pedidos de aprovação:</strong> email do requerente, identificador do
-      fornecedor, data e estado do pedido e ligação privada de revisão com prazo.
-      Nos pedidos com email/palavra-passe, a palavra-passe escolhida fica
-      temporariamente cifrada enquanto o pedido está pendente.</li>
-      <li><strong>Contas aprovadas:</strong> identificador interno, email, identidades
-      associadas, sessões e dados administrativos necessários à autenticação.</li>
+      <li><strong>Registo de contas:</strong> endereço de e-mail, palavra-passe
+      protegida por hash quando utilizada, identidade Google verificada
+      quando escolhida, métodos de autenticação associados, identificador
+      da conta, sessões e registos de segurança. O registo com e-mail exige
+      confirmação do endereço antes de iniciar sessão.</li>
+      <li><strong>Estatísticas operacionais agregadas:</strong> o servidor
+      contabiliza o total de contas, contas verificadas e novos registos
+      nas últimas 24 horas. Apenas estes totais e a hora do registo
+      são enviados ao serviço privado de estatísticas, sem e-mails,
+      identificadores de conta nem dados individuais.</li>
       <li><strong>Sincronização opcional:</strong> perfis, biblioteca, coleções,
       histórico de visualizações, posição de reprodução, definições, configuração
       de addons/plugins e, quando a funcionalidade o suportar, credenciais ou
@@ -303,33 +306,34 @@ export const pt = {
       <li><strong>Dados técnicos e de segurança:</strong> informações sobre
       ligações e pedidos, incluindo endereços IP, podem ser processadas
       por serviços de infraestrutura e segurança. O limitador de pedidos
-      de registo guarda impressões criptográficas dos IP, não os IP em claro.</li>
+      de registo aplica limites de pedidos por endereço IP.</li>
       <li><strong>Dados locais:</strong> ficheiros multimédia descarregados,
       caches e algumas definições permanecem no dispositivo. Apagar a conta
       na nuvem não elimina automaticamente ficheiros em todos os dispositivos.</li></ul>
       <h2>3. Finalidades e fundamentos jurídicos</h2><ul>
-      <li><strong>Artigo 6.º, n.º 1, alínea b), do RGPD:</strong> analisar pedidos
-      de acesso, criar contas aprovadas, autenticar utilizadores e prestar os
-      serviços de sincronização solicitados.</li>
+      <li><strong>Artigo 6.º, n.º 1, alínea b), do RGPD:</strong> criar e
+      verificar contas, autenticar utilizadores e prestar serviços de
+      sincronização solicitados.</li>
       <li><strong>Artigo 6.º, n.º 1, alínea f), do RGPD:</strong> prevenção
-      proporcional de abuso, proteção das contas e investigação de incidentes,
-      ponderando os interesses legítimos e os direitos dos titulares.</li>
+      proporcional de abuso, proteção das contas, investigação de incidentes
+      e estatísticas operacionais agregadas, respeitando os direitos dos titulares.</li>
       <li><strong>Artigo 6.º, n.º 1, alínea c), do RGPD:</strong> cumprimento
       de obrigações legais aplicáveis.</li>
       <li><strong>Artigo 6.º, n.º 1, alínea a), do RGPD:</strong>
       consentimento livre para as estatísticas opcionais e, de forma
       independente, os relatórios de erros. Podes retirar cada autorização
       a qualquer momento sem perder o acesso ao Starlit.</li></ul>
-      <p>O início de sessão Google é opcional quando existir outro método
-      de autenticação disponível. O funcionamento da conta exige dados de
-      identidade e sessão essenciais. A aprovação é uma decisão humana e não
-      um processo exclusivamente automatizado de definição de perfis.</p>
+      <p>O início de sessão Google é opcional quando existir outro método.
+      A verificação de contas e os dados de sessão são necessários ao serviço.
+      Os totais operacionais agregados são independentes das estatísticas
+      opcionais da aplicação e não identificam utilizadores.</p>
       <h2>4. Destinatários e transferências internacionais</h2>
       <p>A Google trata a autenticação Google; a Cloudflare e os prestadores
-      de alojamento apoiam a entrega e segurança do serviço; os serviços de
-      email enviam avisos de aprovação ao administrador. O administrador
-      consulta emails e estados dos pedidos. Não vendemos dados pessoais
-      nem utilizamos a identidade Google para publicidade.</p>
+      de alojamento apoiam a segurança do serviço; os serviços de e-mail
+      enviam mensagens de confirmação, recuperação e segurança; o serviço
+      privado de estatísticas recebe apenas totais anónimos de contas.
+      Não vendemos dados pessoais nem utilizamos identidades Google
+      para publicidade.</p>
       <p>Addons, serviços de metadados, fontes de vídeo e fornecedores
       associados são independentes e podem receber pesquisas, identificadores
       ou dados de ligação segundo as próprias políticas. Em transferências
@@ -338,12 +342,10 @@ export const pt = {
       Espaço Económico Europeu; as salvaguardas concretas dependem dos
       destinos e contratos. Pede informações através do contacto indicado.</p>
       <h2>5. Conservação</h2>
-      <p>Pedidos de acesso pendentes expiram após <strong>sete dias</strong>
-      e são removidos na operação de limpeza seguinte; pedidos recusados
-      ou aprovados deixam de constar da lista de pendentes. Estados de
-      autenticação Google expiram ao fim de cerca de dez minutos e as
-      sessões do administrador após cerca de quatro horas. Registos de
-      limitação de pedidos são eliminados periodicamente.</p>
+      <p>As ligações de confirmação do e-mail e de recuperação expiram
+      após o prazo de segurança configurado. Contas novas criadas por
+      e-mail só permitem iniciar sessão após confirmar o endereço.
+      Os registos de limitação de pedidos são eliminados periodicamente.</p>
       <p>Dados de contas ativas e sincronização são conservados enquanto
       forem necessários ao serviço ou até à execução de um pedido válido
       de eliminação, sem prejuízo de obrigações legais ou de segurança.
@@ -357,7 +359,9 @@ export const pt = {
       as estatísticas apaga o identificador
       local e impede novos envios, mas não elimina imediatamente os registos
       já recebidos. Os relatórios de erros, quando autorizados, são tratados
-      separadamente pelo Sentry.</p>
+      separadamente pelo Sentry. Os totais agregados de contas são
+      guardados durante cerca de 30 dias no serviço privado,
+      sem identificadores pessoais.</p>
       <h2>6. Os teus direitos</h2>
       <p>Podes recusar ambas as categorias opcionais ou ativá-las e desativá-las
       independentemente em <strong>Definições → Avançadas</strong>, a qualquer
@@ -389,10 +393,10 @@ export const pt = {
       multimédia do projeto RRMTools. Permite organizar conteúdos e usar
       fontes escolhidas pelo utilizador. As funcionalidades e a
       disponibilidade podem mudar durante o desenvolvimento.</p>
-      <h2>2. Contas e aprovação</h2><p>Qualquer conta Google pode
-      apresentar um pedido. A autenticação por si só não concede acesso:
-      novas contas exigem aprovação expressa de um administrador.
-      Podemos recusar pedidos ou limitar contas por motivos de segurança,
+      <h2>2. Contas</h2><p>Qualquer pessoa pode criar uma conta com
+      e-mail e palavra-passe ou iniciar sessão com Google. Registos
+      com e-mail exigem a confirmação do endereço antes do primeiro
+      início de sessão. Podemos limitar contas por motivos de segurança,
       abuso, obrigações legais ou necessidades operacionais legítimas.</p>
       <h2>3. Direitos de autor e fontes independentes</h2>
       <p>O Starlit não concede licenças para reproduzir ou distribuir obras
@@ -401,8 +405,8 @@ export const pt = {
       Cada utilizador é responsável por obter as autorizações necessárias
       e respeitar a legislação aplicável. Não afirmamos que todos os
       conteúdos externos estão autorizados pelos respetivos titulares.</p>
-      <h2>4. Utilização aceitável</h2><p>É proibido contornar a aprovação,
-      aceder a dados alheios, distribuir software malicioso, comprometer
+      <h2>4. Utilização aceitável</h2><p>É proibido aceder a dados alheios,
+      distribuir software malicioso, comprometer
       a plataforma, utilizar indevidamente credenciais ou agir ilegalmente.
       Deves proteger a conta Google e os teus dispositivos.</p>
       <h2>5. Disponibilidade e direitos legais</h2>
@@ -426,11 +430,6 @@ export const pt = {
       de preferências. Não inclui scripts de análise, fontes externas
       ou pop-ups de consentimento. A Cloudflare pode processar pedidos
       técnicos ou utilizar cookies necessários à segurança do site.</p>
-      <h2>Painel de administração</h2><p>No domínio separado da API,
-      o administrador autorizado autenticado com Google recebe um
-      cookie estritamente necessário, <code>__Host-starlit_admin</code>,
-      protegido por Secure, HttpOnly e SameSite=Lax, com validade
-      aproximada de quatro horas. Não é usado para publicidade.</p>
       <h2>Google e serviços externos</h2><p>A Google pode usar
       cookies de autenticação nos seus domínios. Addons, fontes de
       vídeo e serviços associados podem usar cookies próprios.
@@ -474,7 +473,7 @@ export const pt = {
       links:[[mailto('Suporte Starlit'), 'Enviar email ao suporte']] },
     html:`
       <h2>Suporte oficial Starlit</h2><p>Contacta
-      <strong>${CONTACT_LINK}</strong> para aprovação de contas,
+      <strong>${CONTACT_LINK}</strong> para ajuda com contas,
       erros, acessibilidade, pedidos de dados e apoio geral.
       Este site não recolhe dados através de formulários.</p>
       <h2>Privacidade e eliminação</h2><p>Usa o mesmo email

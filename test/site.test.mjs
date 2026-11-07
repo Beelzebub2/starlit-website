@@ -63,25 +63,29 @@ test('The header links to every product page and marks the current one', () => {
   }
 });
 
-test('Public OAuth privacy pages disclose Google identity use, approval and deletion', () => {
+test('Public privacy pages disclose open registration, aggregate account metrics and deletion', () => {
   const enPrivacy = read('privacy/index.html');
   for (const required of ['Google sign-in', 'Google account identifier',
-    'GDPR Article 6(1)(b)', 'seven days', 'legitimate interests',
+    'GDPR Article 6(1)(b)', 'legitimate interests',
     'BitTorrent', 'CNPD', 'support.starlit@rrmtools.uk',
     'Optional app usage analytics', 'Optional crash reports', 'Sentry',
-    'GDPR Article 6(1)(a)', '30 days', 'Settings']) {
+    'GDPR Article 6(1)(a)', '30 days', 'Settings',
+    'Operational account statistics', 'verified accounts']) {
     assert.ok(enPrivacy.includes(required), 'Missing privacy concept: ' + required);
   }
   const ptPrivacy = read('pt/privacidade/index.html');
   assert.match(ptPrivacy, /RGPD/);
   assert.match(ptPrivacy, /BitTorrent/);
   assert.match(ptPrivacy, /Estatísticas opcionais da aplicação/);
+  assert.match(ptPrivacy, /Estatísticas operacionais agregadas/);
   assert.match(ptPrivacy, /Artigo 6.º, n.º 1, alínea a\)/);
   assert.match(ptPrivacy, /30 dias/);
-  assert.match(read('sync/index.html'), /administrator must approve each request/i);
-  assert.match(read('sync/index.html'), /expire after seven days/);
-  assert.match(read('pt/conta/index.html'), /administrador tem de aprovar cada pedido/i);
-  assert.match(read('pt/conta/index.html'), /expiram ao fim de sete dias/);
+  assert.match(read('sync/index.html'), /Verify your email/i);
+  assert.match(read('pt/conta/index.html'), /Confirma o teu e-mail/i);
+  for (const { key, html } of allPages()) {
+    assert.doesNotMatch(html, /account approval|administrator must approve|approved account|owner approval|request account|approved by hand/i, key);
+    assert.doesNotMatch(html, /aprovação de contas|contas aprovadas|administrador tem de aprovar|aprovadas manualmente|pedir conta/i, key);
+  }
   assert.match(read('delete-account/index.html'), /Starlit account deletion/);
   assert.match(read('pt/apagar-conta/index.html'), /Eliminação de conta Starlit/);
 });
@@ -181,6 +185,8 @@ test('Logo is official, size-bounded and security headers forbid active tracking
   assert.ok(statSync(logo).size < 1024 * 1024);
   assert.match(read('assets/starlit-mark.svg'), /#45D6EB[\s\S]*#3965D4[\s\S]*#B250EF/);
   const headers = read('_headers');
+  assert.match(headers, /Strict-Transport-Security: max-age=31536000/);
+  assert.doesNotMatch(headers, /Strict-Transport-Security:.*includeSubDomains/);
   assert.match(headers, /script-src 'none'/);
   assert.match(headers, /connect-src 'none'/);
   assert.match(headers, /form-action 'none'/);

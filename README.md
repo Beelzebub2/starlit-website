@@ -12,7 +12,7 @@ Keep it **separate** from the production account API at
 | `/remote/` | `/pt/comando/` | PC remote: pairing, what the phone can do, Wi-Fi and Bluetooth, firewall, security |
 | `/anime/` | `/pt/anime/` | Airing Now, the MyAnimeList tab, rewatches and tracking |
 | `/watch/` | `/pt/ver/` | The player, Google Cast, sources, offline downloads and storage |
-| `/sync/` | `/pt/conta/` | What syncs, accounts and approval, sign-in methods, diagnostics |
+| `/sync/` | `/pt/conta/` | What syncs, self-service registration, sign-in methods, diagnostics |
 | `/download/` | `/pt/transferir/` | Downloads, install steps, what's new, checksums and FAQ |
 
 Plus the six policy pages (privacy, terms, cookies, delete account, contact,
@@ -28,10 +28,20 @@ links use `support.starlit@rrmtools.uk`.
 npm run build     # writes dist/
 npm test          # checks pages, links, anchors, metadata, headers, policy text and feature labels
 npm run preview   # serves dist/ at http://localhost:8788 like Cloudflare Pages
+npm run preflight # fetches and compares remote code, open PRs and local checkout
+npm run prepublish # blocks publication if the checkout is behind main/unverified
 ```
 
 The preview applies `dist/_headers` (including the Content-Security-Policy),
 redirects `/privacy` to `/privacy/` and serves the 404 pages with a 404 status.
+
+## Source freshness guard
+
+Read `AGENTS.md` before any change. Claude Code automatically runs the
+`SessionStart` and `UserPromptSubmit` hooks from `.claude/settings.json`.
+They fetch remote-tracking refs, identify newer branches and list open PRs
+before work begins. Other coding agents follow the same workflow through
+`AGENTS.md`. Never treat a merge as proof of a production deployment.
 
 Deploy `dist` to the Cloudflare Pages project `starlit-official`, with the custom
 domain `starlit.rrmtools.uk`. For a clean environment,
@@ -45,7 +55,7 @@ domain `starlit.rrmtools.uk`. For a clean environment,
 | `constants.mjs` | Contact email, routes, release links, and the current version and file names |
 | `pages/*.mjs` | One file per product page: its English and Portuguese copy, and its markup |
 | `ui.mjs` | Shared pieces: icons, status pills, app-window and phone frames, CSS-only tabs, asset hashing |
-| `content.mjs` | Policy pages. Their wording is a legal draft: change it only with the operator's approval |
+| `content.mjs` | Policy pages. Their wording is a legal draft: change it only with the operator's authorization |
 | `build.mjs` | Header, footer, policy layout and contents lists, sitemap, headers and redirects |
 | `assets/site.css` | All styles; minified at build time |
 | `tools/make-brand-images.py` | Rebuilds the wordmarks, social image and icons from the app repository's branding |
