@@ -6,6 +6,8 @@
   "scripts": {
     "build": "node build.mjs",
     "test": "node --test test/site.test.mjs",
+    "preflight": "node tools/check-freshness.mjs --mode=check",
+    "prepublish": "node tools/check-freshness.mjs --mode=prepublish",
     "preview": "node tools/preview.mjs"
   },
   "engines": {

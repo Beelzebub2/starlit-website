@@ -6,24 +6,42 @@ Keep it **separate** from the production account API at
 
 ## Pages
 
-- Homepage, privacy, terms, cookies, delete-account, contact, legal operator
-- The matching 7 pages in Portuguese (Portugal) under `/pt/`
-- `404.html` and `pt/404.html`: Cloudflare Pages serves the nearest one with a
-  real 404 status, so unknown addresses no longer return the homepage
-- Official Starlit mark and wordmark, no Google or Cloudflare account credentials in site code
-- No contact form, no JavaScript at all, no tracking or ad scripts; all email links
-  use `support.starlit@rrmtools.uk`
+| English | Portuguese (Portugal) | Contents |
+| --- | --- | --- |
+| `/` | `/pt/` | Home: the PC and phone together, feature status, highlights |
+| `/remote/` | `/pt/comando/` | PC remote: pairing, what the phone can do, Wi-Fi and Bluetooth, firewall, security |
+| `/anime/` | `/pt/anime/` | Airing Now, the MyAnimeList tab, rewatches and tracking |
+| `/watch/` | `/pt/ver/` | The player, Google Cast, sources, offline downloads and storage |
+| `/sync/` | `/pt/conta/` | What syncs, self-service registration, sign-in methods, diagnostics |
+| `/download/` | `/pt/transferir/` | Downloads, install steps, what's new, checksums and FAQ |
+
+Plus the six policy pages (privacy, terms, cookies, delete account, contact,
+legal operator) in both languages, and `404.html` / `pt/404.html`: Cloudflare
+Pages serves the nearest one with a real 404 status.
+
+No contact form, no JavaScript at all, no tracking or ad scripts; all email
+links use `support.starlit@rrmtools.uk`.
 
 ## Build, test and preview
 
 ```
 npm run build     # writes dist/
-npm test          # checks pages, links, anchors, metadata, headers and policy text
+npm test          # checks pages, links, anchors, metadata, headers, policy text and feature labels
 npm run preview   # serves dist/ at http://localhost:8788 like Cloudflare Pages
+npm run preflight # fetches and compares remote code, open PRs and local checkout
+npm run prepublish # blocks publication if the checkout is behind main/unverified
 ```
 
 The preview applies `dist/_headers` (including the Content-Security-Policy),
 redirects `/privacy` to `/privacy/` and serves the 404 pages with a 404 status.
+
+## Source freshness guard
+
+Read `AGENTS.md` before any change. Claude Code automatically runs the
+`SessionStart` and `UserPromptSubmit` hooks from `.claude/settings.json`.
+They fetch remote-tracking refs, identify newer branches and list open PRs
+before work begins. Other coding agents follow the same workflow through
+`AGENTS.md`. Never treat a merge as proof of a production deployment.
 
 Deploy `dist` to the Cloudflare Pages project `starlit-official`, with the custom
 domain `starlit.rrmtools.uk`. For a clean environment,
@@ -34,32 +52,43 @@ domain `starlit.rrmtools.uk`. For a clean environment,
 
 | File | Contents |
 | --- | --- |
-| `constants.mjs` | Contact email, routes, homepage anchors and release links |
-| `home.mjs` | Homepage copy in English and Portuguese, and its markup |
+| `constants.mjs` | Contact email, routes, release links, and the current version and file names |
+| `pages/*.mjs` | One file per product page: its English and Portuguese copy, and its markup |
+| `ui.mjs` | Shared pieces: icons, status pills, app-window and phone frames, CSS-only tabs, asset hashing |
 | `content.mjs` | Policy pages. Their wording is a legal draft: change it only with the operator's authorization |
-| `art.mjs` | The official mark, the sparkle shape and the generated night sky |
-| `build.mjs` | Page layout, policy anchors and contents lists, sitemap, headers and redirects |
+| `build.mjs` | Header, footer, policy layout and contents lists, sitemap, headers and redirects |
 | `assets/site.css` | All styles; minified at build time |
 | `tools/make-brand-images.py` | Rebuilds the wordmarks, social image and icons from the app repository's branding |
 | `tools/preview.mjs` | Local preview server |
 
-Homepage claims must match the current public releases (the app's README,
-`docs/ANDROID.md` and `docs/RELEASE-NOTES.md`). Download buttons open
-`/releases/latest` on GitHub, so they never point at an old version.
+Feature claims must match the current public releases (the app's README,
+`docs/` and `docs/RELEASE-NOTES.md` on the `Dev` branch). Current labels:
+the Bluetooth remote and Google Cast are **Beta** (neither has been tested
+end-to-end on real hardware); iPhone, Mac and Linux are **Not yet**; the
+MyAnimeList tab and rewatch detection are in the Windows app, and the tab is
+off by default.
+
+After each release, update `VERSION` in `constants.mjs`, the shipping log in
+`pages/home.mjs` and "What's new" in `pages/download.mjs`. Download buttons
+open `/releases/latest` on GitHub, so they never point at an old version.
 
 ## Design
 
-- **Colours.** Night (default) uses Midnight `#0a0e27`, Deep `#111739` and
-  Starlight `#edf0ff`; Dawn (light mode) uses `#f2f4fc`, white and `#0e1333`.
-  The brand gradient (`#45D6EB`, `#3965D4`, `#B250EF`) stays on the mark, list
-  sparkles and step numbers. All text pairs meet WCAG AA in both themes.
-- **Type.** Mona Sans (expanded widths for headings) and Source Serif 4 for
-  policy text. Both are self-hosted under the SIL Open Font License; licences
-  are in `assets/fonts/`.
-- **Motion.** One load sequence on the homepage mark and four slow twinkles.
-  Everything stops under `prefers-reduced-motion`.
-- **Interactions** use `<details>` and anchors only, so the CSP keeps
-  `script-src 'none'`.
+- **Colours.** One dark theme: page `#06070F`, panels `#0B0D1A` and
+  `#090B17`, lines `#161A33`, text `#EEF0FA` (secondary `#A2A8C3`, muted
+  `#7C83A3`), accent `#45D6EB` with `#04121A` text on it, links `#7FE3F2`,
+  Beta `#F2B84B`. The app mockups use the app's own colours (`--app-*`).
+- **Type.** Bricolage Grotesque for headings (one latin file, optical size 96,
+  widths 75–100%, weights 700–800), Geist for text and Geist Mono for labels
+  and numbers. All three are self-hosted under the SIL Open Font License;
+  licences are in `assets/fonts/`.
+- **Mockups** are drawn in HTML and CSS. The shows and artwork in them are
+  invented, and each page says so next to its mockups.
+- **Interactions** use `<details>`, anchors and radio-button tabs styled with
+  `:has()` (the phone controller, Airing Now days and MyAnimeList statuses), so
+  the CSP keeps `script-src 'none'`. Without `:has()` the first tab shows.
+- **Layout.** 1280 px maximum content width with 40 px side padding, 16 px
+  below 960 px, where grids collapse to one column.
 - **Caching.** Asset URLs carry a content hash (`?v=`). Responses keep
   `Cache-Control: no-transform` so Cloudflare cannot inject scripts (such as
   email obfuscation) that the CSP would block; that also means Cloudflare does
