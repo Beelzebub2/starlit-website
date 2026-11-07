@@ -60,6 +60,7 @@ domain `starlit.rrmtools.uk`. For a clean environment,
 | `assets/site.css` | All styles; minified at build time |
 | `tools/make-brand-images.py` | Rebuilds the wordmarks, social image and icons from the app repository's branding |
 | `tools/preview.mjs` | Local preview server |
+| `account/` | **Separate app**: the account dashboard for `account.starlit.rrmtools.uk`, with its own build, CSP, tests and Pages project. The website build ignores it. See [account/README.md](account/README.md) |
 
 Feature claims must match the current public releases (the app's README,
 `docs/` and `docs/RELEASE-NOTES.md` on the `Dev` branch). Current labels:
