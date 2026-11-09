@@ -101,6 +101,25 @@ test('live build: no mock code, API origin in connect-src, read-only by default'
   } finally { rmSync(out, { recursive: true, force: true }); }
 });
 
+test('live Google and passkey sign-in options require explicit build flags and leave writes off', () => {
+  const { out, status, stderr } = build({
+    STARLIT_ACCOUNT_MODE: 'live',
+    STARLIT_ANON_KEY: jwt({ role: 'anon' }),
+    STARLIT_GOOGLE_SIGNIN: '1',
+    STARLIT_PASSKEY_SIGNIN: '1',
+  }, 'providers');
+  try {
+    assert.equal(status, 0, stderr);
+    const config = readFileSync(join(out, 'config.js'), 'utf8');
+    assert.match(config, /"googleSignIn": true/);
+    assert.match(config, /"passkeySignIn": true/);
+    assert.match(config, /"writesEnabled": false/);
+    assert.ok(!existsSync(join(out, 'mock')));
+    const html = readFileSync(join(out, 'index.html'), 'utf8');
+    assert.doesNotMatch(html, /<script(?![^>]*src=)[^>]*>/i);
+  } finally { rmSync(out, { recursive: true, force: true }); }
+});
+
 test('nested /account/ live build prefixes assets and preserves strict policies', () => {
   const { out, status, stderr } = build({
     STARLIT_ACCOUNT_MODE: 'live',

@@ -6,7 +6,7 @@ import { ApiError, errorFromResponse, networkError } from './errors.js';
 
 const VERIFIER_KEY = 'starlit.pkce';
 
-export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now(), onChange }) {
+export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now(), onChange, credentials = globalThis.navigator?.credentials }) {
   let session = null;      // { accessToken, refreshToken, expiresAt, user }
   let refreshTimer = null;
 
@@ -91,6 +91,54 @@ export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now()
     async signInWithPassword(email, password) {
       return accept(await call('/token?grant_type=password', { body: { email, password } }));
     },
+    // GoTrue keeps the WebAuthn challenge, RP and credential verification on
+    // the server. Do not change its existing RP ID: native app passkeys use it.
+    async signInWithPasskey() {
+      if (!credentials?.get || !globalThis.PublicKeyCredential) {
+        throw new ApiError('unsupported', { message: 'This browser cannot use passkeys for this site' });
+      }
+      const request = await call('/passkeys/authentication/options', { body: {} });
+      if (!request?.challenge_id || !request?.options?.challenge || !request.options.rpId) {
+        throw new ApiError('server', { message: 'Invalid passkey challenge from the server' });
+      }
+      const publicKey = {
+        ...request.options,
+        challenge: fromBase64Url(request.options.challenge),
+        ...(request.options.allowCredentials ? {
+          allowCredentials: request.options.allowCredentials.map(item => ({
+            ...item, id: fromBase64Url(item.id),
+          })),
+        } : {}),
+      };
+      let assertion;
+      try { assertion = await credentials.get({ publicKey }); }
+      catch (cause) {
+        // A credential not chosen, incompatible authenticator or unsupported
+        // related-origin browser never creates a website session.
+        throw new ApiError(cause?.name === 'SecurityError' ? 'unsupported' : 'auth', {
+          message: 'Passkey sign-in was cancelled or not available',
+        });
+      }
+      if (!assertion?.id || !assertion?.response?.authenticatorData ||
+          !assertion.response.clientDataJSON || !assertion.response.signature) {
+        throw new ApiError('auth', { message: 'No valid passkey assertion was returned' });
+      }
+      const credential = {
+        id: assertion.id,
+        rawId: toBase64Url(assertion.rawId),
+        type: 'public-key',
+        response: {
+          authenticatorData: toBase64Url(assertion.response.authenticatorData),
+          clientDataJSON: toBase64Url(assertion.response.clientDataJSON),
+          signature: toBase64Url(assertion.response.signature),
+          userHandle: assertion.response.userHandle ? toBase64Url(assertion.response.userHandle) : null,
+        },
+        clientExtensionResults: assertion.getClientExtensionResults?.() ?? {},
+      };
+      return accept(await call('/passkeys/authentication/verify', {
+        body: { challenge_id: request.challenge_id, credential },
+      }));
+    },
     async loadUser() {
       if (!session) return null;
       session.user = await call('/user', { method: 'GET', token: session.accessToken });
@@ -139,5 +187,21 @@ export async function sha256Base64Url(text) {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)));
   let binary = '';
   for (const b of digest) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+export function fromBase64Url(value) {
+  if (typeof value !== 'string' || !/^[A-Za-z0-9_-]+={0,2}$/.test(value)) {
+    throw new ApiError('server', { message: 'Invalid base64url value' });
+  }
+  const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+  const bytes = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='));
+  return Uint8Array.from(bytes, c => c.charCodeAt(0));
+}
+
+export function toBase64Url(value) {
+  const bytes = new Uint8Array(value);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }

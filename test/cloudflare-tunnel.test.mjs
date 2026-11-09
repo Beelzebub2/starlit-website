@@ -31,7 +31,7 @@ test('private Cloudflare origin reuses CrowdSec Caddy log and restricts host', (
   assert.match(caddy, /handle @starlit \{/);
   assert.match(caddy, /reverse_proxy starlit-site-web:8081/);
   assert.match(caddy, /header_up X-Forwarded-Proto https/);
-  assert.match(caddy, /\n\s*respond 404\n\}/);
+  assert.match(caddy, /\r?\n\s*respond 404\r?\n\}/);
   assert.doesNotMatch(caddy, /transport http \{\s*tls_insecure_skip_verify/);
   assert.doesNotMatch(caddy, /header_up \+?Authorization/);
 });

@@ -63,8 +63,15 @@ STARLIT_ACCOUNT_MODE=live STARLIT_ANON_KEY=<public anon key> npm run build
   only after the staged read checks and the two-account checks pass. This is
   the feature flag the backend rollout plan asks for.
 * Google sign-in stays hidden unless `STARLIT_GOOGLE_SIGNIN=1`. Before you set
-  it, add `https://starlit.rrmtools.uk/account?tab=auth-callback` to GoTrue's
-  redirect allow list.
+  it, allow exactly `https://starlit.rrmtools.uk/account?tab=auth-callback` in
+  GoTrue's redirect list. GoTrue, not the website, receives Google's OAuth client
+  callback at `https://starlit-api.rrmtools.uk/auth/v1/callback`.
+* Passkey sign-in stays hidden unless `STARLIT_PASSKEY_SIGNIN=1`. Keep the
+  existing GoTrue RP ID `starlit-api.rrmtools.uk`: native app passkeys use it.
+  To let a browser on `starlit.rrmtools.uk` use the same RP, the API must serve
+  `/.well-known/webauthn` with the exact official website Origin in its
+  `origins` array, and GoTrue must allow that Origin. Browsers without
+  Related Origin Requests support can use their password or Google instead.
 * The CSP adds the API origin to `connect-src`, and nothing else.
 
 The combined VPS deployment uses the existing HTTPS Caddy edge and an
@@ -75,7 +82,8 @@ reference until the public domain cutover has been verified.
 
 ## Security notes
 
-* **Tokens live in memory only.** Nothing goes to `localStorage`, cookies or
+* **Tokens live in memory only.** Password, passkey and Google sessions use the
+  same storage restrictions. Nothing goes to `localStorage`, cookies or
   the URL, so a reload signs you out. The only thing kept in `sessionStorage`
   is the one-time PKCE verifier, and only during a Google redirect. Only the
   language and the last profile number are stored in `localStorage`.

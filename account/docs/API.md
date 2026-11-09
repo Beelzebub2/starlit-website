@@ -70,9 +70,11 @@ been independently verified**. These remain security gates before writes.
 | `GET /auth/v1/user` | after Google sign-in |
 | `POST /auth/v1/logout?scope=local\|others\|global` | sign out of this browser, every other session, or everywhere |
 | `GET /auth/v1/authorize?provider=google` + `POST /auth/v1/token?grant_type=pkce` | Google with PKCE; off unless `STARLIT_GOOGLE_SIGNIN=1` |
+| `POST /auth/v1/passkeys/authentication/options` and `POST /auth/v1/passkeys/authentication/verify` | Passkey sign-in; browser WebAuthn assertion verified by GoTrue, only enabled with `STARLIT_PASSKEY_SIGNIN=1` and exact RP-related origin allowlisting |
 
-Password, email, passkeys and account creation stay in the app. The web page
-says so instead of copying those flows.
+Changing passwords and email, registering/removing passkeys and creating accounts
+stay in the native app. The website can sign in using a previously registered
+passkey when the browser supports Related Origin Requests.
 
 ## Client-side rules the server doesn't enforce
 
