@@ -27,6 +27,8 @@ assert_code 404 "$HOST" /.env
 assert_code 404 "$HOST" /nonexistent-page
 assert_code 404 evil.invalid /
 curl -sSI --max-time 6 -H "Host: $HOST" "http://$ip:8088/account?tab=plugins" | grep -qi "script-src 'self'"
-curl -sSI --max-time 6 -H "Host: $HOST" "http://$ip:8088/" | grep -qi "script-src 'none'"
+curl -sSI --max-time 6 -H "Host: $HOST" "http://$ip:8088/" | grep -qiF "connect-src 'self'; script-src 'self'; object-src 'none'"
+assert_code 200 "$HOST" /releases.json
+assert_code 200 "$HOST" /assets/site.js
 curl -sSI --max-time 6 -H "Host: $HOST" "http://$ip:8088/account?tab=plugins" | grep -qi 'no-store'
 echo 'Cloudflare Tunnel private-origin security checks passed.'

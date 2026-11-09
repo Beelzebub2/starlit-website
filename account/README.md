@@ -3,8 +3,9 @@
 The Starlit account dashboard is mounted at
 `https://starlit.rrmtools.uk/account?tab=overview` on the **same VPS-hosted
 website** as the marketing pages. It remains an independently built browser
-app with its own Content-Security-Policy; the public pages keep their stricter
-`script-src 'none'` policy. The backend API remains at
+app with its own Content-Security-Policy; the public pages keep a stricter
+policy that runs only their own `/assets/site.js` and never contacts the
+account API (`connect-src 'self'`). The backend API remains at
 `https://starlit-api.rrmtools.uk`.
 
 **Status (2026-11-07):** IN_PR (website PR #6). The combined VPS

@@ -1,5 +1,7 @@
 // Shared facts used by every page. Keep them in step with the deployed
 // Starlit releases and the account service before publishing.
+import { readSnapshot } from './tools/releases.mjs';
+
 export const ORIGIN = 'https://starlit.rrmtools.uk';
 export const CONTACT = 'support.starlit@rrmtools.uk';
 export const UPDATED = '5 November 2026';
@@ -18,11 +20,22 @@ export const ISSUES = REPO + '/issues';
 export const LICENSE_URL = REPO + '/blob/Dev/LICENSE';
 export const NUVIO = 'https://github.com/NuvioMedia/NuvioDesktop';
 
-// The release the pages describe. Bump it, the file names below and the
-// "What's new" entries in pages/download.mjs together after each release.
-export const VERSION = '1.12.2';
-export const WINDOWS_FILE = `Starlit-Windows-x64-${VERSION}.exe`;
-export const ANDROID_FILE = `Starlit-Android-arm64-v8a-${VERSION}.apk`;
+// The releases the pages describe come from the app's GitHub releases:
+// `npm run releases` refreshes data/releases.json, and on the VPS the
+// release-feed container keeps /releases.json current between deployments.
+export const RELEASE_DATA = readSnapshot();
+export const LATEST_RELEASE = RELEASE_DATA.releases[0];
+export const VERSION = LATEST_RELEASE.version;
+export const WINDOWS_FILE = LATEST_RELEASE.files.windows;
+export const ANDROID_FILE = LATEST_RELEASE.files.android;
+
+// Content-Security-Policy of the public pages. They may run only the site's
+// own script (assets/site.js) and fetch only from this origin: no inline
+// code, eval or third-party requests. build.mjs writes it to _headers and
+// deploy/vps/Caddyfile sends the same value; tests keep the two identical.
+export const PUBLIC_CSP = "default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; " +
+  "connect-src 'self'; script-src 'self'; object-src 'none'; form-action 'none'; " +
+  "frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests";
 
 // Product pages first, then the policy pages (whose wording is a legal draft).
 export const PRODUCT = ['home', 'remote', 'anime', 'watch', 'sync', 'download'];

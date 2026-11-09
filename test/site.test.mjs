@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { en, pt, routes, CONTACT } from '../content.mjs';
-import { KEYS, PRODUCT, DOCS, VERSION, WINDOWS_FILE, ANDROID_FILE, LATEST } from '../constants.mjs';
+import { KEYS, PRODUCT, DOCS, VERSION, WINDOWS_FILE, ANDROID_FILE, LATEST, PUBLIC_CSP, RELEASE_DATA } from '../constants.mjs';
 
 const buildDir = new URL('../dist/', import.meta.url);
 const read = path => readFileSync(new URL(path, buildDir), 'utf8');
@@ -13,6 +13,9 @@ const allPages = () => Object.entries(routes).flatMap(([lang, r]) =>
 const productPages = () => allPages().filter(p => PRODUCT.includes(p.key));
 const notFoundPages = () => ['404.html', 'pt/404.html'].map(file => ({ file, html: read(file) }));
 const strip = html => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+// The only script a public page may load: the site's own, deferred, by URL.
+const OWN_SCRIPT = /^<script src="\/assets\/site\.js\?v=[0-9a-f]{10}" defer><\/script>$/;
+const scriptTags = html => [...html.matchAll(/<script\b[^>]*>[\s\S]*?<\/script>|<script\b[^>]*>/gi)].map(m => m[0]);
 
 test('Both localisations cover the six product pages and the six policy pages', () => {
   assert.deepEqual(Object.keys(en), DOCS);
@@ -25,7 +28,10 @@ test('Both localisations cover the six product pages and the six policy pages', 
     assert.ok(html.includes(CONTACT), 'Wrong support email: ' + route);
     assert.ok(html.includes(`<link rel="canonical" href="${ORIGIN}${route}">`), 'Canonical: ' + route);
     assert.match(html, /\/assets\/starlit-logo\.png/);
-    assert.doesNotMatch(html, /<script\b|google-analytics|googletagmanager|<form\b/i);
+    assert.doesNotMatch(html, /google-analytics|googletagmanager|<form\b/i);
+    const scripts = scriptTags(html);
+    assert.equal(scripts.length, 1, 'One script per page: ' + route);
+    assert.match(scripts[0], OWN_SCRIPT, 'Only the site’s own deferred script: ' + route);
     assert.doesNotMatch(html, /cloudflaredomainrrm@gmail\.com/);
   }
 });
@@ -153,21 +159,66 @@ test('Feature status labels match the release notes', () => {
   assert.match(strip(read('anime/index.html')), /Windows app · optional tab, off by default/);
 });
 
-test('Download buttons open the latest release and versions come from constants', () => {
+test('Download buttons open the latest release and versions come from the release data', () => {
+  assert.equal(VERSION, RELEASE_DATA.releases[0].version);
   for (const lang of ['en', 'pt']) {
     const html = read(fileFor(routes[lang].download));
     assert.ok(html.includes(WINDOWS_FILE) && html.includes(ANDROID_FILE), 'File names on ' + lang);
     assert.equal([...html.matchAll(new RegExp(`class="btn btn-lg btn-block[^"]*" href="${LATEST}"`, 'g'))].length, 2, 'Download buttons on ' + lang);
     assert.ok(html.includes(VERSION), 'Version on ' + lang);
     assert.ok(html.includes('id="' + (lang === 'pt' ? 'novidades' : 'whats-new') + '"'));
+    assert.match(html, new RegExp(`<body class="page-download" data-release="${VERSION.replace(/\./g, '\\.')}">`));
   }
   for (const { route, html } of allPages()) {
-    for (const [, href] of html.matchAll(/href="(https:\/\/github\.com\/[^"]+)"/g)) {
+    for (const [tag, href] of html.matchAll(/<a\b[^>]*href="(https:\/\/github\.com\/[^"]+)"[^>]*>/g)) {
       assert.match(href, /^https:\/\/github\.com\/(Beelzebub2\/nuvio-native|NuvioMedia\/NuvioDesktop)(\/|$)/, 'Unexpected GitHub link on ' + route);
-      assert.doesNotMatch(href, /\/releases\/(download|tag)\//, 'Pinned release link on ' + route);
+      assert.doesNotMatch(href, /\/releases\/download\//, 'Pinned download link on ' + route);
+      // Links to one release's notes are fine in the changelog, never as a download.
+      if (/\/releases\/tag\//.test(href)) assert.match(tag, /class="release-link"/, 'Pinned release link on ' + route);
     }
   }
 });
+
+test('The changelog and shipping log are the latest GitHub releases', () => {
+  const [latest, ...older] = RELEASE_DATA.releases;
+  for (const lang of ['en', 'pt']) {
+    const download = read(fileFor(routes[lang].download));
+    const news = download.slice(download.indexOf('id="' + (lang === 'pt' ? 'novidades' : 'whats-new') + '"'));
+    for (const h of latest.highlights) assert.ok(news.includes(escapeHtml(h.title)), `Latest highlight on ${lang}: ${h.title}`);
+    for (const r of older) {
+      assert.ok(news.includes(`data-rel-field="version">${r.version}<`), `Older release ${r.version} on ${lang}`);
+      assert.ok(news.includes(`href="${r.url}"`), `Notes link for ${r.version} on ${lang}`);
+    }
+    const home = read(fileFor(routes[lang].home));
+    const log = home.slice(home.indexOf('<ol class="log-list"'), home.indexOf('</ol>', home.indexOf('<ol class="log-list"')));
+    assert.deepEqual([...log.matchAll(/data-rel-field="version">([^<]+)</g)].map(m => m[1]),
+      RELEASE_DATA.releases.slice(0, 3).map(r => r.version), 'Shipping log on ' + lang);
+    assert.ok(home.includes(`data-rel="headline">${escapeHtml(latest.headline)}<`), 'New pill headline on ' + lang);
+    // Release notes are in English; Portuguese pages say so.
+    if (lang === 'pt') {
+      assert.match(news, /<div class="notes notes-3" lang="en"/);
+      assert.match(download, /publicadas em inglês/);
+    }
+  }
+  assert.deepEqual(JSON.parse(read('releases.json')), RELEASE_DATA, 'dist/releases.json is the build snapshot');
+});
+
+test('Every live-release slot site.js fills has a template and known fields', () => {
+  const FIELDS = new Set(['version', 'date', 'url', 'headline', 'summary', 'brief', 'title', 'text']);
+  const KEYS_REL = new Set(['version', 'date', 'url', 'headline', 'summary', 'windows-file', 'android-file']);
+  for (const { route, html } of productPages()) {
+    for (const [, key] of html.matchAll(/data-rel="([^"]+)"/g)) assert.ok(KEYS_REL.has(key), `Unknown data-rel ${key} on ${route}`);
+    for (const [, key] of html.matchAll(/data-rel-field="([^"]+)"/g)) assert.ok(FIELDS.has(key), `Unknown field ${key} on ${route}`);
+    for (const list of html.split('data-rel-list="').slice(1)) {
+      assert.match(list, /^(releases|highlights)"/, 'Unknown list on ' + route);
+      assert.match(list.slice(0, 400), /data-rel-item/, 'List without an item template on ' + route);
+    }
+  }
+});
+
+function escapeHtml(value) {
+  return String(value).replace(/[&"<>]/g, c => ({ '&':'&amp;', '"':'&quot;', '<':'&lt;', '>':'&gt;' }[c]));
+}
 
 test('Unknown addresses get a real, unindexed not-found page in each language', () => {
   const [enPage, ptPage] = notFoundPages();
@@ -187,8 +238,10 @@ test('Logo is official, size-bounded and security headers forbid active tracking
   const headers = read('_headers');
   assert.match(headers, /Strict-Transport-Security: max-age=31536000/);
   assert.doesNotMatch(headers, /Strict-Transport-Security:.*includeSubDomains/);
-  assert.match(headers, /script-src 'none'/);
-  assert.match(headers, /connect-src 'none'/);
+  assert.ok(headers.includes('  Content-Security-Policy: ' + PUBLIC_CSP + '\n'), 'Public CSP');
+  assert.match(PUBLIC_CSP, /script-src 'self';/);
+  assert.match(PUBLIC_CSP, /connect-src 'self';/);
+  assert.doesNotMatch(PUBLIC_CSP, /unsafe-|https?:|data:|\*/);
   assert.match(headers, /form-action 'none'/);
   assert.match(headers, /font-src 'self'/);
   assert.match(headers, /frame-ancestors 'none'/);
@@ -232,7 +285,7 @@ test('All same-origin links, images and in-page anchors resolve', () => {
     const refs = [...html.matchAll(/(?:href|src|srcset)="(\/[^"#?\s]*)/g)].map(m => m[1]);
     for (const ref of refs) {
       // /account?tab=... is mounted by the combined VPS release, not by the
-      // standalone marketing build (which intentionally contains no JS).
+      // standalone marketing build (which has no account app).
       if (ref === '/account') continue;
       const output = ref.endsWith('/') ? ref.slice(1) + 'index.html' : ref.slice(1);
       assert.ok(existsSync(new URL(output, buildDir)), 'Broken site link ' + ref + ' in ' + route);
@@ -250,6 +303,6 @@ test('Standalone Pages build never advertises an account route it cannot serve',
   for (const { lang, html } of allPages()) {
     assert.doesNotMatch(html, /href="\/account\?tab=/);
     assert.doesNotMatch(html, /class="nav-account"/);
-    assert.doesNotMatch(html, /<script\b/);
+    assert.ok(scriptTags(html).every(tag => OWN_SCRIPT.test(tag)), 'Unexpected script');
   }
 });
