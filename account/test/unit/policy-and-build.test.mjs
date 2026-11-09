@@ -164,9 +164,11 @@ test('live build refuses service keys, missing keys and plain http', () => {
   }
 });
 
-test('the public website keeps script-src none (this app does not change it)', () => {
-  const site = readFileSync(join(root, '..', 'build.mjs'), 'utf8');
-  assert.match(site, /script-src 'none'/);
-  assert.match(site, /connect-src 'none'/);
+test('the public website runs only its own script and never calls the account API', () => {
+  const site = readFileSync(join(root, '..', 'constants.mjs'), 'utf8');
+  const csp = site.slice(site.indexOf('PUBLIC_CSP'), site.indexOf(';\n', site.indexOf('PUBLIC_CSP')));
+  assert.match(csp, /script-src 'self'/);
+  assert.match(csp, /connect-src 'self';/);
+  assert.doesNotMatch(csp, /unsafe-|https:|starlit-api/);
   assert.ok(!/account\//.test(readFileSync(join(root, '..', 'package.json'), 'utf8')), 'website build does not include the account app');
 });

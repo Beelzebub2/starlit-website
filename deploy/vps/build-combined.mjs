@@ -38,8 +38,13 @@ if (!config.includes('"mode": "live"') || !config.includes('"basePath": "/accoun
 mkdirSync(out, { recursive: false });
 cpSync(publicSite, out, { recursive: true });
 cpSync(privateApp, join(out, 'account'), { recursive: true });
-if (!readFileSync(join(out, '_headers'), 'utf8').includes("script-src 'none'") ||
-    !readFileSync(join(out, 'account', '_headers'), 'utf8').includes("script-src 'self'")) {
+// Public pages run only /assets/site.js and fetch only from this origin; the
+// account app alone may also call the account API.
+const publicHeaders = readFileSync(join(out, '_headers'), 'utf8');
+const accountHeaders = readFileSync(join(out, 'account', '_headers'), 'utf8');
+if (!publicHeaders.includes("script-src 'self'") || !publicHeaders.includes("connect-src 'self';") ||
+    /unsafe-|https:|data:/.test(publicHeaders) ||
+    !accountHeaders.includes("script-src 'self'") || !accountHeaders.includes('connect-src \'self\' https://')) {
   throw new Error('Public and account security policies were not kept separate');
 }
 const count = readdirSync(out, { recursive: true }).length;

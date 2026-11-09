@@ -3,6 +3,19 @@
     auto_https off
 }
 
+# Public pages may run only the site's own /assets/site.js and fetch only
+# from this origin. Must equal PUBLIC_CSP in constants.mjs (tests check it).
+(public_headers) {
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-Frame-Options "DENY"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        Content-Security-Policy "default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; script-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
+    }
+}
+
 # One static server, distinct CSP for public pages and the account SPA.
 # HTTPS terminates in the existing VPS edge. No database or private keys here.
 :8081 {
@@ -39,19 +52,28 @@
             file_server
         }
 
+        # Release data refreshed from GitHub by the release-feed container.
+        # Until it has written a file, the copy built into the release is used.
+        @releaseFeed {
+            path /releases.json
+            file {
+                root /srv/release-feed
+                try_files /releases.json
+            }
+        }
+        handle @releaseFeed {
+            root * /srv/release-feed
+            import public_headers
+            header Cache-Control "public, max-age=300, no-transform"
+            file_server
+        }
+
         handle {
             @oldEnglish path /en
             redir @oldEnglish / 301
             @oldEnglishPath path_regexp enredirect ^/en/(.*)$
             redir @oldEnglishPath /{re.enredirect.1} 301
-            header {
-                Strict-Transport-Security "max-age=31536000"
-                X-Content-Type-Options "nosniff"
-                Referrer-Policy "strict-origin-when-cross-origin"
-                X-Frame-Options "DENY"
-                Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
-                Content-Security-Policy "default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; script-src 'none'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
-            }
+            import public_headers
             @assets path /assets/*
             header @assets Cache-Control "public, max-age=86400, no-transform"
             @pages not path /assets/*

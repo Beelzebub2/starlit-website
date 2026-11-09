@@ -44,15 +44,54 @@ legal operator) in both languages, and `404.html` / `pt/404.html`: Cloudflare
 Pages serves the nearest one with a real 404 status.
 
 Plus `/account?tab=overview` (profile manager, synced library, account settings,
-sessions and devices) on the same website. The public pages have no forms,
-tracking or JavaScript; the account area uses self-hosted JS and the existing
-authenticated Starlit API. Support is `support.starlit@rrmtools.uk`.
+sessions and devices) on the same website. The public pages have no forms or
+tracking. They load one small first-party script, `assets/site.js`, which only
+improves them: every page still works without it. The account area uses its
+own self-hosted JS and the existing authenticated Starlit API. Support is
+`support.starlit@rrmtools.uk`.
+
+### What `assets/site.js` does
+
+- **No reloads between pages.** Links to other pages of the site are fetched
+  and swapped in place, with a View Transition where the browser supports it;
+  the header stays put. Pages are prefetched when a link is hovered, focused
+  or touched. A link to a section of another page (for example the homepage's
+  shipping log to `/download/#whats-new`) lands on that section, and Back and
+  Forward restore the scroll position. `/account`, files, external links and
+  modified clicks (new tab, download) navigate normally. After a deployment
+  changes the CSS or the script, the next navigation is a normal page load.
+- **Live release data.** It reads `/releases.json` from the same origin and,
+  if a newer release is out than the one the page was built with, updates the
+  version numbers, file names, the homepage shipping log and "What's new".
+  It writes text only (`textContent`), never markup.
+
+Without JavaScript, or in browsers without these features, links are ordinary
+page loads (with a CSS View Transition in browsers that support cross-document
+transitions) and the release data is the snapshot from the last build.
+
+### Release data
+
+The version, file names, homepage shipping log and download page's "What's
+new" come from the app's GitHub releases, not from hand-written copy:
+
+- `tools/releases.mjs` summarises each release note (its `###` sections and
+  their `- **Title:** text` bullets, skipping "Validation…" sections).
+- `data/releases.json` is the committed snapshot the build uses. Refresh it
+  with `npm run releases` before building a release, and commit the change.
+- On the VPS, the `release-feed` container (`deploy/vps/compose.yml`) runs
+  the same code every 15 minutes and Caddy serves its copy as
+  `/releases.json`, so pages stay current between deployments. Visitors'
+  browsers only ever talk to the Starlit site, never to GitHub.
+
+Release notes are published in English; Portuguese pages show them with
+`lang="en"` and say so.
 
 ## Build, test and preview
 
 ```
+npm run releases  # refreshes data/releases.json from the app's GitHub releases
 npm run build     # writes dist/
-npm test          # checks pages, links, anchors, metadata, headers, policy text and feature labels
+npm test          # checks pages, links, anchors, metadata, headers, policy text, release data and feature labels
 npm run preview   # serves dist/ at http://localhost:8788 like Cloudflare Pages
 npm run test:combined # verifies one VPS release contains both apps, with separate CSPs
 npm run build:combined # requires STARLIT_ANON_KEY (public JWT, never service-role)
@@ -81,7 +120,10 @@ do not republish there or change DNS until the VPS is fully validated.
 
 | File | Contents |
 | --- | --- |
-| `constants.mjs` | Contact email, routes, release links, and the current version and file names |
+| `constants.mjs` | Contact email, routes, release links, the public CSP, and the current version and file names (from `data/releases.json`) |
+| `data/releases.json` | Snapshot of the latest app releases; refresh with `npm run releases` |
+| `assets/site.js` | In-place navigation, prefetching and live release data (progressive enhancement) |
+| `tools/releases.mjs`, `tools/sync-releases.mjs` | Summarise GitHub releases; refresh the snapshot or, on the VPS, `/releases.json` |
 | `pages/*.mjs` | One file per product page: its English and Portuguese copy, and its markup |
 | `ui.mjs` | Shared pieces: icons, status pills, app-window and phone frames, CSS-only tabs, asset hashing |
 | `content.mjs` | Policy pages. Their wording is a legal draft: change it only with the operator's authorization |
@@ -99,9 +141,10 @@ end-to-end on real hardware); iPhone, Mac and Linux are **Not yet**; the
 MyAnimeList tab and rewatch detection are in the Windows app, and the tab is
 off by default.
 
-After each release, update `VERSION` in `constants.mjs`, the shipping log in
-`pages/home.mjs` and "What's new" in `pages/download.mjs`. Download buttons
-open `/releases/latest` on GitHub, so they never point at an old version.
+Release details update themselves (see "Release data" above); run
+`npm run releases` before a deployment so the built pages match too. Download
+buttons open `/releases/latest` on GitHub, so they never point at an old
+version.
 
 ## Design
 
@@ -117,7 +160,12 @@ open `/releases/latest` on GitHub, so they never point at an old version.
   invented, and each page says so next to its mockups.
 - **Interactions** use `<details>`, anchors and radio-button tabs styled with
   `:has()` (the phone controller, Airing Now days and MyAnimeList statuses), so
-  the CSP keeps `script-src 'none'`. Without `:has()` the first tab shows.
+  they work without JavaScript. Without `:has()` the first tab shows. The CSP
+  allows only the site's own script (`script-src 'self'`, `connect-src 'self'`).
+- **Motion.** Smooth scrolling, View Transitions between pages, a sticky
+  translucent header on wide screens and panels that ease in as they scroll
+  into view (scroll-driven animations, where supported). All of it is turned
+  off for visitors who ask for reduced motion.
 - **Layout.** 1280 px maximum content width with 40 px side padding, 16 px
   below 960 px, where grids collapse to one column.
 - **Caching.** Asset URLs carry a content hash (`?v=`). Responses keep

@@ -19,10 +19,14 @@ test ! -e "$target" || { echo 'Release already exists; refusing overwrite' >&2; 
 umask 022
 install -d -m 755 "$base/releases" "$target"
 tar -xzf "$archive" -C "$target" --no-same-owner --no-same-permissions
-for f in index.html _headers account/index.html account/config.js account/_headers; do
+for f in index.html _headers releases.json assets/site.js account/index.html account/config.js account/_headers; do
   test -s "$target/$f" || { echo "Missing required artifact: $f" >&2; exit 2; }
 done
-grep -q "script-src 'none'" "$target/_headers" || { echo 'Marketing CSP changed' >&2; exit 2; }
+# Public pages: only the site's own script and same-origin requests. Any
+# other marketing policy (looser or not) is refused.
+public_csp="Content-Security-Policy: default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; script-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
+grep -qxF "  $public_csp" "$target/_headers" || { echo 'Marketing CSP changed' >&2; exit 2; }
+if grep -E "unsafe-|https:|data:" "$target/_headers" >/dev/null; then echo 'Marketing CSP too broad' >&2; exit 2; fi
 grep -q "script-src 'self'" "$target/account/_headers" || { echo 'Account CSP missing' >&2; exit 2; }
 grep -q '"mode": "live"' "$target/account/config.js" || { echo 'Not a live account build' >&2; exit 2; }
 grep -q '"basePath": "/account/"' "$target/account/config.js" || { echo 'Wrong account mount path' >&2; exit 2; }

@@ -120,6 +120,27 @@ export const steps = (items, cls = '') => `<ol class="steps${cls ? ' ' + cls : '
   <li><span class="step-n" aria-hidden="true">${i + 1}</span><div><h3>${title}</h3><p>${body}</p></div></li>`).join('')}
 </ol>`;
 
+// ---------------------------------------------------------------- release data
+
+// Release text comes from GitHub, so it is always escaped here.
+export const esc = value => String(value).replace(/[&"<>]/g, c =>
+  ({ '&':'&amp;', '"':'&quot;', '<':'&lt;', '>':'&gt;' }[c]));
+
+// Release notes are written in English; mark them so on Portuguese pages.
+export const inEnglish = lang => lang === 'pt' ? ' lang="en"' : '';
+
+// assets/site.js uses the same locales and options when it refreshes dates.
+const DATE_LOCALES = { en: 'en-GB', pt: 'pt-PT' };
+// `hook` is data-rel-field inside a release item, or data-rel for the latest release.
+export const releaseDate = (date, lang, hook = 'data-rel-field') => `<time ${hook}="date" datetime="${esc(date)}">${
+  new Intl.DateTimeFormat(DATE_LOCALES[lang], { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(date + 'T00:00:00Z'))}</time>`;
+
+// A value site.js keeps current from /releases.json: version, headline,
+// summary, windows-file or android-file of the latest release.
+export const rel = (key, value, tag = 'span', cls = '') =>
+  `<${tag}${cls ? ` class="${cls}"` : ''} data-rel="${key}">${esc(value)}</${tag}>`;
+
 // ---------------------------------------------------------------- mockup frames
 
 const winControls = (max = true) => `<span class="win-ctl" aria-hidden="true">${icon('minimize', 12)}${max ? icon('maximize', 12) : ''}${icon('close', 12)}</span>`;

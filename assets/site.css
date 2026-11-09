@@ -74,6 +74,9 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { color-scheme: dark; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 20px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+/* The sticky header covers the top of the viewport on wide screens. */
+@media (min-width: 961px) { html { scroll-padding-top: 92px; } }
 body {
   margin: 0;
   min-height: 100vh;
@@ -95,7 +98,8 @@ b, strong { font-weight: 600; }
 code { font-family: var(--mono); font-size: .92em; }
 table { border-collapse: collapse; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-main:focus { outline: none; }
+/* site.js moves focus to the new content after a page change. */
+main:focus, [tabindex="-1"]:focus { outline: none; }
 ::selection { background: rgba(69, 214, 235, .3); }
 
 .vh {
@@ -113,7 +117,7 @@ main:focus { outline: none; }
   position: absolute;
   left: 16px;
   top: -80px;
-  z-index: 10;
+  z-index: 40;
   padding: 10px 18px;
   border-radius: 999px;
   background: var(--accent);
@@ -256,7 +260,15 @@ main:focus { outline: none; }
 
 /* ------------------------------------------------------------ header */
 
-.site-header { border-bottom: 1px solid var(--line); background: var(--bg); }
+.site-header { position: relative; z-index: 30; border-bottom: 1px solid var(--line); background: var(--bg); }
+/* On wide screens the header stays in reach, and stays still while pages
+   change: the view transition animates the content under it. */
+@media (min-width: 961px) {
+  .site-header { position: sticky; top: 0; view-transition-name: site-header; }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .site-header { background: rgba(6, 7, 15, .78); -webkit-backdrop-filter: saturate(1.4) blur(16px); backdrop-filter: saturate(1.4) blur(16px); }
+  }
+}
 .header-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; min-height: 72px; padding-block: 12px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
 .brand:hover { color: var(--text); }
@@ -273,6 +285,7 @@ main:focus { outline: none; }
   font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
+  transition: background-color .15s, color .15s;
 }
 .nav-main a:hover { background: #0f1226; color: var(--text); }
 .nav-main a[aria-current="page"] { background: #12152b; color: var(--text); }
@@ -566,7 +579,7 @@ main:focus { outline: none; }
 .log-head a:hover { text-decoration: underline; }
 .log-list li { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--line); }
 .log-v { flex: 0 0 52px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
-.log-v.cur { color: var(--accent); }
+.log-list li:first-child .log-v { color: var(--accent); }
 .log-list li > span:last-child { font-size: 14px; line-height: 1.45; color: var(--text-2); }
 
 .composite { position: relative; margin-top: 72px; padding-right: 150px; }
@@ -1188,6 +1201,12 @@ main:focus { outline: none; }
 .release-v { font-family: var(--display); font-size: 44px; font-weight: 700; line-height: 1; letter-spacing: -.02em; color: var(--accent); }
 .release .release-v-s { margin-top: 0; font-size: 28px; color: var(--text); }
 .release-latest .release-tag { margin-top: 10px; font-size: 14px; color: var(--muted); }
+.release-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 14px; font-weight: 600; text-decoration: none; }
+.release-link .i { transition: transform .15s; }
+.release-link:hover .i { transform: translateX(3px); }
+.release-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin-top: 14px; font-size: 13px; color: var(--dim); }
+.release-meta .release-link { margin-top: 0; font-size: 13px; }
+.news-note { font-size: 14px; color: var(--dim); }
 .code-card { overflow: hidden; border: 1px solid var(--line-2); border-radius: 16px; background: var(--panel); }
 .code-card-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--line-2); font-size: 13px; color: var(--muted); }
 .code-card-head .mono { font-size: 12px; }
@@ -1254,7 +1273,7 @@ main:focus { outline: none; }
 .toc-narrow nav { padding: 0 16px 14px; }
 @media (min-width: 1024px) {
   .doc-layout { grid-template-columns: 15.5rem minmax(0, 1fr); gap: 72px; padding-top: 48px; }
-  .doc-aside { position: sticky; top: 24px; order: 0; align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; padding-top: 0; border-top: 0; }
+  .doc-aside { position: sticky; top: 104px; order: 0; align-self: start; max-height: calc(100vh - 128px); overflow-y: auto; padding-top: 0; border-top: 0; }
   .toc-wide { display: block; }
   .docs-nav { margin-top: 36px; }
   .toc-narrow { display: none; }
@@ -1299,10 +1318,51 @@ main:focus { outline: none; }
 .mt-36 { margin-top: 36px; } .mt-40 { margin-top: 40px; } .mt-44 { margin-top: 44px; } .mt-48 { margin-top: 48px; }
 .mt-52 { margin-top: 52px; } .mt-56 { margin-top: 56px; } .mt-64 { margin-top: 64px; }
 
+/* ------------------------------------------------------------ motion */
+
+/* Page changes cross-fade, with the new page rising slightly into place.
+   site.js runs the same transition when it swaps pages in place; browsers
+   without View Transitions simply show the new page. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: 120ms ease-in both vt-fade-out; }
+::view-transition-new(root) { animation: 300ms cubic-bezier(.2, .7, .2, 1) both vt-rise-in; }
+::view-transition-group(site-header) { animation-duration: 300ms; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-rise-in { from { opacity: 0; transform: translateY(12px); } }
+
+/* Shown by site.js when a page takes more than a moment to arrive. */
+.is-navigating body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), #b250ef);
+  transform-origin: left;
+  animation: nav-progress 2.4s cubic-bezier(.1, .7, .3, 1) both;
+}
+@keyframes nav-progress { from { transform: scaleX(0); } to { transform: scaleX(.9); } }
+
+/* Panels ease in as they scroll into view, where the browser supports
+   scroll-driven animations. Anything already on screen is shown as is. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .card, .feature-panel, .mini-card, .release, .platform, .get-tile, .panel-xl, .faq details {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+@keyframes reveal { from { opacity: 0; transform: translateY(32px); } }
+
 /* ------------------------------------------------------------ modes */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
+  @view-transition { navigation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .is-navigating body::before { animation: none; transform: scaleX(.6); }
 }
 @media (forced-colors: active) {
   .btn, .lang-switch, .link-list a, .get-tile, .pill, .tab { border: 1px solid ButtonText; }

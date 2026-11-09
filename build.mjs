@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { en, pt } from './content.mjs';
 import { ORIGIN, CONTACT, UPDATED, UPDATED_PT, routes, KEYS, PRODUCT, DOCS, REPO, RELEASES,
-  ISSUES, NUVIO, LICENSE_URL } from './constants.mjs';
+  ISSUES, NUVIO, LICENSE_URL, VERSION, RELEASE_DATA, PUBLIC_CSP } from './constants.mjs';
 import { hash, asset, markImg } from './ui.mjs';
 import * as home from './pages/home.mjs';
 import * as remote from './pages/remote.mjs';
@@ -79,6 +79,8 @@ const minifyCss = css => css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' 
 const css = minifyCss(readFileSync(join(root, 'assets', 'site.css'), 'utf8'))
   .replace(/url\((\/assets\/[^)?]+)\)/g, (_, path) => `url(${asset(path)})`);
 const cssHref = '/assets/site.css?v=' + hash(css);
+// Progressive enhancement only: every page works without it (see site.js).
+const SCRIPT = asset('/assets/site.js');
 const FONT_SANS = asset('/assets/fonts/geist-latin.woff2');
 const FONT_DISPLAY = asset('/assets/fonts/bricolage-grotesque-latin.woff2');
 
@@ -105,6 +107,7 @@ function head(lang, { title, description, path, alternates, noindex }) {
 <link rel="preload" href="${FONT_SANS}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${FONT_DISPLAY}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${cssHref}">
+<script src="${SCRIPT}" defer></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Starlit">
 <meta property="og:title" content="${escape(title)}">
@@ -174,7 +177,7 @@ function footer(lang, otherPath) {
 
 function page(lang, key, opts, main) {
   return head(lang, opts) + `
-<body class="${opts.bodyClass}">` + header(lang, key, opts.otherPath) + `
+<body class="${opts.bodyClass}" data-release="${VERSION}">` + header(lang, key, opts.otherPath) + `
 <main id="main" tabindex="-1">${main}
 </main>` + footer(lang, opts.otherPath) + `
 </body></html>
@@ -292,6 +295,10 @@ for (const lang of ['en', 'pt']) {
   }, renderNotFound(lang)));
 }
 
+// The release data the pages were built with. On the VPS, /releases.json is
+// served from the release-feed container's newer copy when it has one.
+write(join(dist, 'releases.json'), JSON.stringify(RELEASE_DATA) + '\n');
+
 write(join(dist, 'robots.txt'), 'User-agent: *\nAllow: /\nDisallow: /account\nSitemap: ' + ORIGIN + '/sitemap.xml\n');
 const sitemap = ['en', 'pt'].flatMap(lang => KEYS.map(key => `  <url>
     <loc>${ORIGIN + routes[lang][key]}</loc>
@@ -312,7 +319,7 @@ write(join(dist, '_headers'), `/*
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-  Content-Security-Policy: default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; script-src 'none'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests
+  Content-Security-Policy: ${PUBLIC_CSP}
   Cache-Control: public, max-age=300, no-transform
 /assets/*
   ! Cache-Control

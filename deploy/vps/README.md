@@ -16,8 +16,39 @@ two separate static builds **served by one VPS container and one hostname**:
 Cloudflare may still act as the authoritative DNS provider, but the new
 website assets are served from the user's Ubuntu VPS, **not Cloudflare Pages**.
 The marketing pages and logged-in account have different Caddy CSP headers:
-public pages forbid scripts and network connections; Account permits only
-self-hosted scripts and the HTTPS API. Account content has noindex/no-store.
+public pages may run only the site's own `/assets/site.js` and fetch only
+from the same origin (`script-src 'self'; connect-src 'self'`, no inline
+code); Account permits only self-hosted scripts and the HTTPS API. Account
+content has noindex/no-store. `install-release.sh` refuses any other public
+policy.
+
+## Release feed (keeps the changelog current)
+
+The `release-feed` container in `compose.yml` refreshes
+`/opt/starlit-site/release-feed/releases.json` from the app's public GitHub
+releases every 15 minutes, and Caddy serves it as `/releases.json`. The
+pages' `site.js` reads it and updates version numbers, file names and the
+changelog when a newer release is out than the deployed build. Until the
+container has written a file, Caddy serves the snapshot built into the
+release. It needs outbound HTTPS to `api.github.com` only, runs as UID 10001
+with a read-only root, no capabilities, no ports, no secrets and is not on the
+edge network. A failed request keeps the last good file.
+
+One-time setup, as root on the VPS, from a reviewed checkout:
+
+```sh
+install -d -o 10001 -g 10001 -m 755 /opt/starlit-site/release-feed
+install -d -m 755 /opt/starlit-site/release-feed-tool
+install -m 644 tools/releases.mjs tools/sync-releases.mjs /opt/starlit-site/release-feed-tool/
+install -m 644 deploy/vps/compose.yml deploy/vps/Caddyfile /opt/starlit-site/
+cd /opt/starlit-site && docker compose config -q && docker compose up -d
+docker logs --tail 5 starlit-release-feed   # "release feed updated, latest X.Y.Z"
+```
+
+Copy the two tool files again whenever `tools/releases.mjs` or
+`tools/sync-releases.mjs` change, then `docker compose restart release-feed`.
+Also copy the updated `install-release.sh`: the previous one rejects
+releases whose public CSP allows the site's script.
 
 ## Verified state on 2026-11-07
 

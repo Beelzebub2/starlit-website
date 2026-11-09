@@ -1,7 +1,9 @@
-// Download page. Version numbers and file names come from constants.mjs; the
-// "What's new" entries follow docs/RELEASE-NOTES.md and change with each release.
-import { VERSION, WINDOWS_FILE, ANDROID_FILE, LATEST, RELEASES, ISSUES, CONTACT } from '../constants.mjs';
-import { icon, eyebrow, pill, checkList } from '../ui.mjs';
+// Download page. The version, file names and "What's new" entries come from
+// the app's GitHub releases (data/releases.json); site.js keeps them current.
+import { VERSION, WINDOWS_FILE, ANDROID_FILE, LATEST, RELEASES, ISSUES, CONTACT, RELEASE_DATA } from '../constants.mjs';
+import { icon, eyebrow, pill, checkList, esc, inEnglish, releaseDate, rel } from '../ui.mjs';
+
+const winFile = rel('windows-file', WINDOWS_FILE, 'code', 'code-hl');
 
 const copy = {
   en: {
@@ -9,7 +11,7 @@ const copy = {
       title: 'Download Starlit for Windows and Android',
       description: `Get Starlit ${VERSION} for Windows 10 and 11 or Android 7.0 and later from its public GitHub releases, with SHA-256 checksums to check your download. Free and open source under GPL-3.0.`,
     },
-    kicker: `Latest release · ${VERSION}`, title: 'Get Starlit.',
+    kicker: `Latest release · ${rel('version', VERSION)}`, title: 'Get Starlit.',
     lede: 'Free and open source under GPL-3.0. Both apps come from the same release on GitHub, with a checksum file to prove what you downloaded.',
     available: 'Available', notYet: 'Not yet', opens: 'Opens the latest release on GitHub',
     win: { name: 'Windows', req: 'Windows 10 and 11, 64-bit', cta: 'Download for Windows',
@@ -18,17 +20,10 @@ const copy = {
       points: ['A signed APK you install yourself. Most phones need <code>arm64-v8a</code>.', 'The app checks for updates and picks the right file for your phone.', 'Doubles as the remote for Starlit on your PC.'] },
     others: [['iPhone and iPad', 'The code exists, but no build has been released or tested.'], ['Mac', 'No Mac app is available.'], ['Linux', 'No Linux build is available.']],
     install: { title: 'Installing takes a minute.', win: 'On Windows', android: 'On Android',
-      winSteps: [`Download <code class="code-hl">${WINDOWS_FILE}</code> from the latest release.`, 'Run it. Starlit installs for your Windows user and lets you choose the folder and shortcuts.', 'Open Starlit, add your sources, and you’re set. It checks for updates at startup, every six hours, and from Settings → About.'],
+      winSteps: [`Download ${winFile} from the latest release.`, 'Run it. Starlit installs for your Windows user and lets you choose the folder and shortcuts.', 'Open Starlit, add your sources, and you’re set. It checks for updates at startup, every six hours, and from Settings → About.'],
       androidSteps: ['On your phone, download the APK for its processor. If you’re not sure, it’s <code class="code-hl">arm64-v8a</code>. Older 32-bit phones use <code class="code-hl">armeabi-v7a</code>.', 'Open it and allow your browser or file manager to install apps when Android asks.', 'Sign in or continue as a guest. To use it as a remote, open Settings → PC controller.'] },
-    news: { title: 'What’s new', all: 'Every release note on GitHub', latest: 'Latest',
-      top: [['Create an account', 'Register with email and a password of at least 12 characters and confirm your email. No administrator approval is required; Google sign-in can also create accounts when enabled.'],
-        ['PC remote playback controls', 'From your phone, put Starlit on the PC in fullscreen, skip the intro or advance to the next episode.'],
-        ['Safer sign-in', 'Passwords are not kept in Android saved-state bundles, and authentication errors are not copied into diagnostics logs.']],
-      older: [['1.12.0', 'Cast beta and download limits', 'Google Cast on Android is in beta. Set and enforce optional per-profile download storage targets; use the playback diagnostics panel.'],
-        ['1.11.1', 'Fewer antivirus false alarms', 'Windows now uses native APIs instead of background scripts, which Microsoft Defender had flagged in 1.11.0. Saved sign-ins are kept.'],
-        ['1.11.0', 'MyAnimeList rewatches, a real controller page', 'Playing a completed anime marks it as rewatching in the Windows app, PC controller on Android is a full-screen page, and analytics and crash reports are off unless you turn them on.'],
-        ['1.10.0', 'Storage clean-up suggestions', 'Find downloaded episodes you haven’t watched in a while. You confirm every removal, and watch history stays.'],
-        ['1.9.2', 'Better PC discovery, Bluetooth beta', 'Search local network finds PCs even when broadcasts fail, Android can control a Windows PC over Bluetooth, and you can change your password or email.']] },
+    // The entries themselves come from the GitHub release notes (data/releases.json).
+    news: { title: 'What’s new', all: 'Every release note on GitHub', latest: 'Latest', notes: 'Release notes', note: '' },
     verify: { title: 'Check what you downloaded.',
       body: 'Each release includes <code class="code-hl">SHA256SUMS.txt</code>. Compare your file’s hash with the one listed there. The Windows updater does this for you automatically.',
       label: 'PowerShell', other: 'On other systems:' },
@@ -49,7 +44,7 @@ const copy = {
       title: 'Transferir o Starlit para Windows e Android',
       description: `Obtém o Starlit ${VERSION} para Windows 10 e 11 ou Android 7.0 e posterior a partir das versões públicas no GitHub, com somas SHA-256 para verificares a transferência. Gratuito e de código aberto sob a GPL-3.0.`,
     },
-    kicker: `Versão mais recente · ${VERSION}`, title: 'Obtém o Starlit.',
+    kicker: `Versão mais recente · ${rel('version', VERSION)}`, title: 'Obtém o Starlit.',
     lede: 'Gratuito e de código aberto sob a GPL-3.0. As duas aplicações vêm da mesma versão no GitHub, com um ficheiro de somas de verificação para confirmares o que transferiste.',
     available: 'Disponível', notYet: 'Ainda não', opens: 'Abre a versão mais recente no GitHub',
     win: { name: 'Windows', req: 'Windows 10 e 11, 64 bits', cta: 'Transferir para Windows',
@@ -58,17 +53,10 @@ const copy = {
       points: ['Um APK assinado que instalas tu. A maioria dos telemóveis precisa do <code>arm64-v8a</code>.', 'A aplicação procura atualizações e escolhe o ficheiro certo para o teu telemóvel.', 'Serve também de comando para o Starlit no PC.'] },
     others: [['iPhone e iPad', 'O código existe, mas nenhuma versão foi publicada nem testada.'], ['Mac', 'Não existe uma aplicação para Mac.'], ['Linux', 'Não existe uma versão para Linux.']],
     install: { title: 'Instalar demora um minuto.', win: 'No Windows', android: 'No Android',
-      winSteps: [`Transfere <code class="code-hl">${WINDOWS_FILE}</code> da versão mais recente.`, 'Executa-o. O Starlit instala-se para o teu utilizador do Windows e deixa-te escolher a pasta e os atalhos.', 'Abre o Starlit, adiciona as tuas fontes e está feito. Procura atualizações ao iniciar, a cada seis horas e em Definições → Acerca.'],
+      winSteps: [`Transfere ${winFile} da versão mais recente.`, 'Executa-o. O Starlit instala-se para o teu utilizador do Windows e deixa-te escolher a pasta e os atalhos.', 'Abre o Starlit, adiciona as tuas fontes e está feito. Procura atualizações ao iniciar, a cada seis horas e em Definições → Acerca.'],
       androidSteps: ['No telemóvel, transfere o APK para o respetivo processador. Se não tiveres a certeza, é o <code class="code-hl">arm64-v8a</code>. Os telemóveis mais antigos de 32 bits usam o <code class="code-hl">armeabi-v7a</code>.', 'Abre-o e autoriza o navegador ou o gestor de ficheiros a instalar aplicações quando o Android pedir.', 'Inicia sessão ou continua como convidado. Para o usares como comando, abre Definições → Controlar PC.'] },
-    news: { title: 'Novidades', all: 'Todas as notas de versão no GitHub', latest: 'Mais recente',
-      top: [['Cria uma conta', 'Regista-te com e-mail e uma palavra-passe de pelo menos 12 caracteres e confirma o endereço. Não é necessária aprovação de administrador; o Google também permite criar contas quando está ativo.'],
-        ['Comando de reprodução no PC', 'Pelo telemóvel, coloca o Starlit em ecrã inteiro no PC, salta a introdução ou avança para o próximo episódio.'],
-        ['Início de sessão mais seguro', 'As palavras-passe não ficam guardadas no estado do Android e os erros de autenticação não são copiados para os registos de diagnóstico.']],
-      older: [['1.12.0', 'Cast beta e limites de transferências', 'O Google Cast no Android está em beta. Define e aplica limites opcionais de armazenamento por perfil e utiliza o painel de diagnóstico da reprodução.'],
-        ['1.11.1', 'Menos falsos alarmes do antivírus', 'O Windows passou a usar APIs nativas em vez de scripts em segundo plano, que o Microsoft Defender tinha assinalado na 1.11.0. As sessões guardadas mantêm-se.'],
-        ['1.11.0', 'Revisualizações no MyAnimeList, uma página de comando a sério', 'Reproduzir um anime completo marca-o como a rever na aplicação para Windows, o Controlar PC no Android passa a ser uma página em ecrã inteiro e as estatísticas e os relatórios de falhas ficam desligados a não ser que os ligues.'],
-        ['1.10.0', 'Sugestões para libertar espaço', 'Encontra episódios transferidos que não vês há algum tempo. Confirmas cada remoção e o histórico fica.'],
-        ['1.9.2', 'Melhor descoberta de PCs, Bluetooth em beta', 'Procurar na rede local encontra PCs mesmo quando as difusões falham, o Android pode controlar um PC com Windows por Bluetooth e podes mudar a palavra-passe ou o email.']] },
+    news: { title: 'Novidades', all: 'Todas as notas de versão no GitHub', latest: 'Mais recente', notes: 'Notas de versão',
+      note: 'As notas de versão são publicadas em inglês, tal como no GitHub.' },
     verify: { title: 'Verifica o que transferiste.',
       body: 'Cada versão inclui o ficheiro <code class="code-hl">SHA256SUMS.txt</code>. Compara a soma do teu ficheiro com a que lá aparece. O atualizador do Windows faz isto por ti automaticamente.',
       label: 'PowerShell', other: 'Noutros sistemas:' },
@@ -90,7 +78,7 @@ export const ids = { en: { news: 'whats-new' }, pt: { news: 'novidades' } };
 
 export function render(lang) {
   const c = copy[lang];
-  const platform = (p, ic, file, cls, btnCls) => `
+  const platform = (p, ic, fileKey, file, cls, btnCls) => `
 <article class="platform ${cls}">
   <div class="platform-top">${icon(ic, 44, 'i-thin')}${pill('ok', c.available)}</div>
   <h2 class="t-plat">${p.name}</h2>
@@ -98,7 +86,7 @@ export function render(lang) {
   ${checkList(p.points, 'mt-24')}
   <span class="m-spacer"></span>
   <a class="btn btn-lg btn-block ${btnCls}" href="${LATEST}">${icon('download', 20)}${p.cta}</a>
-  <p class="platform-file"><span class="mono">${file}</span><span class="vh"> · </span><span class="platform-opens">${c.opens}</span></p>
+  <p class="platform-file">${rel(fileKey, file, 'span', 'mono')}<span class="vh"> · </span><span class="platform-opens">${c.opens}</span></p>
 </article>`;
 
   const stepsList = (title, items) => `<div>
@@ -106,7 +94,29 @@ export function render(lang) {
   <ol class="num-list mt-16" role="list">${items.map((s, i) => `<li><span class="num" aria-hidden="true">0${i + 1}</span><span>${s}</span></li>`).join('')}</ol>
 </div>`;
 
-  const n = c.news;
+  // Each [data-rel-item] is also the template site.js fills when a newer
+  // release is published between deployments, so keep the markup here only.
+  const n = c.news, en = inEnglish(lang);
+  const [latest, ...older] = RELEASE_DATA.releases;
+  const notesLink = r => `<a class="release-link" data-rel-field="url" href="${esc(r.url)}">${n.notes}${icon('arrowRight', 14)}</a>`;
+  const news = `
+    <article class="release release-latest mt-44" aria-labelledby="rel-latest">
+      <div class="release-side">
+        <p id="rel-latest" class="release-v">${rel('version', latest.version)}</p>
+        <p class="release-tag">${n.latest} · ${releaseDate(latest.date, lang, 'data-rel')}</p>
+        <a class="release-link" data-rel="url" href="${esc(latest.url)}">${n.notes}${icon('arrowRight', 14)}</a>
+      </div>
+      <div class="notes notes-3"${en} data-rel-list="highlights">${latest.highlights.map(h => `
+        <div data-rel-item><h3 data-rel-field="title">${esc(h.title)}</h3><p data-rel-field="text">${esc(h.text)}</p></div>`).join('')}
+      </div>
+    </article>
+    <div class="grid cols-2 gap-20 mt-20" data-rel-list="releases" data-rel-start="1">${older.map(r => `
+      <article class="release" data-rel-item><p class="release-v release-v-s" data-rel-field="version">${esc(r.version)}</p><div>
+        <h3${en} data-rel-field="headline">${esc(r.headline)}</h3><p${en} data-rel-field="brief">${esc(r.brief)}</p>
+        <p class="release-meta">${releaseDate(r.date, lang)}${notesLink(r)}</p>
+      </div></article>`).join('')}
+    </div>`;
+
   return `
 <section class="sec pt-80 pb-96" aria-labelledby="hero-title">
   <div class="wrap">
@@ -115,8 +125,8 @@ export function render(lang) {
       <p class="lede">${c.lede}</p>
     </div>
     <div class="grid cols-2 gap-20 mt-56">
-      ${platform(c.win, 'monitor', WINDOWS_FILE, 'platform-win', 'btn-accent')}
-      ${platform(c.android, 'phone', ANDROID_FILE, 'platform-android', 'btn-ghost')}
+      ${platform(c.win, 'monitor', 'windows-file', WINDOWS_FILE, 'platform-win', 'btn-accent')}
+      ${platform(c.android, 'phone', 'android-file', ANDROID_FILE, 'platform-android', 'btn-ghost')}
     </div>
     <div class="cells cells-3 others mt-20">${c.others.map(([t, b]) => `
       <div class="cell other"><span class="other-text"><b>${t}</b><span>${b}</span></span>${pill('no', c.notYet, 'pill-plain')}</div>`).join('')}
@@ -139,14 +149,8 @@ export function render(lang) {
     <div class="news-head">
       <h2 id="new-title" class="t-xl">${n.title}</h2>
       <a class="arrow-link" href="${RELEASES}">${n.all}${icon('arrowRight', 16)}</a>
-    </div>
-    <article class="release release-latest mt-44" aria-labelledby="rel-latest">
-      <div><p id="rel-latest" class="release-v">${VERSION}</p><p class="release-tag">${n.latest}</p></div>
-      <div class="notes notes-3">${n.top.map(([t, b]) => `<div><h3>${t}</h3><p>${b}</p></div>`).join('')}</div>
-    </article>
-    <div class="grid cols-2 gap-20 mt-20">${n.older.map(([v, t, b]) => `
-      <article class="release"><p class="release-v release-v-s">${v}</p><div><h3>${t}</h3><p>${b}</p></div></article>`).join('')}
-    </div>
+    </div>${n.note ? `
+    <p class="news-note mt-16">${n.note}</p>` : ''}${news}
   </div>
 </section>
 
@@ -158,8 +162,8 @@ export function render(lang) {
     </div>
     <div class="code-card">
       <p class="code-card-head"><span>${c.verify.label}</span><span class="mono">Windows</span></p>
-      <pre><code>Get-FileHash .\\${WINDOWS_FILE} -Algorithm SHA256</code></pre>
-      <p class="code-card-foot">${c.verify.other} <code class="code-hl">sha256sum ${ANDROID_FILE}</code></p>
+      <pre><code>Get-FileHash .\\${rel('windows-file', WINDOWS_FILE)} -Algorithm SHA256</code></pre>
+      <p class="code-card-foot">${c.verify.other} <code class="code-hl">sha256sum ${rel('android-file', ANDROID_FILE)}</code></p>
     </div>
   </div>
 </section>

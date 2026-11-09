@@ -1,7 +1,9 @@
-// Homepage. Claims follow the Starlit release notes (docs/RELEASE-NOTES.md on
-// the app repository's Dev branch); re-check them after each release.
-import { VERSION } from '../constants.mjs';
-import { icon, eyebrow, pill, art, chips, markImg, appWindow, phone, appTabs, segments, qrCode } from '../ui.mjs';
+// Homepage. Feature claims follow the Starlit release notes; re-check them
+// after each release. The version, "New" pill and shipping log come from the
+// GitHub releases (data/releases.json) and site.js keeps them current.
+import { VERSION, LATEST_RELEASE, RELEASE_DATA } from '../constants.mjs';
+import { icon, eyebrow, pill, art, chips, markImg, appWindow, phone, appTabs, segments, qrCode,
+  esc, inEnglish, rel } from '../ui.mjs';
 
 const copy = {
   en: {
@@ -9,16 +11,12 @@ const copy = {
       title: 'Starlit: anime and TV on your PC, run from your phone',
       description: 'Starlit is a free, open-source anime and TV app for Windows and Android, with a phone remote for your PC, Airing Now schedules, offline downloads and optional account sync.',
     },
-    news: ['NEW 1.12.2', 'Create an account, control PC fullscreen'],
+    news: 'New',
     title: 'Watch on your PC.<br><span class="hl">Steer from your phone.</span>',
     lede: 'Starlit is an anime and TV app for Windows and Android. Stream from your own add-ons in a player built on mpv, follow every episode in Airing Now, download whole seasons for offline, and keep one library in sync. Then pick up your phone and run the PC from the couch.',
     ctaWin: 'Download for Windows', ctaAndroid: 'Get the Android APK',
-    metaLine: `v${VERSION} · Windows 10 &amp; 11 (64-bit) · Android 7.0+ · Free and open source, GPL-3.0`,
-    log: { label: 'Recent releases', title: 'Shipping log', all: 'All notes', items: [
-      ['1.12.2', 'Create verified accounts without approval and use your phone to toggle PC fullscreen, skip intros or advance episodes.'],
-      ['1.12.1', 'Security and stability improvements to authentication and remote connections.'],
-      ['1.12.0', 'Google Cast on Android (beta), optional download storage limits, and a playback diagnostics panel.'],
-    ] },
+    metaLine: `v${rel('version', VERSION)} · Windows 10 &amp; 11 (64-bit) · Android 7.0+ · Free and open source, GPL-3.0`,
+    log: { label: 'Recent releases', title: 'Shipping log', all: 'All notes' },
     app: {
       label: 'Illustration of the Starlit desktop app showing the Home screen, with Continue watching and Airing Now rows',
       tabs: ['Home', 'Discover', 'Library', 'MyAnimeList'],
@@ -36,7 +34,7 @@ const copy = {
       ep: 'S1 · E7 · The Quiet Shore', skip: 'Skip intro', buttons: ['Episodes', 'Sources', 'Subtitles'],
     },
     caption: 'Illustrations of the Starlit apps. The shows and artwork are made up.',
-    status: { title: 'What runs Starlit today', as: `Status as of release ${VERSION}`, available: 'Available', beta: 'Beta', notYet: 'Not yet', items: [
+    status: { title: 'What runs Starlit today', as: `Status as of release ${rel('version', VERSION)}`, available: 'Available', beta: 'Beta', notYet: 'Not yet', items: [
       ['ok', 'Windows 10 &amp; 11', 'Own installer, no admin rights, verified in-app updates.'],
       ['ok', 'Android 7.0 and later', 'Signed APKs with every release on GitHub.'],
       ['ok', 'Phone remote over Wi-Fi', 'Android phone to Windows PC, with QR pairing.'],
@@ -86,16 +84,12 @@ const copy = {
       title: 'Starlit: anime e séries no PC, comandados pelo telemóvel',
       description: 'O Starlit é uma aplicação gratuita e de código aberto de anime e séries para Windows e Android, com comando do PC pelo telemóvel, calendário Airing Now, transferências offline e sincronização opcional da conta.',
     },
-    news: ['NOVO 1.12.2', 'Criar conta, controlar ecrã inteiro no PC'],
+    news: 'Novo',
     title: 'Vê no PC.<br><span class="hl">Comanda pelo telemóvel.</span>',
     lede: 'O Starlit é uma aplicação de anime e séries para Windows e Android. Faz streaming a partir dos teus próprios addons num leitor baseado no mpv, acompanha cada episódio no Airing Now, transfere temporadas inteiras para ver offline e mantém uma só biblioteca sincronizada. Depois pega no telemóvel e comanda o PC a partir do sofá.',
     ctaWin: 'Transferir para Windows', ctaAndroid: 'Obter o APK para Android',
-    metaLine: `v${VERSION} · Windows 10 e 11 (64 bits) · Android 7.0+ · Gratuito e de código aberto, GPL-3.0`,
-    log: { label: 'Versões recentes', title: 'Registo de versões', all: 'Todas as notas', items: [
-      ['1.12.2', 'Criação de contas verificadas sem aprovação e comando pelo telemóvel para ecrã inteiro, introduções e episódios seguintes no PC.'],
-      ['1.12.1', 'Melhorias de segurança e estabilidade na autenticação e nas ligações ao comando remoto.'],
-      ['1.12.0', 'Google Cast no Android (beta), limites opcionais de armazenamento para transferências e um painel de diagnóstico da reprodução.'],
-    ] },
+    metaLine: `v${rel('version', VERSION)} · Windows 10 e 11 (64 bits) · Android 7.0+ · Gratuito e de código aberto, GPL-3.0`,
+    log: { label: 'Versões recentes', title: 'Registo de versões', all: 'Todas as notas' },
     app: {
       label: 'Ilustração da aplicação Starlit para computador no ecrã Início, com as filas Continuar a ver e Airing Now',
       tabs: ['Início', 'Explorar', 'Biblioteca', 'MyAnimeList'],
@@ -113,7 +107,7 @@ const copy = {
       ep: 'T1 · E7 · A Margem Silenciosa', skip: 'Saltar introdução', buttons: ['Episódios', 'Fontes', 'Legendas'],
     },
     caption: 'Ilustrações das aplicações Starlit. As séries e as imagens são fictícias.',
-    status: { title: 'Onde o Starlit funciona hoje', as: `Estado na versão ${VERSION}`, available: 'Disponível', beta: 'Beta', notYet: 'Ainda não', items: [
+    status: { title: 'Onde o Starlit funciona hoje', as: `Estado na versão ${rel('version', VERSION)}`, available: 'Disponível', beta: 'Beta', notYet: 'Ainda não', items: [
       ['ok', 'Windows 10 e 11', 'Instalador próprio, sem direitos de administrador, atualizações verificadas na aplicação.'],
       ['ok', 'Android 7.0 ou posterior', 'APK assinados em cada versão no GitHub.'],
       ['ok', 'Comando por Wi-Fi', 'Do telemóvel Android para o PC com Windows, com emparelhamento por QR.'],
@@ -267,7 +261,7 @@ ${segments(rm.tabs, 0, 'p-seg')}
   <div class="wrap">
     <div class="grid cols-hero-home">
       <div>
-        <a class="news-pill" href="${r.download}#${pageIds.download.news}"><span class="news-tag">${c.news[0]}</span><span>${c.news[1]}</span>${icon('arrowRight', 14)}</a>
+        <a class="news-pill" href="${r.download}#${pageIds.download.news}"><span class="news-tag">${c.news.toUpperCase()} ${rel('version', LATEST_RELEASE.version)}</span><span${inEnglish(lang)} data-rel="headline">${esc(LATEST_RELEASE.headline)}</span>${icon('arrowRight', 14)}</a>
         <h1 id="hero-title" class="t-hero mt-28">${c.title}</h1>
         <p class="lede mt-28 measure-620">${c.lede}</p>
         <p class="cta-row mt-36"><a class="btn btn-accent btn-lg" href="${r.download}">${icon('monitor', 20)}${c.ctaWin}</a><a class="btn btn-ghost btn-lg" href="${r.download}">${icon('phone', 20)}${c.ctaAndroid}</a></p>
@@ -275,8 +269,8 @@ ${segments(rm.tabs, 0, 'p-seg')}
       </div>
       <aside class="log" aria-label="${c.log.label}">
         <p class="log-head"><span class="label-mono">${c.log.title}</span><a href="${r.download}#${pageIds.download.news}">${c.log.all}</a></p>
-        <ol class="log-list" role="list">${c.log.items.map(([v, text], i) => `
-          <li><span class="log-v${i === 0 ? ' cur' : ''}">${v}</span><span>${text}</span></li>`).join('')}
+        <ol class="log-list" role="list" data-rel-list="releases" data-rel-start="0">${RELEASE_DATA.releases.slice(0, 3).map(release => `
+          <li data-rel-item><span class="log-v" data-rel-field="version">${esc(release.version)}</span><span${inEnglish(lang)} data-rel-field="summary">${esc(release.summary)}</span></li>`).join('')}
         </ol>
       </aside>
     </div>
