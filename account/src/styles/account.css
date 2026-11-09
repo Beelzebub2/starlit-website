@@ -453,7 +453,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .preview-large { display: grid; gap: 10px; }
 
 /* ------------------------------------------------------------ sign in, choose profile */
-.signin { display: grid; place-items: center; min-height: calc(100dvh - 160px); }
+.signin { display: grid; place-items: start center; min-height: calc(100dvh - 160px); padding: clamp(24px, 6vh, 96px) 0 32px; }
 .signin-card { width: 100%; max-width: 440px; display: grid; gap: 16px; }
 .signin-card .page-title { font-size: clamp(30px, 6vw, 40px); }
 .signin-status:empty { display: none; }
@@ -463,6 +463,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .signin-foot { font-size: 14px; color: var(--muted); }
 .divider { display: flex; align-items: center; gap: 10px; color: var(--dim); font-size: 13px; }
 .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.signin-alt { gap: 10px; }
+.signin-alt .btn { width: 100%; }
 .choose { display: grid; gap: 14px; max-width: 760px; margin: 6vh auto 0; }
 .choose-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); margin-top: 14px; }
 .choose-card { display: grid; justify-items: center; gap: 8px; width: 100%; padding: 22px 12px; border: 1px solid var(--edge); border-radius: 18px; background: var(--panel); cursor: pointer; }

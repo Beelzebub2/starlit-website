@@ -14,6 +14,8 @@ export default {
     const status = h('div', { class: 'signin-status', 'aria-live': 'assertive' });
     const submit = button(t('signin.submit'), { variant: 'accent', type: 'submit' });
     submit.classList.add('btn-block');
+    const googleButton = ctx.config.googleSignIn ? button(t('signin.google'), { onClick: google }) : null;
+    const passkeyButton = ctx.config.passkeySignIn ? button(t('signin.passkey'), { icon: 'key', onClick: passkey }) : null;
 
     const reason = state.signOutReason;
     if (reason === 'revoked' || reason === 'expired') status.append(notice({ tone: 'warn', title: t('signin.revokedTitle'), body: t('signin.revokedBody') }));
@@ -49,6 +51,27 @@ export default {
       catch { status.replaceChildren(notice({ tone: 'danger', title: t('signin.googleFailed'), live: true })); }
     }
 
+    async function passkey() {
+      status.replaceChildren();
+      passkeyButton.disabled = true;
+      passkeyButton.setAttribute('aria-busy', 'true');
+      passkeyButton.querySelector('span').textContent = t('signin.passkeyWorking');
+      try {
+        await ctx.auth.signInWithPasskey();
+        await ctx.finishSignIn();
+      } catch (error) {
+        status.replaceChildren(notice({
+          tone: 'danger',
+          title: t(error?.kind === 'unsupported' ? 'signin.passkeyUnsupported' : 'signin.passkeyFailed'),
+          live: true,
+        }));
+      } finally {
+        passkeyButton.disabled = false;
+        passkeyButton.removeAttribute('aria-busy');
+        passkeyButton.querySelector('span').textContent = t('signin.passkey');
+      }
+    }
+
     return h('section', { class: 'signin' },
       h('div', { class: 'signin-card' },
         h('p', { class: 'eyebrow' }, t('signin.eyebrow')),
@@ -56,8 +79,9 @@ export default {
         h('p', { class: 'lede' }, t('signin.lede')),
         status,
         h('form', { class: 'stack', novalidate: true, onsubmit: onSubmit }, emailField, passwordField, submit),
-        ctx.config.googleSignIn ? h('div', { class: 'stack-s signin-alt' }, h('p', { class: 'divider' }, h('span', {}, t('signin.or'))),
-          button(t('signin.google'), { onClick: google })) : null,
+        googleButton || passkeyButton ? h('div', { class: 'stack-s signin-alt' },
+          h('p', { class: 'divider' }, h('span', {}, t('signin.or'))),
+          passkeyButton, googleButton) : null,
         h('ul', { role: 'list', class: 'signin-notes' },
           h('li', {}, icon('info', { size: 16 }), h('span', {}, t('signin.noteApp'))),
           h('li', {}, icon('lock', { size: 16 }), h('span', {}, t('signin.noteMemory')))),

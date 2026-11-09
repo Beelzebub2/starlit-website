@@ -32,6 +32,7 @@ const apiUrl = (process.env.STARLIT_API_URL ?? 'https://starlit-api.rrmtools.uk'
 const anonKey = (process.env.STARLIT_ANON_KEY ?? '').trim();
 const writes = mode === 'mock' || process.env.STARLIT_ACCOUNT_WRITES === '1';
 const google = mode === 'live' && process.env.STARLIT_GOOGLE_SIGNIN === '1';
+const passkey = mode === 'live' && process.env.STARLIT_PASSKEY_SIGNIN === '1';
 
 // The browser may only ever hold the public anon key. Refuse anything else.
 function checkPublicKey(key) {
@@ -80,6 +81,7 @@ const config = {
   anonKey: mode === 'live' ? anonKey : 'mock-anon-key',
   writesEnabled: writes,
   googleSignIn: google,
+  passkeySignIn: passkey,
   siteUrl: 'https://starlit.rrmtools.uk',
 };
 writeFileSync(join(dist, 'config.js'),
