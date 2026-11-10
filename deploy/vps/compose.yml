@@ -2,7 +2,8 @@
 # Reuse the existing VPS Caddy HTTPS edge; publish no extra host ports.
 services:
   website:
-    image: caddy:2.10.2
+    # Includes November 2026 file matcher and path normalization security fixes.
+    image: caddy:2.11.8
     container_name: starlit-site-web
     restart: unless-stopped
     user: "10001:10001"
