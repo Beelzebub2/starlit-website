@@ -452,19 +452,104 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pv-square { aspect-ratio: 1; }
 .preview-large { display: grid; gap: 10px; }
 
-/* ------------------------------------------------------------ sign in, choose profile */
-.signin { display: grid; place-items: start center; min-height: calc(100dvh - 160px); padding: clamp(24px, 6vh, 96px) 0 32px; }
-.signin-card { width: 100%; max-width: 440px; display: grid; gap: 16px; }
-.signin-card .page-title { font-size: clamp(30px, 6vw, 40px); }
+/* ------------------------------------------------------------ sign in
+   The night sky is the one bold element; the form beside it stays quiet.
+   Phones: a short sky band above the form. 1024 px and up: the sky fills
+   the left of the screen and the form sits in a column on the right. */
+.main:has(> .view > .signin) { padding: 0; }
+.view:has(> .signin) { max-width: none; }
+.signin { display: grid; align-content: start; min-height: calc(100dvh - 61px); }
+
+.signin-sky {
+  position: relative;
+  overflow: hidden;
+  height: 176px;
+  margin: 16px var(--gutter) 0;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background:
+    radial-gradient(55% 60% at 47% 50%, rgba(57, 101, 212, .26), transparent 70%),
+    radial-gradient(35% 40% at 64% 66%, rgba(178, 80, 239, .14), transparent 70%),
+    linear-gradient(180deg, #04050b 0%, #080b20 100%);
+}
+.sky-field { position: absolute; inset: 0; width: 100%; height: 100%; fill: #d3dcff; }
+.sky-map { position: absolute; left: 0; top: 50%; width: 100%; height: auto; transform: translateY(-50%); overflow: visible; }
+.sky-line { fill: none; stroke: rgba(127, 227, 242, .34); stroke-width: 1.2; stroke-linecap: round; }
+.sky-chord { stroke: rgba(162, 168, 195, .22); }
+.sky-halo { fill: #7fe3f2; fill-opacity: .1; }
+.sky-core { fill: #eef0fa; }
+/* A dark outline under each label keeps lines from running through the text. */
+.sky-label { display: none; fill: #a2a8c3; font: 500 16px var(--sans); letter-spacing: .005em; paint-order: stroke; stroke: #05060f; stroke-width: 6px; stroke-linejoin: round; }
+.sky-label-hub { fill: #eef0fa; font: 700 19px var(--display); letter-spacing: -.01em; }
+.sky-hub { transform-box: fill-box; transform-origin: center; }
+
+.signin-panel { display: grid; align-items: center; padding: 32px var(--gutter) 72px; }
+.signin-card { width: 100%; max-width: 400px; margin: 0 auto; display: grid; gap: 22px; }
+.signin-title { font-size: clamp(34px, 2vw + 22px, 48px); font-stretch: 92%; line-height: 1.02; letter-spacing: -.022em; }
 .signin-status:empty { display: none; }
-.signin-notes { display: grid; gap: 8px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+.signin-form { display: grid; gap: 18px; }
+.signin-form .input { min-height: 50px; padding: 12px 14px; border-radius: 14px; font-size: 16px; }
+.signin-form .btn { min-height: 50px; margin-top: 4px; font-size: 15.5px; }
+.signin-alt { display: grid; gap: 10px; }
+.signin-alt .btn { width: 100%; min-height: 48px; }
+.g-mark { flex: none; }
+.divider { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; color: var(--dim); font-size: 13px; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
+
+/* Notes and the shell's notices, set small under the form. */
+.signin-about { display: grid; gap: 14px; padding-top: 20px; border-top: 1px solid var(--line); }
+.signin-banners .banners { max-width: none; margin: 0; gap: 12px; }
+.signin-banners .notice { padding: 0; border: 0; border-radius: 0; background: none; gap: 10px; }
+.signin-banners .notice-warn, .signin-banners .notice-danger { padding: 12px 14px; border: 1px solid var(--edge); border-left-width: 3px; border-radius: 12px; background: var(--panel); }
+.signin-banners .notice-body { font-size: 13.5px; color: var(--muted); }
+.signin-banners .notice-title { color: var(--text-2); }
+.signin-banners .notice-icon .i { width: 16px; height: 16px; }
+.signin-notes { display: grid; gap: 12px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 .signin-notes li { display: flex; gap: 10px; }
-.signin-notes .i { margin-top: 2px; color: var(--dim); }
-.signin-foot { font-size: 14px; color: var(--muted); }
-.divider { display: flex; align-items: center; gap: 10px; color: var(--dim); font-size: 13px; }
-.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-.signin-alt { gap: 10px; }
-.signin-alt .btn { width: 100%; }
+.signin-notes .i { flex: none; margin-top: 2px; color: var(--dim); }
+.signin-notes .text-link { display: inline; font-weight: 600; }
+
+@media (min-width: 640px) {
+  .signin-sky { height: 220px; }
+  .sky-map { left: 10%; width: 80%; }
+}
+@media (min-width: 1024px) {
+  .signin { grid-template-columns: minmax(0, 1fr) minmax(440px, 42%); }
+  /* The sky stays in view (under the 61 px top bar) while the form scrolls. */
+  .signin-sky { position: sticky; top: 61px; align-self: start; height: calc(100vh - 61px); height: calc(100dvh - 61px); margin: 0; border: 0; border-right: 1px solid var(--line); border-radius: 0; }
+  .sky-map { left: 3%; top: 6%; width: 94%; height: 88%; transform: none; }
+  /* The map scales with the panel, so labels are set larger where it's narrow. */
+  .sky-label { display: inline; font-size: 18px; }
+  .sky-label-hub { font-size: 21px; }
+  .signin-panel { padding: 56px clamp(40px, 5.5vw, 96px); }
+  .signin-card { margin: 0; }
+  /* The sky shows what the lede says; keep the words for screen readers. */
+  .signin-lede { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (min-width: 1280px) {
+  .sky-label { font-size: 16px; }
+  .sky-label-hub { font-size: 19px; }
+}
+
+/* The one moment of motion: the constellation draws itself on arrival. */
+@media (prefers-reduced-motion: no-preference) {
+  .sky-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: sky-draw .9s var(--ease) forwards; }
+  .sky-star { opacity: 0; animation: sky-appear .6s var(--ease) forwards; }
+  .sky-hub { animation: sky-hub 1s var(--ease) both; }
+  /* Lines leave the hub one after another; each star lights as its line arrives. */
+  .sky-d1 { animation-delay: .2s; } .sky-d2 { animation-delay: .27s; } .sky-d3 { animation-delay: .34s; }
+  .sky-d4 { animation-delay: .41s; } .sky-d5 { animation-delay: .48s; } .sky-d6 { animation-delay: .55s; }
+  .sky-d7 { animation-delay: .62s; }
+  .sky-e1 { animation-delay: .75s; } .sky-e2 { animation-delay: .82s; } .sky-e3 { animation-delay: .89s; }
+  .sky-e4 { animation-delay: .96s; } .sky-e5 { animation-delay: 1.03s; } .sky-e6 { animation-delay: 1.1s; }
+  .sky-e7 { animation-delay: 1.17s; }
+  .sky-chord { animation-delay: 1.15s; }
+}
+@keyframes sky-draw { to { stroke-dashoffset: 0; } }
+@keyframes sky-appear { to { opacity: 1; } }
+@keyframes sky-hub { from { opacity: 0; transform: scale(.4) rotate(-45deg); } }
+
+/* ------------------------------------------------------------ choose profile */
 .choose { display: grid; gap: 14px; max-width: 760px; margin: 6vh auto 0; }
 .choose-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); margin-top: 14px; }
 .choose-card { display: grid; justify-items: center; gap: 8px; width: 100%; padding: 22px 12px; border: 1px solid var(--edge); border-radius: 18px; background: var(--panel); cursor: pointer; }

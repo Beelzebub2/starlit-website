@@ -73,6 +73,29 @@ design). Everything has to be done in the app on each device.
   the save bar and the editor footer stay at the bottom where a thumb can
   reach them. The E2E tests check that nothing scrolls sideways on any page.
 
+## The sign-in screen
+
+The first thing people see, so it carries the one bold element of the app:
+a night sky in which the account is the brightest star (the four-point star
+and gradient of the Starlit mark), connected to stars named after what the
+account manages: Profiles, Library, Continue watching, Watched history,
+Collections, Addons, Synced settings. These are the navigation's own words,
+so the picture previews what's behind the form. It's inline SVG built with
+`h()` (no HTML strings), hidden from screen readers (the lede says the same),
+and its lines draw in once on arrival unless reduced motion is on.
+
+* **1024 px and up.** The sky fills the left of the screen and stays in view
+  while the form column on the right scrolls. The form is left-aligned, with
+  50 px fields and buttons.
+* **Below 1024 px.** The sky becomes a 176–220 px band above the heading,
+  without labels, and the lede is shown under the heading.
+* **Quiet details.** No eyebrow label above the heading. The passkey button
+  has a key icon and Google's "G" sits next to "Continue with Google". The
+  shell's notices (read-only mode, offline) appear small under the form
+  instead of above the page (`[data-banners]` in the view), and the notes
+  about creating an account in the app and the tab-only session sit with
+  them.
+
 ## The collection editor
 
 A full page instead of a long modal: **Start → Basics → Folders and sources →

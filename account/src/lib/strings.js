@@ -32,7 +32,7 @@ const en = {
   'error.conflict.title': 'Changed on another device', 'error.conflict.body': 'Reload to see the latest version.',
   'error.aborted.title': 'Cancelled', 'error.aborted.body': 'The request was cancelled.',
 
-  'signin.eyebrow': 'Starlit account', 'signin.title': 'Sign in to manage your account',
+  'signin.title': 'Sign in to manage your account', 'signin.skyHub': 'Your account',
   'signin.lede': 'Profiles, library, history, collections, addons and synced settings, in one place.',
   'signin.email': 'Email', 'signin.password': 'Password', 'signin.submit': 'Sign in', 'signin.working': 'Signing in…',
   'signin.emailRequired': 'Enter your email.', 'signin.passwordRequired': 'Enter your password.',
@@ -44,7 +44,7 @@ const en = {
   'signin.passkeyUnsupported': 'This browser cannot use Starlit passkeys. Try Chrome, Safari or your password.',
   'signin.noteApp': 'Create an account, reset your password or add a passkey in the Starlit app.',
   'signin.noteMemory': 'Your session stays in this tab only. Closing or reloading it signs you out here.',
-  'signin.noAccount': 'No account yet?', 'signin.getApp': 'Get the Starlit app',
+  'signin.getApp': 'Get the Starlit app',
 
   'choose.eyebrow': 'Signed in', 'choose.title': 'Which profile do you want to manage?',
   'choose.lede': 'Nothing from a profile is loaded until you pick it. PIN-protected profiles ask for their PIN first.',
@@ -302,7 +302,7 @@ const pt = {
   'error.conflict.title': 'Alterado noutro dispositivo', 'error.conflict.body': 'Recarrega para ver a versão mais recente.',
   'error.aborted.title': 'Cancelado', 'error.aborted.body': 'O pedido foi cancelado.',
 
-  'signin.eyebrow': 'Conta Starlit', 'signin.title': 'Inicia sessão para gerir a tua conta',
+  'signin.title': 'Inicia sessão para gerir a tua conta', 'signin.skyHub': 'A tua conta',
   'signin.lede': 'Perfis, biblioteca, histórico, coleções, addons e definições sincronizadas, num só lugar.',
   'signin.email': 'Email', 'signin.password': 'Palavra-passe', 'signin.submit': 'Iniciar sessão', 'signin.working': 'A iniciar sessão…',
   'signin.emailRequired': 'Escreve o teu email.', 'signin.passwordRequired': 'Escreve a tua palavra-passe.',
@@ -314,7 +314,7 @@ const pt = {
   'signin.passkeyUnsupported': 'Este navegador não suporta as chaves de acesso Starlit. Usa o Chrome, Safari ou a palavra-passe.',
   'signin.noteApp': 'Cria conta, repõe a palavra-passe ou adiciona uma chave de acesso na aplicação Starlit.',
   'signin.noteMemory': 'A sessão fica só neste separador. Fechá-lo ou recarregá-lo termina a sessão aqui.',
-  'signin.noAccount': 'Ainda não tens conta?', 'signin.getApp': 'Obtém a aplicação Starlit',
+  'signin.getApp': 'Obtém a aplicação Starlit',
 
   'choose.eyebrow': 'Sessão iniciada', 'choose.title': 'Que perfil queres gerir?',
   'choose.lede': 'Nada de um perfil é carregado até o escolheres. Os perfis com PIN pedem-no primeiro.',
