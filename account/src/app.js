@@ -63,8 +63,8 @@ const auth = createAuth({
 });
 const api = createApi({
   baseUrl: config.apiUrl, anonKey: config.anonKey, transport,
-  getAccessToken: () => auth.getAccessToken(),
-  onAuthError: () => auth.invalidate('revoked'),
+  getAccessToken: () => auth.ensureAccessToken(),
+  onAuthError: (_error, token) => auth.invalidateIfToken(token, 'revoked'),
 });
 export const canWrite = () => config.writesEnabled && state.online;
 

@@ -14,7 +14,7 @@ export const BLOB_SCOPES = {
 
 export function createApi({ baseUrl, anonKey, transport, getAccessToken, onAuthError }) {
   async function rpc(name, args = {}, { signal } = {}) {
-    const token = getAccessToken();
+    const token = await getAccessToken();
     if (!token) throw new ApiError('auth', { status: 401, message: 'Not signed in' });
     let response;
     try {
@@ -37,7 +37,7 @@ export function createApi({ baseUrl, anonKey, transport, getAccessToken, onAuthE
     }
     if (!response.ok) {
       const error = await errorFromResponse(response);
-      if (error.kind === 'auth') onAuthError?.(error);
+      if (error.kind === 'auth') onAuthError?.(error, token);
       throw error;
     }
     if (response.status === 204) return null;

@@ -8,17 +8,32 @@
 //
 // Live builds are read-only unless STARLIT_ACCOUNT_WRITES=1, so the editor can
 // be rolled out behind a flag after the staged read checks pass.
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const src = join(here, 'src');
 // STARLIT_ACCOUNT_OUT lets tests build into a temporary folder.
-const dist = process.env.STARLIT_ACCOUNT_OUT ? resolve(process.env.STARLIT_ACCOUNT_OUT) : join(here, 'dist');
+const defaultDist = join(here, 'dist');
+const customOut = process.env.STARLIT_ACCOUNT_OUT;
+const dist = customOut ? resolve(customOut) : defaultDist;
 const siteAssets = join(here, '..', 'assets');
 
 const fail = message => { console.error(`Account build refused: ${message}`); process.exit(1); };
+// Only the known, ignored default dist is replaceable. A custom location is
+// only ever filled when empty, never recursively deleted, and may not point
+// into the website's source tree. This prevents a mistyped OUT from erasing
+// arbitrary source or user files.
+const inside = (parent, child) => {
+  const diff = relative(parent, child);
+  return diff === '' || (diff !== '..' && !diff.startsWith('..' + sep) && !isAbsolute(diff));
+};
+if (customOut && inside(join(here, '..'), dist)) fail('custom output must be outside the website repository');
+if (existsSync(dist) && lstatSync(dist).isSymbolicLink()) fail('output must not be a symlink');
+if (customOut && existsSync(dist) && (!lstatSync(dist).isDirectory() || readdirSync(dist).length)) {
+  fail('custom output directory must be empty');
+}
 const arg = name => process.argv.find(a => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 
 const mode = arg('mode') ?? process.env.STARLIT_ACCOUNT_MODE ?? 'mock';
@@ -52,7 +67,7 @@ if (mode === 'live') {
   if (problem) fail(problem);
 }
 
-rmSync(dist, { recursive: true, force: true });
+if (!customOut) rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
 // Copy the app. The mock API and its synthetic fixtures never ship in a live build.

@@ -14,6 +14,13 @@ export function equal(a, b) {
 
 export const clone = value => (value === undefined ? undefined : structuredClone(value));
 
+// Settings and imported JSON are data, not prototype instructions. In
+// particular, reading obj.__proto__ or assigning constructor.prototype can
+// escape the edited object into JavaScript's shared prototype chain.
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+export const isSafeRecordKey = key => typeof key === 'string' && !UNSAFE_KEYS.has(key);
+const safePath = path => Array.isArray(path) && path.length > 0 && path.every(isSafeRecordKey);
+
 /**
  * Three-way merge of keyed lists (addons by url, collections by id).
  * Returns { items, conflicts: [{ key, mine, theirs }], summary }.
@@ -55,7 +62,7 @@ export function mergeLists({ base, mine, theirs, key, compare = equal }) {
 /** Leaf paths of a JSON value; arrays are treated as single values. */
 export function leaves(value, prefix = [], out = new Map()) {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
-    const keys = Object.keys(value);
+    const keys = Object.keys(value).filter(isSafeRecordKey);
     if (!keys.length && prefix.length) out.set(JSON.stringify(prefix), { path: prefix, value: {} });
     for (const k of keys) leaves(value[k], [...prefix, k], out);
   } else if (prefix.length) {
@@ -65,16 +72,21 @@ export function leaves(value, prefix = [], out = new Map()) {
 }
 
 export function getAt(obj, path) {
+  if (!safePath(path)) return undefined;
   let cur = obj;
-  for (const p of path) { if (cur === null || typeof cur !== 'object') return undefined; cur = cur[p]; }
+  for (const p of path) {
+    if (cur === null || typeof cur !== 'object' || !Object.prototype.hasOwnProperty.call(cur, p)) return undefined;
+    cur = cur[p];
+  }
   return cur;
 }
 
 export function setAt(obj, path, value) {
+  if (!safePath(path)) throw new Error('Unsafe settings path');
   const root = obj && typeof obj === 'object' ? obj : {};
   let cur = root;
   path.slice(0, -1).forEach(p => {
-    if (!cur[p] || typeof cur[p] !== 'object' || Array.isArray(cur[p])) cur[p] = {};
+    if (!Object.prototype.hasOwnProperty.call(cur, p) || !cur[p] || typeof cur[p] !== 'object' || Array.isArray(cur[p])) cur[p] = {};
     cur = cur[p];
   });
   if (value === undefined) delete cur[path.at(-1)];

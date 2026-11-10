@@ -5,7 +5,7 @@
 // live in the separate provider-credential store), and device-specific values
 // such as download folders or hardware decoding are read-only.
 import { isCredentialKey } from './redact.js';
-import { leaves, setAt, clone } from './merge.js';
+import { leaves, setAt, clone, isSafeRecordKey } from './merge.js';
 
 // Matched against whole words of a key (split on _ - .), so "prefer_cached" is not "cache".
 const DEVICE_WORDS = new Set(['download', 'downloads', 'path', 'paths', 'dir', 'directory', 'folder', 'cache', 'storage', 'hardware',
@@ -50,7 +50,7 @@ export function withoutCredentials(value) {
   if (Array.isArray(value)) return value.map(withoutCredentials);
   if (!value || typeof value !== 'object') return value;
   const out = {};
-  for (const [k, v] of Object.entries(value)) if (!isCredentialKey(k)) out[k] = withoutCredentials(v);
+  for (const [k, v] of Object.entries(value)) if (isSafeRecordKey(k) && !isCredentialKey(k)) out[k] = withoutCredentials(v);
   return out;
 }
 

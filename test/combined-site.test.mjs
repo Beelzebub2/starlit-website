@@ -52,12 +52,17 @@ test('combined deployment keeps ports closed and separate per-path CSPs', () => 
   const compose = read(join(root, 'deploy', 'vps', 'compose.yml'));
   const install = read(join(root, 'deploy', 'vps', 'install-release.sh'));
   assert.match(compose, /user: "10001:10001"/);
+  assert.match(compose, /image: caddy:2\.11\.8/, 'Caddy must include the November 2026 path authorization fixes');
   assert.match(compose, /read_only: true/);
   assert.match(compose, /cap_drop: \[ALL\]/);
   assert.match(compose, /no-new-privileges:true/);
   assert.doesNotMatch(compose, /^\s+ports:/m);
   assert.match(caddy, /route \{\s*# [^\n]*\n\s*respond @private 404/);
   assert.match(caddy, /@account path \/account\/\*/);
+  assert.match(caddy, /@accountAssets path_regexp accountAssets/);
+  assert.match(caddy, /handle @accountAssets \{\s*import account_headers\s*file_server\s*\}/);
+  assert.ok(caddy.indexOf('handle @accountAssets') < caddy.indexOf('handle @account {'), 'missing assets must not fall back to the SPA');
+  assert.match(caddy, /import account_headers\s*try_files \{path\} \/account\/index\.html/);
   assert.match(caddy, /@accountRoot path \/account/);
   assert.match(caddy, /rewrite @accountRoot \/account\/index\.html/);
   assert.match(caddy, /script-src 'self'/);

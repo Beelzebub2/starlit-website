@@ -9,6 +9,8 @@ const VERIFIER_KEY = 'starlit.pkce';
 export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now(), onChange, credentials = globalThis.navigator?.credentials }) {
   let session = null;      // { accessToken, refreshToken, expiresAt, user }
   let refreshTimer = null;
+  let refreshInFlight = null;
+  let sessionEpoch = 0;
 
   const authUrl = path => `${baseUrl}/auth/v1${path}`;
   const headers = token => ({
@@ -42,6 +44,8 @@ export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now()
   function accept(tokens) {
     if (!tokens?.access_token) throw new ApiError('server', { message: 'Sign-in response had no session' });
     const expiresIn = Number(tokens.expires_in ?? 900);
+    if (!Number.isFinite(expiresIn) || expiresIn <= 0) throw new ApiError('server', { message: 'Invalid session lifetime' });
+    sessionEpoch++;
     session = {
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token ?? null,
@@ -58,20 +62,61 @@ export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now()
     if (!session?.refreshToken) return;
     // Refresh one minute before expiry (the VPS issues 900-second access tokens).
     const delay = Math.max(5, expiresIn - 60) * 1000;
-    refreshTimer = setTimeout(() => { refresh().catch(() => drop('expired')); }, delay);
+    const scheduledSession = session;
+    refreshTimer = setTimeout(() => {
+      refresh().catch(error => {
+        // A network interruption is not proof that credentials were revoked.
+        // Keep the session so a later action can retry the refresh.
+        if (error?.kind === 'auth' && session === scheduledSession) drop('expired');
+      });
+    }, delay);
     refreshTimer?.unref?.();   // Node tests only; browsers return a number
   }
 
   function drop(reason) {
     clearTimeout(refreshTimer);
     const had = Boolean(session);
+    sessionEpoch++;
     session = null;
     if (had) onChange?.(null, reason);
   }
 
   async function refresh() {
     if (!session?.refreshToken) throw new ApiError('auth', { status: 401, message: 'Session expired' });
-    return accept(await call('/token?grant_type=refresh_token', { body: { refresh_token: session.refreshToken } }));
+    if (refreshInFlight?.session === session) return refreshInFlight.promise;
+    const previous = session;
+    const epoch = sessionEpoch;
+    // GoTrue rotates refresh tokens. Overlapping requests with the same token
+    // may invalidate one another, so share a single refresh transaction.
+    const promise = (async () => {
+      const result = await call('/token?grant_type=refresh_token', { body: { refresh_token: previous.refreshToken } });
+      if (sessionEpoch !== epoch || session !== previous) {
+        throw new ApiError('auth', { status: 401, message: 'Session changed during refresh' });
+      }
+      return accept(result);
+    })();
+    refreshInFlight = { session: previous, promise };
+    try { return await promise; }
+    finally { if (refreshInFlight?.promise === promise) refreshInFlight = null; }
+  }
+
+  async function ensureAccessToken() {
+    if (!session) return null;
+    const previous = session;
+    // Background timers are throttled in suspended tabs. Recover on demand
+    // before an RPC, instead of treating an expired token as a sign-out.
+    if (previous.expiresAt > now() + 30_000) return previous.accessToken;
+    if (!previous.refreshToken) {
+      if (previous.expiresAt <= now()) drop('expired');
+      return session?.accessToken ?? null;
+    }
+    try {
+      await refresh();
+      return session?.accessToken ?? null;
+    } catch (error) {
+      if (error?.kind === 'auth' && session === previous) drop('expired');
+      throw error;
+    }
   }
 
   function publicView() {
@@ -87,6 +132,7 @@ export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now()
 
   return {
     getAccessToken: () => (session && session.expiresAt > now() ? session.accessToken : null),
+    ensureAccessToken,
     current: publicView,
     async signInWithPassword(email, password) {
       return accept(await call('/token?grant_type=password', { body: { email, password } }));
@@ -141,7 +187,13 @@ export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now()
     },
     async loadUser() {
       if (!session) return null;
-      session.user = await call('/user', { method: 'GET', token: session.accessToken });
+      const previous = session;
+      const epoch = sessionEpoch;
+      const user = await call('/user', { method: 'GET', token: previous.accessToken });
+      if (session !== previous || sessionEpoch !== epoch) {
+        throw new ApiError('auth', { status: 401, message: 'Session changed during profile load' });
+      }
+      session.user = user;
       onChange?.(publicView());
       return publicView();
     },
@@ -150,14 +202,17 @@ export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now()
     async signOut(scope = 'local') {
       if (!['local', 'others', 'global'].includes(scope)) throw new ApiError('invalid', { message: 'Unknown sign-out scope' });
       const token = session?.accessToken;
-      try {
-        if (token) await call(`/logout?scope=${scope}`, { token });
-      } finally {
-        if (scope !== 'others') drop('signed-out');
-      }
+      // Clear local credentials before awaiting the server: an in-flight
+      // refresh must never recreate a browser session after sign-out.
+      if (scope !== 'others') drop('signed-out');
+      if (token) await call(`/logout?scope=${scope}`, { token });
     },
     /** Called when the API rejects the session (revoked elsewhere or expired). */
     invalidate: reason => drop(reason ?? 'revoked'),
+    // A delayed 401 for the previous account must not sign out a newer login.
+    invalidateIfToken: (token, reason) => {
+      if (token && session?.accessToken === token) drop(reason ?? 'revoked');
+    },
 
     // Google sign-in with PKCE. Only the one-time verifier is kept, in
     // sessionStorage, until the redirect comes back; it is useless without the code.

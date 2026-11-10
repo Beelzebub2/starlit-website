@@ -16,12 +16,30 @@
     }
 }
 
+(account_headers) {
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        X-Frame-Options "DENY"
+        X-Robots-Tag "noindex, nofollow"
+        Cross-Origin-Opener-Policy "same-origin"
+        Cross-Origin-Resource-Policy "same-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://starlit-api.rrmtools.uk; manifest-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
+    }
+    @accountFonts path /account/fonts/*
+    header @accountFonts Cache-Control "public, max-age=31536000, immutable"
+    @accountOther not path /account/fonts/*
+    header @accountOther Cache-Control "private, no-store, max-age=0"
+}
+
 # One static server, distinct CSP for public pages and the account SPA.
 # HTTPS terminates in the existing VPS edge. No database or private keys here.
 :8081 {
     root * /srv/releases/current
     encode zstd gzip
-    @private path /_headers /_redirects /.env* /.git/* /node_modules/* /account/_headers /account/_redirects /account/.env* /account/.git/* /account/mock/* /account/src/* /account/docs/* /account/test/* /account/node_modules/*
+    @private path /_headers /_redirects /.env* /.git /.git/* /node_modules/* /account/_headers /account/_redirects /account/.env* /account/.git /account/.git/* /account/mock/* /account/src/* /account/docs/* /account/test/* /account/node_modules/*
 
     route {
         # Important: deny BEFORE account SPA fallback or private paths would 200.
@@ -31,23 +49,17 @@
         @accountRoot path /account
         rewrite @accountRoot /account/index.html
 
+        # A missing script, style or other account asset must return a genuine
+        # 404, not the sign-in HTML with HTTP 200. Keep the same account CSP.
+        @accountAssets path_regexp accountAssets ^/account/(?:.+\.(?:js|css|svg|json|ico|png|webp|woff2)|(?:lib|views|styles|fonts)/.*)$
+        handle @accountAssets {
+            import account_headers
+            file_server
+        }
+
         @account path /account/*
         handle @account {
-            header {
-                Strict-Transport-Security "max-age=31536000"
-                X-Content-Type-Options "nosniff"
-                Referrer-Policy "no-referrer"
-                X-Frame-Options "DENY"
-                X-Robots-Tag "noindex, nofollow"
-                Cross-Origin-Opener-Policy "same-origin"
-                Cross-Origin-Resource-Policy "same-origin"
-                Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
-                Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://starlit-api.rrmtools.uk; manifest-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
-            }
-            @accountFonts path /account/fonts/*
-            header @accountFonts Cache-Control "public, max-age=31536000, immutable"
-            @accountOther not path /account/fonts/*
-            header @accountOther Cache-Control "private, no-store, max-age=0"
+            import account_headers
             try_files {path} /account/index.html
             file_server
         }
