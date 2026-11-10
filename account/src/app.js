@@ -260,6 +260,11 @@ function mount(route, view, params, query = new URLSearchParams()) {
   renderShell();
   const el = view.render(ctx);
   replace(viewHost, el);
+  // A view can give the shell's notices a place of its own (sign-in shows
+  // them under the form); otherwise they sit above the view.
+  const slot = el.querySelector?.('[data-banners]');
+  if (slot) slot.append(banners);
+  else if (banners.parentNode !== main) main.prepend(banners);
   ctx.setTitle(view.title?.(ctx) ?? 'Starlit');
   // Move focus to the page heading so keyboard and screen-reader users land on the new page.
   requestAnimationFrame(() => (viewHost.querySelector('.page-title') ?? main).focus({ preventScroll: false }));

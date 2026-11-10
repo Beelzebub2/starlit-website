@@ -36,6 +36,30 @@ test('no page scrolls sideways', async ({ page }, info) => {
   }
 });
 
+test('sign-in constellation keeps the form readable across screen sizes', async ({ page }, info) => {
+  await page.goto('/?tab=signin');
+  const sky = page.locator('.signin-sky');
+  const panel = page.locator('.signin-panel');
+  await expect(sky).toBeVisible();
+  await expect(page.locator('.sky-core')).toHaveCount(7);
+  await expect(page.locator('.signin-banners .banners')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sign in to manage your account' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Email' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
+
+  const skyBox = await sky.boundingBox();
+  const panelBox = await panel.boundingBox();
+  expect(skyBox).not.toBeNull();
+  expect(panelBox).not.toBeNull();
+  if (info.project.name === 'desktop') {
+    expect(skyBox.x + skyBox.width).toBeLessThanOrEqual(panelBox.x + 2);
+    await expect(page.locator('.sky-label-hub')).toBeVisible();
+  } else {
+    expect(skyBox.y + skyBox.height).toBeLessThanOrEqual(panelBox.y + 2);
+    await expect(page.locator('.sky-label-hub')).toBeHidden();
+  }
+});
+
 test('small screens use a menu dialog that returns focus', async ({ page }, info) => {
   test.skip(info.project.name === 'desktop', 'the desktop rail is always visible');
   await signIn(page, 'a');
