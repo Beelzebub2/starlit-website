@@ -38,8 +38,9 @@ export const en = {
       codes (including errors, slow starts, retries and storage warnings), the
       app version and platform. This stream does not include visited screens,
       media titles, searches, account IDs, stream addresses, raw logs or exception
-      messages. A random session token is used for request-abuse protection
-      only; neither it nor its hash is stored with diagnostic events. The updated
+      messages. Updated builds use a random session token for abuse protection; older
+      builds may still send a saved random installation token until upgraded.
+      The collector stores neither token nor its hash in diagnostic events. The updated
       collector discards activity-only events sent by older app versions.</li>
       <li><strong>Optional crash reports:</strong> a separate opt-in permits
       sanitized crash reports, stack traces, app version and technical platform
@@ -92,9 +93,9 @@ export const en = {
       copies after an account deletion.</p>
       <p>Optional reliability diagnostics are retained as fixed-code records for
       approximately <strong>30 days</strong>, according to the service's
-      configured retention period. Starlit does not persist a diagnostics device
-      identifier; disabling diagnostics cancels further reporting and rotates
-      the temporary session token. Historical pseudonymous analytics records
+      configured retention period. Updated builds do not persist a diagnostics
+      device identifier; older builds may retain a local token until upgraded.
+      Disabling diagnostics cancels new reporting and rotates the temporary token. Historical pseudonymous analytics records
       created by older app versions may remain until retention expiry, and
       opting out does not immediately erase previously received records.
       Crash reports are processed separately by Sentry when enabled.
@@ -303,8 +304,10 @@ export const pt = {
       incluindo falhas, arranques lentos, tentativas repetidas e avisos de
       armazenamento, além da versão e plataforma. Não envia ecrãs visitados,
       títulos, pesquisas, contas, endereços de streams, logs brutos ou mensagens
-      de erro livres. Um token aleatório temporário limita o abuso dos pedidos,
-      mas nem esse token nem o respetivo hash são guardados nos eventos.
+      de erro livres. As versões atualizadas usam um token aleatório temporário para limitar
+      abusos; versões antigas podem ainda enviar um token aleatório de
+      instalação guardado até serem atualizadas. O servidor não guarda
+      nenhum dos tokens nem os respetivos hashes nos eventos.
       O novo servidor descarta eventos de atividade de versões antigas.</li>
       <li><strong>Relatórios de erros opcionais:</strong> uma autorização separada
       permite enviar ao Sentry falhas sanitizadas, rastos de execução, versão
@@ -363,8 +366,10 @@ export const pt = {
       a eliminação da conta.</p>
       <p>Os diagnósticos opcionais são conservados como códigos fixos durante
       cerca de <strong>30 dias</strong>, segundo a retenção configurada.
-      A aplicação não guarda um identificador persistente para diagnósticos;
-      desativá-los cancela novos envios e substitui o token temporário.
+      As versões atualizadas não guardam identificadores persistentes de
+      diagnóstico; versões antigas podem conservar um token local até serem
+      atualizadas. Desativar os diagnósticos impede novos envios e substitui
+      o token temporário.
       Registos pseudonimizados de versões anteriores podem permanecer até
       ao fim do prazo de retenção; a desativação não elimina imediatamente
       os registos já recebidos. Os relatórios de erros, se autorizados, são
