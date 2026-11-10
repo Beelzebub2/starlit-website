@@ -33,15 +33,20 @@ export const en = {
       watch history, playback position, settings, addon/plugin configuration, and where a
       sync feature explicitly supports them, connected-provider credentials or tokens.
       Device metadata can include a client identifier, platform, app version or device name.</li>
-      <li><strong>Optional app usage analytics:</strong> only after you opt in, Starlit
-      sends fixed app-open, screen-visit, playback-status and download-status events,
-      the app version, platform and a random installation identifier to our gateway.
-      The identifier is pseudonymized with a keyed hash before storage. Analytics
-      records do not include media titles, watched items, searches, streaming URLs,
-      account identifiers or email addresses.</li>
-      <li><strong>Optional crash reports:</strong> a separate opt-in allows sanitized
-      error reports and technical stack traces to be sent to Sentry. This choice is
-      independent of usage analytics and neither category is required to use Starlit.</li>
+      <li><strong>Optional reliability diagnostics:</strong> only after you opt in,
+      Starlit sends fixed app-launch, playback, torrent-engine and download outcome
+      codes (including errors, slow starts, retries and storage warnings), the
+      app version and platform. This stream does not include visited screens,
+      media titles, searches, account IDs, stream addresses, raw logs or exception
+      messages. Updated builds use a random session token for abuse protection; older
+      builds may still send a saved random installation token until upgraded.
+      The collector stores neither token nor its hash in diagnostic events. The updated
+      collector discards activity-only events sent by older app versions.</li>
+      <li><strong>Optional crash reports:</strong> a separate opt-in permits
+      sanitized crash reports, stack traces, app version and technical platform
+      information to be sent to Sentry. Request and navigation breadcrumbs,
+      screenshots and session replay are disabled. Neither category is
+      required to use Starlit.</li>
       <li><strong>Technical/security records:</strong> connection and request metadata, such
       as IP addresses, can be processed by infrastructure and security providers. The
       signup requests remain subject to per-IP rate limits.</li>
@@ -86,11 +91,13 @@ export const en = {
       retention schedules must be verified against deployed infrastructure
       before being described as fixed periods; these may temporarily retain
       copies after an account deletion.</p>
-      <p>Optional usage analytics are retained as pseudonymous, daily records for
-      approximately <strong>30 days</strong>, using the analytics service's
-      configured retention period.
-      Turning usage analytics off deletes the local installation identifier and stops
-      further reporting; previously received records are not immediately erased.
+      <p>Optional reliability diagnostics are retained as fixed-code records for
+      approximately <strong>30 days</strong>, according to the service's
+      configured retention period. Updated builds do not persist a diagnostics
+      device identifier; older builds may retain a local token until upgraded.
+      Disabling diagnostics cancels new reporting and rotates the temporary token. Historical pseudonymous analytics records
+      created by older app versions may remain until retention expiry, and
+      opting out does not immediately erase previously received records.
       Crash reports are processed separately by Sentry when enabled.
       Anonymous aggregate account snapshots are also retained for around
       30 days in the restricted analytics stream.</p>
@@ -291,18 +298,22 @@ export const pt = {
       de addons/plugins e, quando a funcionalidade o suportar, credenciais ou
       tokens de serviços associados. Podem ser incluídos nome e identificador
       do dispositivo, plataforma e versão da aplicação.</li>
-      <li><strong>Estatísticas opcionais da aplicação:</strong> só após o teu
-      consentimento, o Starlit envia eventos fixos de abertura da aplicação,
-      visitas a ecrãs, estado de reprodução e transferências, versão,
-      plataforma e um identificador de instalação aleatório para o nosso servidor.
-      O identificador é pseudonimizado com uma função criptográfica com chave
-      antes de ser guardado. Estes registos não incluem títulos, histórico de
-      conteúdos vistos, pesquisas, endereços de transmissão, identificadores
-      de conta ou emails.</li>
-      <li><strong>Relatórios de erros opcionais:</strong> uma autorização
-      separada permite enviar ao Sentry relatórios técnicos de erros e
-      rastos de execução sujeitos a filtragem de dados. Estas opções são
-      independentes e nenhuma é obrigatória para utilizar o Starlit.</li>
+      <li><strong>Diagnósticos de fiabilidade opcionais:</strong> só com o teu
+      consentimento, o Starlit envia códigos fixos de abertura da aplicação,
+      resultados da reprodução, do motor de torrents e das transferências,
+      incluindo falhas, arranques lentos, tentativas repetidas e avisos de
+      armazenamento, além da versão e plataforma. Não envia ecrãs visitados,
+      títulos, pesquisas, contas, endereços de streams, logs brutos ou mensagens
+      de erro livres. As versões atualizadas usam um token aleatório temporário para limitar
+      abusos; versões antigas podem ainda enviar um token aleatório de
+      instalação guardado até serem atualizadas. O servidor não guarda
+      nenhum dos tokens nem os respetivos hashes nos eventos.
+      O novo servidor descarta eventos de atividade de versões antigas.</li>
+      <li><strong>Relatórios de erros opcionais:</strong> uma autorização separada
+      permite enviar ao Sentry falhas sanitizadas, rastos de execução, versão
+      e informação técnica da plataforma. Não são anexados percursos de navegação,
+      endereços de pedidos, capturas de ecrã ou gravações de sessão.
+      Nenhuma das opções é obrigatória para utilizar o Starlit.</li>
       <li><strong>Dados técnicos e de segurança:</strong> informações sobre
       ligações e pedidos, incluindo endereços IP, podem ser processadas
       por serviços de infraestrutura e segurança. O limitador de pedidos
@@ -353,14 +364,17 @@ export const pt = {
       de ser verificados na infraestrutura antes de serem anunciados
       como prazos fixos; as cópias podem persistir temporariamente após
       a eliminação da conta.</p>
-      <p>As estatísticas opcionais são conservadas em registos diários
-      pseudonimizados durante cerca de <strong>30 dias</strong>, de acordo com
-      a política de retenção do serviço privado de estatísticas. Desativar
-      as estatísticas apaga o identificador
-      local e impede novos envios, mas não elimina imediatamente os registos
-      já recebidos. Os relatórios de erros, quando autorizados, são tratados
-      separadamente pelo Sentry. Os totais agregados de contas são
-      guardados durante cerca de 30 dias no serviço privado,
+      <p>Os diagnósticos opcionais são conservados como códigos fixos durante
+      cerca de <strong>30 dias</strong>, segundo a retenção configurada.
+      As versões atualizadas não guardam identificadores persistentes de
+      diagnóstico; versões antigas podem conservar um token local até serem
+      atualizadas. Desativar os diagnósticos impede novos envios e substitui
+      o token temporário.
+      Registos pseudonimizados de versões anteriores podem permanecer até
+      ao fim do prazo de retenção; a desativação não elimina imediatamente
+      os registos já recebidos. Os relatórios de erros, se autorizados, são
+      tratados separadamente pelo Sentry. Os totais agregados de contas
+      são conservados durante cerca de 30 dias no serviço privado,
       sem identificadores pessoais.</p>
       <h2>6. Os teus direitos</h2>
       <p>Podes recusar ambas as categorias opcionais ou ativá-las e desativá-las

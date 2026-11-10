@@ -74,7 +74,7 @@ test('Public privacy pages disclose open registration, aggregate account metrics
   for (const required of ['Google sign-in', 'Google account identifier',
     'GDPR Article 6(1)(b)', 'legitimate interests',
     'BitTorrent', 'CNPD', 'support.starlit@rrmtools.uk',
-    'Optional app usage analytics', 'Optional crash reports', 'Sentry',
+    'Optional reliability diagnostics', 'Optional crash reports', 'Sentry',
     'GDPR Article 6(1)(a)', '30 days', 'Settings',
     'Operational account statistics', 'verified accounts']) {
     assert.ok(enPrivacy.includes(required), 'Missing privacy concept: ' + required);
@@ -82,7 +82,7 @@ test('Public privacy pages disclose open registration, aggregate account metrics
   const ptPrivacy = read('pt/privacidade/index.html');
   assert.match(ptPrivacy, /RGPD/);
   assert.match(ptPrivacy, /BitTorrent/);
-  assert.match(ptPrivacy, /Estatísticas opcionais da aplicação/);
+  assert.match(ptPrivacy, /Diagnósticos de fiabilidade opcionais/);
   assert.match(ptPrivacy, /Estatísticas operacionais agregadas/);
   assert.match(ptPrivacy, /Artigo 6.º, n.º 1, alínea a\)/);
   assert.match(ptPrivacy, /30 dias/);
