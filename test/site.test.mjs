@@ -155,7 +155,11 @@ test('Feature status labels match the release notes', () => {
     assert.doesNotMatch(strip(html), /every new session asks again|Every new session asks again/, 'Outdated pairing claim on ' + route);
   }
   const enHome = strip(read('index.html'));
-  assert.ok(enHome.includes('iPhone, Mac and Linux') && enHome.includes('Not yet'), 'Home must say iPhone, Mac and Linux are not available');
+  const ptHome = strip(read('pt/index.html'));
+  assert.ok(enHome.includes('Linux x86_64') && enHome.includes('Available'), 'Home must show Linux as available');
+  assert.ok(ptHome.includes('Linux x86_64') && ptHome.includes('Disponível'), 'Portuguese home must show Linux as available');
+  assert.doesNotMatch(enHome, /iPhone, Mac and Linux|No public Linux builds/);
+  assert.doesNotMatch(ptHome, /iPhone, Mac e Linux/);
   assert.match(strip(read('anime/index.html')), /Windows app · optional tab, off by default/);
 });
 
@@ -164,7 +168,11 @@ test('Download buttons open the latest release and versions come from the releas
   for (const lang of ['en', 'pt']) {
     const html = read(fileFor(routes[lang].download));
     assert.ok(html.includes(WINDOWS_FILE) && html.includes(ANDROID_FILE), 'File names on ' + lang);
-    assert.equal([...html.matchAll(new RegExp(`class="btn btn-lg btn-block[^"]*" href="${LATEST}"`, 'g'))].length, 2, 'Download buttons on ' + lang);
+    assert.equal([...html.matchAll(new RegExp(`class="btn btn-lg btn-block[^"]*" href="${LATEST}"`, 'g'))].length, 3, 'Download buttons on ' + lang);
+    const text = strip(html);
+    assert.match(text, /Linux x86_64/, 'Linux download option on ' + lang);
+    for (const format of ['.deb', '.rpm', '.AppImage', '.flatpak']) assert.ok(html.includes(format), 'Missing Linux format ' + format + ' on ' + lang);
+    assert.doesNotMatch(text, /No Linux build is available|Não existe uma versão para Linux/, 'Outdated Linux unavailability on ' + lang);
     assert.ok(html.includes(VERSION), 'Version on ' + lang);
     assert.ok(html.includes('id="' + (lang === 'pt' ? 'novidades' : 'whats-new') + '"'));
     assert.match(html, new RegExp(`<body class="page-download" data-release="${VERSION.replace(/\./g, '\\.')}">`));

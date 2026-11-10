@@ -2,133 +2,133 @@
   "source": "https://github.com/Beelzebub2/nuvio-native/releases",
   "releases": [
     {
-      "version": "1.14.1",
+      "version": "1.19.0",
+      "date": "2026-11-10",
+      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.19.0",
+      "headline": "Linux desktop",
+      "summary": "Linux desktop · Compatibility and limitations",
+      "brief": "Starlit for Linux x86_64. Native desktop integration.",
+      "highlights": [
+        {
+          "title": "Starlit for Linux x86_64",
+          "text": "Download a Debian/Ubuntu .deb, Fedora/RPM .rpm, portable .AppImage or sandboxed .flatpak from the same release page as Windows, Android phones and Android TV."
+        },
+        {
+          "title": "Linux installers currently target x86_64 and are distributed as GitHub Release downloads, not through configured APT/DNF repositories or Flathub.",
+          "text": ""
+        },
+        {
+          "title": "Native desktop integration",
+          "text": "Linux packages use the Starlit launcher and desktop entry, with a separate Flatpak application ID to avoid replacing a Nuvio installation."
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.19.0.exe",
+        "android": "Starlit-Android-arm64-v8a-1.19.0.apk"
+      }
+    },
+    {
+      "version": "1.18.0",
+      "date": "2026-11-10",
+      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.18.0",
+      "headline": "Android TV and Google TV",
+      "summary": "Android TV and Google TV · Cross-device reliability · Verification and limitations",
+      "brief": "Starlit on your television. More efficient large watch-progress synchronization.",
+      "highlights": [
+        {
+          "title": "Starlit on your television",
+          "text": "A dedicated Android TV / Google TV application provides a Leanback launcher and large-screen Home, Search, Library and quick Settings, with D-pad focus and basic remote playback controls."
+        },
+        {
+          "title": "More efficient large watch-progress synchronization",
+          "text": "Account progress snapshots are fetched in bounded pages with compatibility fallback for older servers, reducing the amount of data handled at once on large libraries."
+        },
+        {
+          "title": "Android Full and Play Store builds, optimized TV and debug APKs, iOS Kotlin, desktop diagnostics, native Unix checks and security checks passed on the merged feature.",
+          "text": ""
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.18.0.exe",
+        "android": "Starlit-Android-arm64-v8a-1.18.0.apk"
+      }
+    },
+    {
+      "version": "1.17.1",
+      "date": "2026-11-10",
+      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.17.1",
+      "headline": "Private reliability diagnostics",
+      "summary": "Private reliability diagnostics · Compatibility and limitations",
+      "brief": "Useful errors and warnings, only with consent. No browsing or viewing history in usage diagnostics.",
+      "highlights": [
+        {
+          "title": "Useful errors and warnings, only with consent",
+          "text": "The optional Usage Statistics setting now covers fixed, anonymous technical signals for slow playback startup, torrent-engine errors, download retries, storage-quota pauses, playback failures and…"
+        },
+        {
+          "title": "This version replaces an earlier tagged release candidate that did not publish after a desktop Settings UI test expected the previous diagnostics label.",
+          "text": ""
+        },
+        {
+          "title": "No browsing or viewing history in usage diagnostics",
+          "text": "Starlit stops reporting screen visits, player openings and download-list refreshes."
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.17.1.exe",
+        "android": "Starlit-Android-arm64-v8a-1.17.1.apk"
+      }
+    },
+    {
+      "version": "1.16.1",
       "date": "2026-11-09",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.14.1",
-      "headline": "More reliable phone-to-PC control",
-      "summary": "More reliable phone-to-PC control · Bluetooth and volume corrections",
-      "brief": "Keep controlling the PC after leaving the remote screen. Only show current nearby Bluetooth PCs. Keep the PC awake when a phone is controlling it.",
+      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.16.1",
+      "headline": "Phone-to-PC playback",
+      "summary": "Phone-to-PC playback · Playback and MyAnimeList",
+      "brief": "Compare recommended sources on your phone. Fullscreen during stream preparation. Choose the PC's audio track remotely.",
       "highlights": [
         {
-          "title": "Keep controlling the PC after leaving the remote screen",
-          "text": "While a phone is connected, Android can keep its authenticated remote session running through a connected-device foreground service when Starlit is minimized or the user navigates elsewhere."
+          "title": "Compare recommended sources on your phone",
+          "text": "The paired-PC source picker places the desktop's best match first, explains its ranking, and shows resolution-tier stars, reported seed/peer availability and cached status on alternatives."
         },
         {
-          "title": "Only show current nearby Bluetooth PCs",
-          "text": "Android expires stale scan results instead of offering devices that were nearby earlier."
+          "title": "Fullscreen during stream preparation",
+          "text": "The desktop startup overlay now exposes fullscreen entry and exit before the player is ready, without hiding its close control or changing the torrent engine."
         },
         {
-          "title": "Keep the PC awake when a phone is controlling it",
-          "text": "Windows prevents automatic system sleep only during an authenticated remote session and returns to normal power management afterwards."
+          "title": "Choose the PC's audio track remotely",
+          "text": "The phone controller can show and select tracks offered by the playing desktop session."
         }
       ],
       "files": {
-        "windows": "Starlit-Windows-x64-1.14.1.exe",
-        "android": "Starlit-Android-arm64-v8a-1.14.1.apk"
+        "windows": "Starlit-Windows-x64-1.16.1.exe",
+        "android": "Starlit-Android-arm64-v8a-1.16.1.apk"
       }
     },
     {
-      "version": "1.14.0",
-      "date": "2026-11-08",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.14.0",
-      "headline": "Phone-to-PC playback and pairing",
-      "summary": "Phone-to-PC playback and pairing · MyAnimeList and anime playback · Languages and security",
-      "brief": "Start a movie or episode from the phone. Manage MyAnimeList directly on desktop. More languages.",
+      "version": "1.15.0",
+      "date": "2026-11-09",
+      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.15.0",
+      "headline": "Anime franchise watch orders",
+      "summary": "Anime franchise watch orders · Phone-to-PC connectivity · Service reliability",
+      "brief": "Follow the story across seasons and films. Pair with wired computers over local Wi-Fi. Avoid repeated failed analytics submissions.",
       "highlights": [
         {
-          "title": "Start a movie or episode from the phone",
-          "text": "Once a phone is securely paired with a compatible Starlit PC, choose a film, series or episode without accepting an extra playback prompt on the computer."
+          "title": "Follow the story across seasons and films",
+          "text": "Anime detail pages can show a compact viewing-order preview and a full franchise list."
         },
         {
-          "title": "Manage MyAnimeList directly on desktop",
-          "text": "A redesigned, responsive list provides status groups, sorting, richer details and inline editing of watch status, score, watched episodes and rewatching."
+          "title": "Pair with wired computers over local Wi-Fi",
+          "text": "Restore reliable discovery, pairing and control when the phone is on Wi-Fi but the paired Windows PC uses Ethernet."
         },
         {
-          "title": "More languages",
-          "text": "Add 13 additional interface translations for supported locales, excluding Hindi."
+          "title": "Avoid repeated failed analytics submissions",
+          "text": "The independent account-security analytics exporter handles stale ingestion failures without rapid retry loops."
         }
       ],
       "files": {
-        "windows": "Starlit-Windows-x64-1.14.0.exe",
-        "android": "Starlit-Android-arm64-v8a-1.14.0.apk"
-      }
-    },
-    {
-      "version": "1.13.0",
-      "date": "2026-11-07",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.13.0",
-      "headline": "Privacy and diagnostics",
-      "summary": "Privacy and diagnostics · Phone remote and playback · Desktop performance and reliability",
-      "brief": "Find privacy controls easily. Show the actual connected PC. Lower overhead for ordinary streams.",
-      "highlights": [
-        {
-          "title": "Find privacy controls easily",
-          "text": "Mobile Settings now includes a Privacy & Diagnostics shortcut to the existing Usage statistics switch."
-        },
-        {
-          "title": "Show the actual connected PC",
-          "text": "The phone controller displays a verified active computer as Connected, offers Disconnect instead of a second Connect action, and avoids duplicate reconnections or queuing commands while disconnected."
-        },
-        {
-          "title": "Lower overhead for ordinary streams",
-          "text": "Regular desktop streams use smaller forward/backward byte caches without reducing the existing P2P cache budgets or changing the established cache time horizon."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.13.0.exe",
-        "android": "Starlit-Android-arm64-v8a-1.13.0.apk"
-      }
-    },
-    {
-      "version": "1.12.3",
-      "date": "2026-11-07",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.12.3",
-      "headline": "Intro skipping for movies and TV series",
-      "summary": "Intro skipping for movies and TV series · Phone-to-PC remote controls · Safer Android download cleanup",
-      "brief": "Skip openings beyond anime. No duplicate actions. Delete only files owned by the active profile.",
-      "highlights": [
-        {
-          "title": "Skip openings beyond anime",
-          "text": "The player can use available intro and recap markers for films and regular TV episodes, not only anime."
-        },
-        {
-          "title": "No duplicate actions",
-          "text": "The phone controller offers the existing Next episode transport button and a single contextual skip action, with the existing fullscreen-on-PC control."
-        },
-        {
-          "title": "Delete only files owned by the active profile",
-          "text": "Android checks that a completed download belongs to the active profile, was created by the transfer scheduler, and has a matching stored file URI before deleting it."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.12.3.exe",
-        "android": "Starlit-Android-arm64-v8a-1.12.3.apk"
-      }
-    },
-    {
-      "version": "1.12.2",
-      "date": "2026-11-06",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.12.2",
-      "headline": "Account creation and email verification",
-      "summary": "Account creation and email verification · Phone remote playback actions · Authentication security",
-      "brief": "Create an account without administrator approval. Control fullscreen from your phone. Keep passwords out of Android saved state.",
-      "highlights": [
-        {
-          "title": "Create an account without administrator approval",
-          "text": "New Starlit users can register with email and a password of at least 12 characters."
-        },
-        {
-          "title": "Control fullscreen from your phone",
-          "text": "The remote can request fullscreen on the connected Starlit PC instead of only changing its phone interface."
-        },
-        {
-          "title": "Keep passwords out of Android saved state",
-          "text": "Password input is stored only in transient Compose memory and is not written into saved-instance-state bundles."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.12.2.exe",
-        "android": "Starlit-Android-arm64-v8a-1.12.2.apk"
+        "windows": "Starlit-Windows-x64-1.15.0.exe",
+        "android": "Starlit-Android-arm64-v8a-1.15.0.apk"
       }
     }
   ]

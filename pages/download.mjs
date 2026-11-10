@@ -8,20 +8,23 @@ const winFile = rel('windows-file', WINDOWS_FILE, 'code', 'code-hl');
 const copy = {
   en: {
     meta: {
-      title: 'Download Starlit for Windows and Android',
-      description: `Get Starlit ${VERSION} for Windows 10 and 11 or Android 7.0 and later from its public GitHub releases, with SHA-256 checksums to check your download. Free and open source under GPL-3.0.`,
+      title: 'Download Starlit for Windows, Android and Linux',
+      description: `Get Starlit ${VERSION} for Windows, Android and Linux x86_64 from its public GitHub releases. DEB, RPM, AppImage and Flatpak packages have SHA-256 checksums.`,
     },
     kicker: `Latest release · ${rel('version', VERSION)}`, title: 'Get Starlit.',
-    lede: 'Free and open source under GPL-3.0. Both apps come from the same release on GitHub, with a checksum file to prove what you downloaded.',
+    lede: 'Free and open source under GPL-3.0. Windows, Android and Linux installers come from the same GitHub release, with checksums for every package.',
     available: 'Available', notYet: 'Not yet', opens: 'Opens the latest release on GitHub',
     win: { name: 'Windows', req: 'Windows 10 and 11, 64-bit', cta: 'Download for Windows',
       points: ['Starlit’s own installer. No administrator rights needed.', 'Updates in the app, each checked against its SHA-256 checksum.', 'Your settings, profiles and library are kept when you update.'] },
     android: { name: 'Android', req: 'Android 7.0 or later', cta: 'Download the APK',
       points: ['A signed APK you install yourself. Most phones need <code>arm64-v8a</code>.', 'The app checks for updates and picks the right file for your phone.', 'Doubles as the remote for Starlit on your PC.'] },
-    others: [['iPhone and iPad', 'The code exists, but no build has been released or tested.'], ['Mac', 'No Mac app is available.'], ['Linux', 'No Linux build is available.']],
-    install: { title: 'Installing takes a minute.', win: 'On Windows', android: 'On Android',
+    linux: { name: 'Linux', req: 'x86_64 · X11 or XWayland', cta: 'Download for Linux',
+      points: ['Choose a <code>.deb</code>, <code>.rpm</code>, <code>.AppImage</code> or <code>.flatpak</code> package.', 'Native video playback needs compatible media and graphics libraries.', 'All four packages are checksum-verified. Install updates manually unless you configure a separate package source.'] },
+    others: [['iPhone and iPad', 'The code exists, but no build has been released or tested.'], ['Mac', 'No Mac app is available.']],
+    install: { title: 'Installing takes a minute.', win: 'On Windows', android: 'On Android', linux: 'On Linux',
       winSteps: [`Download ${winFile} from the latest release.`, 'Run it. Starlit installs for your Windows user and lets you choose the folder and shortcuts.', 'Open Starlit, add your sources, and you’re set. It checks for updates at startup, every six hours, and from Settings → About.'],
-      androidSteps: ['On your phone, download the APK for its processor. If you’re not sure, it’s <code class="code-hl">arm64-v8a</code>. Older 32-bit phones use <code class="code-hl">armeabi-v7a</code>.', 'Open it and allow your browser or file manager to install apps when Android asks.', 'Sign in or continue as a guest. To use it as a remote, open Settings → PC controller.'] },
+      androidSteps: ['On your phone, download the APK for its processor. If you’re not sure, it’s <code class="code-hl">arm64-v8a</code>. Older 32-bit phones use <code class="code-hl">armeabi-v7a</code>.', 'Open it and allow your browser or file manager to install apps when Android asks.', 'Sign in or continue as a guest. To use it as a remote, open Settings → PC controller.'],
+      linuxSteps: ['Open the latest GitHub release and choose <code>.deb</code> for Debian/Ubuntu, <code>.rpm</code> for RPM-based distributions, <code>.AppImage</code> for portable use or <code>.flatpak</code> for Flatpak.', 'Install the selected package with your package manager, or mark the AppImage executable and launch it. Flatpak bundles installed from GitHub need manual updates.', 'Use <code>SHA256SUMS.txt</code> to verify the download. The player uses X11/XWayland; native playback on representative Linux desktops has not yet been field-tested.'] },
     // The entries themselves come from the GitHub release notes (data/releases.json).
     news: { title: 'What’s new', all: 'Every release note on GitHub', latest: 'Latest', notes: 'Release notes', note: '' },
     verify: { title: 'Check what you downloaded.',
@@ -41,20 +44,23 @@ const copy = {
 
   pt: {
     meta: {
-      title: 'Transferir o Starlit para Windows e Android',
-      description: `Obtém o Starlit ${VERSION} para Windows 10 e 11 ou Android 7.0 e posterior a partir das versões públicas no GitHub, com somas SHA-256 para verificares a transferência. Gratuito e de código aberto sob a GPL-3.0.`,
+      title: 'Transferir o Starlit para Windows, Android e Linux',
+      description: `Obtém o Starlit ${VERSION} para Windows, Android e Linux x86_64 a partir do GitHub. Os pacotes DEB, RPM, AppImage e Flatpak incluem somas SHA-256.`,
     },
     kicker: `Versão mais recente · ${rel('version', VERSION)}`, title: 'Obtém o Starlit.',
-    lede: 'Gratuito e de código aberto sob a GPL-3.0. As duas aplicações vêm da mesma versão no GitHub, com um ficheiro de somas de verificação para confirmares o que transferiste.',
+    lede: 'Gratuito e de código aberto sob a GPL-3.0. Os instaladores para Windows, Android e Linux vêm da mesma versão no GitHub, com somas de verificação para cada pacote.',
     available: 'Disponível', notYet: 'Ainda não', opens: 'Abre a versão mais recente no GitHub',
     win: { name: 'Windows', req: 'Windows 10 e 11, 64 bits', cta: 'Transferir para Windows',
       points: ['Instalador próprio do Starlit. Não precisa de direitos de administrador.', 'Atualizações na aplicação, cada uma verificada com a respetiva soma SHA-256.', 'As definições, os perfis e a biblioteca mantêm-se quando atualizas.'] },
     android: { name: 'Android', req: 'Android 7.0 ou posterior', cta: 'Transferir o APK',
       points: ['Um APK assinado que instalas tu. A maioria dos telemóveis precisa do <code>arm64-v8a</code>.', 'A aplicação procura atualizações e escolhe o ficheiro certo para o teu telemóvel.', 'Serve também de comando para o Starlit no PC.'] },
-    others: [['iPhone e iPad', 'O código existe, mas nenhuma versão foi publicada nem testada.'], ['Mac', 'Não existe uma aplicação para Mac.'], ['Linux', 'Não existe uma versão para Linux.']],
-    install: { title: 'Instalar demora um minuto.', win: 'No Windows', android: 'No Android',
+    linux: { name: 'Linux', req: 'x86_64 · X11 ou XWayland', cta: 'Transferir para Linux',
+      points: ['Escolhe um pacote <code>.deb</code>, <code>.rpm</code>, <code>.AppImage</code> ou <code>.flatpak</code>.', 'A reprodução nativa requer bibliotecas multimédia e gráficas compatíveis.', 'Os quatro pacotes têm somas verificadas. Instala as atualizações manualmente, salvo se configurares outra fonte de pacotes.'] },
+    others: [['iPhone e iPad', 'O código existe, mas nenhuma versão foi publicada nem testada.'], ['Mac', 'Não existe uma aplicação para Mac.']],
+    install: { title: 'Instalar demora um minuto.', win: 'No Windows', android: 'No Android', linux: 'No Linux',
       winSteps: [`Transfere ${winFile} da versão mais recente.`, 'Executa-o. O Starlit instala-se para o teu utilizador do Windows e deixa-te escolher a pasta e os atalhos.', 'Abre o Starlit, adiciona as tuas fontes e está feito. Procura atualizações ao iniciar, a cada seis horas e em Definições → Acerca.'],
-      androidSteps: ['No telemóvel, transfere o APK para o respetivo processador. Se não tiveres a certeza, é o <code class="code-hl">arm64-v8a</code>. Os telemóveis mais antigos de 32 bits usam o <code class="code-hl">armeabi-v7a</code>.', 'Abre-o e autoriza o navegador ou o gestor de ficheiros a instalar aplicações quando o Android pedir.', 'Inicia sessão ou continua como convidado. Para o usares como comando, abre Definições → Controlar PC.'] },
+      androidSteps: ['No telemóvel, transfere o APK para o respetivo processador. Se não tiveres a certeza, é o <code class="code-hl">arm64-v8a</code>. Os telemóveis mais antigos de 32 bits usam o <code class="code-hl">armeabi-v7a</code>.', 'Abre-o e autoriza o navegador ou o gestor de ficheiros a instalar aplicações quando o Android pedir.', 'Inicia sessão ou continua como convidado. Para o usares como comando, abre Definições → Controlar PC.'],
+      linuxSteps: ['Abre a versão mais recente no GitHub e escolhe <code>.deb</code> para Debian/Ubuntu, <code>.rpm</code> para distribuições RPM, <code>.AppImage</code> para uso portátil ou <code>.flatpak</code> para Flatpak.', 'Instala o pacote com o gestor da tua distribuição, ou marca o AppImage como executável e abre-o. Os pacotes Flatpak transferidos do GitHub exigem atualizações manuais.', 'Confirma a transferência com <code>SHA256SUMS.txt</code>. O leitor usa X11/XWayland; a reprodução nativa ainda não foi validada em computadores Linux reais.'] },
     news: { title: 'Novidades', all: 'Todas as notas de versão no GitHub', latest: 'Mais recente', notes: 'Notas de versão',
       note: 'As notas de versão são publicadas em inglês, tal como no GitHub.' },
     verify: { title: 'Verifica o que transferiste.',
@@ -124,11 +130,12 @@ export function render(lang) {
       <div>${eyebrow(c.kicker)}<h1 id="hero-title" class="t-dl mt-20">${c.title}</h1></div>
       <p class="lede">${c.lede}</p>
     </div>
-    <div class="grid cols-2 gap-20 mt-56">
+    <div class="grid cols-3 gap-20 mt-56">
       ${platform(c.win, 'monitor', 'windows-file', WINDOWS_FILE, 'platform-win', 'btn-accent')}
       ${platform(c.android, 'phone', 'android-file', ANDROID_FILE, 'platform-android', 'btn-ghost')}
+      ${platform(c.linux, 'monitor', 'version', VERSION, 'platform-linux', 'btn-ghost')}
     </div>
-    <div class="cells cells-3 others mt-20">${c.others.map(([t, b]) => `
+    <div class="cells cells-2 others mt-20">${c.others.map(([t, b]) => `
       <div class="cell other"><span class="other-text"><b>${t}</b><span>${b}</span></span>${pill('no', c.notYet, 'pill-plain')}</div>`).join('')}
     </div>
   </div>
@@ -140,6 +147,9 @@ export function render(lang) {
     <div class="grid cols-2 gap-48 mt-40">
       ${stepsList(c.install.win, c.install.winSteps)}
       ${stepsList(c.install.android, c.install.androidSteps)}
+    </div>
+    <div class="mt-40">
+      ${stepsList(c.install.linux, c.install.linuxSteps)}
     </div>
   </div>
 </section>
