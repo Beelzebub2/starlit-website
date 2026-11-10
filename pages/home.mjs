@@ -9,13 +9,13 @@ const copy = {
   en: {
     meta: {
       title: 'Starlit: anime and TV on your PC, run from your phone',
-      description: 'Starlit is a free, open-source anime and TV app for Windows and Android, with a phone remote for your PC, Airing Now schedules, offline downloads and optional account sync.',
+      description: 'Starlit is a free, open-source anime and TV app for Windows, Linux x86_64 and Android, with a phone remote, Airing Now schedules, offline downloads and optional account sync.',
     },
     news: 'New',
     title: 'Watch on your PC.<br><span class="hl">Steer from your phone.</span>',
-    lede: 'Starlit is an anime and TV app for Windows and Android. Stream from your own add-ons in a player built on mpv, follow every episode in Airing Now, download whole seasons for offline, and keep one library in sync. Then pick up your phone and run the PC from the couch.',
+    lede: 'Starlit is an anime and TV app for Windows, Linux and Android. Stream from your own add-ons in a player built on mpv, follow every episode in Airing Now, download whole seasons for offline, and keep one library in sync. Then pick up your phone and run the PC from the couch.',
     ctaWin: 'Download for Windows', ctaAndroid: 'Get the Android APK',
-    metaLine: `v${rel('version', VERSION)} · Windows 10 &amp; 11 (64-bit) · Android 7.0+ · Free and open source, GPL-3.0`,
+    metaLine: `v${rel('version', VERSION)} · Windows 10 &amp; 11 (64-bit) · Linux x86_64 · Android 7.0+ · Free and open source, GPL-3.0`,
     log: { label: 'Recent releases', title: 'Shipping log', all: 'All notes' },
     app: {
       label: 'Illustration of the Starlit desktop app showing the Home screen, with Continue watching and Airing Now rows',
@@ -37,9 +37,10 @@ const copy = {
     status: { title: 'What runs Starlit today', as: `Status as of release ${rel('version', VERSION)}`, available: 'Available', beta: 'Beta', notYet: 'Not yet', items: [
       ['ok', 'Windows 10 &amp; 11', 'Own installer, no admin rights, verified in-app updates.'],
       ['ok', 'Android 7.0 and later', 'Signed APKs with every release on GitHub.'],
+      ['ok', 'Linux x86_64', 'DEB, RPM, AppImage and Flatpak releases. X11/XWayland; device playback validation still pending.'],
       ['ok', 'Phone remote over Wi-Fi', 'Android phone to Windows PC, with QR pairing.'],
       ['beta', 'Phone remote over Bluetooth', 'Windows PC and Android phone, no shared network needed.'],
-      ['no', 'iPhone, Mac and Linux', 'No public builds yet. We’ll say so here when there are.'],
+      ['no', 'iPhone and Mac', 'No public builds yet. We’ll say so here when there are.'],
     ] },
     pcRemote: {
       kicker: '01 · PC remote', title: 'Your phone runs the PC.',
@@ -82,13 +83,13 @@ const copy = {
   pt: {
     meta: {
       title: 'Starlit: anime e séries no PC, comandados pelo telemóvel',
-      description: 'O Starlit é uma aplicação gratuita e de código aberto de anime e séries para Windows e Android, com comando do PC pelo telemóvel, calendário Airing Now, transferências offline e sincronização opcional da conta.',
+      description: 'O Starlit é uma aplicação gratuita e de código aberto de anime e séries para Windows, Linux x86_64 e Android, com comando pelo telemóvel, Airing Now, transferências offline e sincronização opcional.',
     },
     news: 'Novo',
     title: 'Vê no PC.<br><span class="hl">Comanda pelo telemóvel.</span>',
-    lede: 'O Starlit é uma aplicação de anime e séries para Windows e Android. Faz streaming a partir dos teus próprios addons num leitor baseado no mpv, acompanha cada episódio no Airing Now, transfere temporadas inteiras para ver offline e mantém uma só biblioteca sincronizada. Depois pega no telemóvel e comanda o PC a partir do sofá.',
+    lede: 'O Starlit é uma aplicação de anime e séries para Windows, Linux e Android. Faz streaming a partir dos teus próprios addons num leitor baseado no mpv, acompanha cada episódio no Airing Now, transfere temporadas inteiras para ver offline e mantém uma só biblioteca sincronizada. Depois pega no telemóvel e comanda o PC a partir do sofá.',
     ctaWin: 'Transferir para Windows', ctaAndroid: 'Obter o APK para Android',
-    metaLine: `v${rel('version', VERSION)} · Windows 10 e 11 (64 bits) · Android 7.0+ · Gratuito e de código aberto, GPL-3.0`,
+    metaLine: `v${rel('version', VERSION)} · Windows 10 e 11 (64 bits) · Linux x86_64 · Android 7.0+ · Gratuito e de código aberto, GPL-3.0`,
     log: { label: 'Versões recentes', title: 'Registo de versões', all: 'Todas as notas' },
     app: {
       label: 'Ilustração da aplicação Starlit para computador no ecrã Início, com as filas Continuar a ver e Airing Now',
@@ -110,9 +111,10 @@ const copy = {
     status: { title: 'Onde o Starlit funciona hoje', as: `Estado na versão ${rel('version', VERSION)}`, available: 'Disponível', beta: 'Beta', notYet: 'Ainda não', items: [
       ['ok', 'Windows 10 e 11', 'Instalador próprio, sem direitos de administrador, atualizações verificadas na aplicação.'],
       ['ok', 'Android 7.0 ou posterior', 'APK assinados em cada versão no GitHub.'],
+      ['ok', 'Linux x86_64', 'Versões DEB, RPM, AppImage e Flatpak. X11/XWayland; a reprodução em equipamentos reais ainda não foi validada.'],
       ['ok', 'Comando por Wi-Fi', 'Do telemóvel Android para o PC com Windows, com emparelhamento por QR.'],
       ['beta', 'Comando por Bluetooth', 'PC com Windows e telemóvel Android, sem precisar de rede partilhada.'],
-      ['no', 'iPhone, Mac e Linux', 'Ainda não há versões públicas. Diremos aqui quando houver.'],
+      ['no', 'iPhone e Mac', 'Ainda não há versões públicas. Diremos aqui quando houver.'],
     ] },
     pcRemote: {
       kicker: '01 · Comando do PC', title: 'O telemóvel comanda o PC.',
