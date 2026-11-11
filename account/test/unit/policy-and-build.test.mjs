@@ -33,7 +33,7 @@ test('tokens never go to persistent storage', () => {
     const text = code(f);
     const name = relative(src, f).replace(/\\/g, '/');
     if (/localStorage/.test(text)) assert.equal(name, 'lib/state.js', `${name} touches localStorage`);
-    if (/sessionStorage/.test(text)) assert.equal(name, 'lib/auth.js', `${name} touches sessionStorage`);
+    if (/sessionStorage/.test(text)) assert.ok(['lib/auth.js', 'lib/tv-intent.js'].includes(name), `${name} touches sessionStorage`);
     assert.ok(!/document\.cookie/.test(text), `${name} touches cookies`);
   }
   const auth = read(join(src, 'lib', 'auth.js'));
@@ -60,7 +60,8 @@ test('no reference screenshots, other brands or images beyond the Starlit mark',
     if (rel.startsWith('docs')) continue;   // documentation screenshots are synthetic captures of this app
     assert.ok(!/\.(jpe?g|png|gif|webp)$/i.test(rel), `${rel}: the app ships no raster images`);
   }
-  for (const f of files) assert.ok(!/nuvio/i.test(read(f).replace(/\/\/.*$/gm, '')), `${relative(root, f)} mentions another product outside comments`);
+  // The existing discovery protocol has a historical, fixed well-known path.
+  for (const f of files) assert.ok(!/nuvio/i.test(read(f).replace("'/.well-known/nuvio'", "''").replace(/\/\/.*$/gm, '')), `${relative(root, f)} mentions another product outside comments`);
 });
 
 function build(env, outName) {
@@ -97,6 +98,7 @@ test('live build: no mock code, API origin in connect-src, read-only by default'
     assert.match(readFileSync(join(out, '_headers'), 'utf8'), /connect-src 'self' https:\/\/api\.example\.test;/);
     const config = readFileSync(join(out, 'config.js'), 'utf8');
     assert.match(config, /"writesEnabled": false/);
+    assert.match(config, /"tvApprovalEnabled": false/);
     assert.match(config, /"googleSignIn": false/);
   } finally { rmSync(out, { recursive: true, force: true }); }
 });
@@ -141,6 +143,18 @@ test('nested /account/ live build prefixes assets and preserves strict policies'
     assert.ok(!existsSync(join(out, 'mock')));
     assert.match(readFileSync(join(out, '_headers'), 'utf8'), /script-src 'self'/);
   } finally { rmSync(out, { recursive: true, force: true }); }
+});
+
+test('TV approval is an explicit independent opt-in and never enables account editing', () => {
+  for (const value of ['1', 'true']) {
+    const { out, status, stderr } = build({ STARLIT_ACCOUNT_MODE: 'live', STARLIT_ANON_KEY: jwt({ role: 'anon' }), STARLIT_TV_APPROVAL: value }, 'tv-gate');
+    try {
+      assert.equal(status, 0, stderr);
+      const config = readFileSync(join(out, 'config.js'), 'utf8');
+      assert.match(config, /"writesEnabled": false/);
+      assert.ok(config.includes('"tvApprovalEnabled": ' + (value === '1')));
+    } finally { rmSync(out, { recursive: true, force: true }); }
+  }
 });
 
 test('invalid account base paths cannot be used', () => {

@@ -3,6 +3,8 @@ import { config } from './config.js';
 import { transport, mountMockPanel } from './transport.js';
 import { createApi } from './lib/api.js';
 import { createAuth } from './lib/auth.js';
+import { createTvApi } from './lib/tv.js';
+import { captureTvIntent, pendingTvIntent, clearTvIntent } from './lib/tv-intent.js';
 import { h, icon, replace } from './lib/dom.js';
 import { t, lang, setLang } from './lib/i18n.js';
 import { state, update, activeProfile, readPref, writePref } from './lib/state.js';
@@ -20,6 +22,7 @@ import collectionEditor from './views/collection-editor.js';
 import settings from './views/settings.js';
 import servers from './views/servers.js';
 import security from './views/security.js';
+import tvApproval from './views/tv-approval.js';
 import notFound from './views/not-found.js';
 
 const ROUTES = [
@@ -36,6 +39,7 @@ const ROUTES = [
   { path: '/servers', view: servers, nav: 'servers' },
   { path: '/profiles', view: profiles, nav: 'profiles', account: true },
   { path: '/security', view: security, nav: 'security', account: true },
+  { path: '/tv', view: tvApproval, nav: 'security', account: true },
 ];
 const NAV = {
   profile: [['overview', '/', 'home'], ['library', '/library', 'library'], ['progress', '/progress', 'progress'], ['history', '/history', 'history'],
@@ -67,6 +71,12 @@ const api = createApi({
   onAuthError: (_error, token) => auth.invalidateIfToken(token, 'revoked'),
 });
 export const canWrite = () => config.writesEnabled && state.online;
+const tv = createTvApi({
+  baseUrl: config.apiUrl, anonKey: config.anonKey, transport,
+  getAccessToken: () => auth.ensureAccessToken(),
+  onAuthError: (_error, token) => auth.invalidateIfToken(token, 'revoked'),
+  enabled: config.tvApprovalEnabled,
+});
 
 // ------------------------------------------------------------------ shell
 const root = document.getElementById('app');
@@ -186,6 +196,7 @@ export async function selectProfile(index, { to } = {}) {
 
 async function signOutLocal() {
   if (current?.ctx?.isDirty?.() && !(await confirmLeave())) return;
+  clearTvIntent();
   try { await auth.signOut('local'); } catch { /* signed out locally anyway */ }
   update({ user: null, profiles: [], profileId: null, unlocked: new Set(), signOutReason: 'signed-out' });
   navigate('/signin', { replace: true, force: true });
@@ -225,6 +236,7 @@ async function render() {
   const resolved = readAccountUrl(url.href, basePath);
   if (resolved === null) { location.assign(basePath); return; }
   const { path, query } = resolved;
+  if (path === '/tv') captureTvIntent(url, history);
   // Canonicalize old /account/library bookmarks and the slash form of /account.
   // replaceState prevents accidental back-button loops.
   if (resolved.canonical && resolved.canonical !== url.pathname + url.search) {
@@ -238,7 +250,7 @@ async function render() {
     return mount({ nav: null }, signin, {});
   }
   if (path === '/signin') { history.replaceState({}, '', accountUrl('/')); return render(); }
-  if (path === '/choose-profile' || !state.profileId) {
+  if (path === '/choose-profile' || (!state.profileId && !match(path)?.route.account)) {
     if (path !== '/choose-profile') { state.returnTo = path + (query.size ? '?' + query.toString() : ''); history.replaceState({}, '', accountUrl('/choose-profile')); }
     return mount({ nav: null }, chooseProfile, {});
   }
@@ -250,7 +262,7 @@ async function render() {
 function mount(route, view, params, query = new URLSearchParams()) {
   const controller = new AbortController();
   const ctx = {
-    api, auth, config, params, query, navigate, accountUrl, selectProfile, canWrite, refreshProfiles,
+    api, auth, tv, config, params, query, navigate, accountUrl, selectProfile, canWrite, refreshProfiles,
     signal: controller.signal, profileId: state.profileId, profile: activeProfile(),
     isDirty: () => false, destroy: null,
     finishSignIn,
@@ -304,8 +316,13 @@ window.addEventListener('offline', () => { update({ online: false }); renderBann
 /** After GoTrue accepts the credentials: load the profiles, then pick one. */
 async function finishSignIn() {
   const list = await api.profiles();
-  const saved = Number(readPref('profile'));
   update({ profiles: list, signOutReason: null, unlocked: new Set() });
+  // Account-wide TV consent needs no selected profile or profile PIN.
+  if (state.returnTo === '/tv' || pendingTvIntent()) {
+    state.returnTo = null;
+    return navigate('/tv', { replace: true, force: true });
+  }
+  const saved = Number(readPref('profile'));
   const back = state.returnTo && state.returnTo !== '/signin' ? state.returnTo : '/';
   state.returnTo = null;
   const pick = list.find(p => p.profile_index === saved) ?? (list.length === 1 ? list[0] : null);

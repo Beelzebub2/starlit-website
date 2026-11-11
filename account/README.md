@@ -17,6 +17,10 @@ and full authenticated two-account E2E are still pending.
 
 ## What it does
 
+The optional [TV approval flow](docs/TV-APPROVAL.md) at `/account/tv` supports
+explicit device consent and authorized-TV revocation. It is disabled by default
+in live builds and requires service and device acceptance checks before rollout.
+
 | Area | What you can do | Backend |
 | --- | --- | --- |
 | Overview | Server-side counts for the chosen profile, plus when it last changed | `account_overview` |
