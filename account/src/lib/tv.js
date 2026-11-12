@@ -26,7 +26,7 @@ export function createTvApi({ baseUrl, anonKey, transport, getAccessToken, onAut
     try {
       response = await transport(baseUrl + path, {
         method: body === undefined ? 'GET' : 'POST',
-        headers: { apikey: anonKey, Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
+        headers: { Accept: 'application/json', ...(publicRequest ? {} : { apikey: anonKey }), ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
         body: body === undefined ? undefined : JSON.stringify(body), signal,
         credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer', redirect: 'error',
       });

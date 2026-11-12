@@ -18,6 +18,7 @@ test('TV discovery cannot send account credentials to another origin, path, or r
   const api = createTvApi({ baseUrl, enabled: true, anonKey: 'anon', getAccessToken: () => 'synthetic-access', transport: async (url, init) => { calls.push({ url, init }); return Response.json(discovery()); } });
   assert.equal(await api.available(), true);
   assert.equal(calls[0].init.headers.Authorization, undefined);
+  assert.deepEqual(calls[0].init.headers, { Accept: 'application/json' });
   await api.decide('approve', { user_code: 'ABCD-EFGH', approval_token: 'synthetic-approval' });
   const { url, init } = calls[1];
   assert.equal(url, baseUrl + '/tv/v1/approve');
@@ -26,6 +27,7 @@ test('TV discovery cannot send account credentials to another origin, path, or r
   assert.equal(init.referrerPolicy, 'no-referrer');
   assert.deepEqual(JSON.parse(init.body), { user_code: 'ABCD-EFGH', approval_token: 'synthetic-approval', confirm: true });
   assert.equal(init.headers.Authorization, 'Bearer synthetic-access');
+  assert.equal(init.headers.apikey, 'anon');
 });
 
 test('rollout disabled makes no calls; revocation does not depend on new-login discovery', async () => {
