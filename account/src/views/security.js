@@ -1,12 +1,13 @@
 // Sessions and installations. Sign-out is GoTrue's logout endpoint with the
 // scopes it supports (this browser, every other session, everywhere). Signing
-// out one particular device is not supported by the backend, so there is no
-// per-session button. Installations are not sessions and are labelled so.
+// out individual sessions is supported for authorized TVs only. Installations
+// are not sessions and are labelled so.
 import { h, icon } from '../lib/dom.js';
 import { t, lang } from '../lib/i18n.js';
 import { formatDate, formatRelative } from '../lib/format.js';
 import { announce, button, confirmDialog, emptyState, notice, pageHeader, pill } from '../lib/ui.js';
 import { loadInto, section } from './common.js';
+import { tvDevices } from './tv-devices.js';
 
 export default {
   title: () => t('nav.security'),
@@ -73,6 +74,7 @@ export default {
 
     return h('section', { class: 'page' }, head.el, messages,
       section(t('security.sessionsTitle'), sessionsHost, { id: 'sec-sessions', description: t('security.sessionsDesc') }),
+      tvDevices(ctx),
       section(t('security.devicesTitle'), devicesHost, { id: 'sec-devices', description: t('security.devicesDesc') }),
       section(t('security.signinTitle'), h('p', { class: 'muted' }, t('security.signinBody')), { id: 'sec-signin' }),
       section(t('security.naTitle'), unavailable, { id: 'sec-na', description: t('security.naDesc') }));

@@ -26,6 +26,8 @@ export function accountUrl(path, basePath = '/') {
   }
   const target = new URL(path, ORIGIN);
   const pathname = target.pathname.replace(/\/+$/, '') || '/';
+  // TV codes are scanned at a stable, memorable address outside tab navigation.
+  if (pathname === '/tv') return (basePath === '/' ? '' : basePath.replace(/\/+$/, '')) + '/tv';
   let tab = PATH_TO_TAB.get(pathname);
   const query = new URLSearchParams();
   if (!tab && pathname === '/collections/new') {
@@ -56,6 +58,9 @@ export function accountUrl(path, basePath = '/') {
 export function readAccountUrl(href, basePath = '/') {
   const url = new URL(href, ORIGIN);
   const root = basePath === '/' ? '/' : basePath.replace(/\/+$/, '');
+  if (url.pathname.replace(/\/+$/, '') === (root === '/' ? '' : root) + '/tv') {
+    return { path: '/tv', query: new URLSearchParams(), canonical: accountUrl('/tv', basePath), legacy: false };
+  }
   const isRoot = url.pathname === root || (root !== '/' && url.pathname === root + '/');
   if (isRoot) {
     const tab = url.searchParams.get('tab') || 'overview';

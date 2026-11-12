@@ -95,6 +95,7 @@ const config = {
   apiUrl: mode === 'live' ? apiUrl : '',
   anonKey: mode === 'live' ? anonKey : 'mock-anon-key',
   writesEnabled: writes,
+  tvApprovalEnabled: mode === 'mock' || process.env.STARLIT_TV_APPROVAL === '1',
   googleSignIn: google,
   passkeySignIn: passkey,
   siteUrl: 'https://starlit.rrmtools.uk',

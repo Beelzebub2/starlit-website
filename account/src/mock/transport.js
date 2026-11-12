@@ -2,16 +2,18 @@
 // same HTTP statuses and JSON error bodies PostgREST and GoTrue use, so the
 // real API client and its error handling are exercised unchanged.
 import { createBackend, RpcFailure } from './backend.js';
+import { createMockTv } from './tv.js';
 
 export const backend = createBackend();
 
 // Scenario switches for manual and E2E testing (see panel.js).
-export const scenario = { latencyMs: 250, failNext: null, offline: false };
+export const scenario = { latencyMs: 250, failNext: null, offline: false, tvLoginEnabled: true };
 
 const json = (status, body) => new Response(body === null ? null : JSON.stringify(body), {
   status, headers: { 'Content-Type': 'application/json' },
 });
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const tv = createMockTv({ backend, json, scenario });
 
 export async function transport(url, init = {}) {
   if (init.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
@@ -21,8 +23,9 @@ export async function transport(url, init = {}) {
 
   const { pathname, searchParams } = new URL(url, 'https://mock.invalid');
   const isRpc = pathname.startsWith('/rest/v1/rpc/');
+  const isTv = pathname.startsWith('/tv/v1/');
   const fail = scenario.failNext;
-  if (fail && isRpc) {
+  if (fail && (isRpc || isTv)) {
     scenario.failNext = null;
     if (fail === 'offline') throw new TypeError('Failed to fetch');
     if (fail === '401') return json(401, { code: 'PT401', message: 'Sign in again to manage this account', details: null, hint: null });
@@ -36,6 +39,7 @@ export async function transport(url, init = {}) {
   try { body = init.body ? JSON.parse(init.body) : {}; } catch { return json(400, { code: 'PGRST102', message: 'Invalid JSON body' }); }
 
   try {
+    if (isTv || pathname === '/.well-known/nuvio') return tv(pathname, token, body);
     if (isRpc) {
       const name = pathname.slice('/rest/v1/rpc/'.length);
       const handler = backend.rpc[name];

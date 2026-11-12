@@ -606,6 +606,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mock-check { display: flex; align-items: center; gap: 6px; }
 
 /* ------------------------------------------------------------ modes */
+.tv-page { max-width: 720px; }
+.tv-content { max-width: 560px; }
+.tv-device-name { font-size: 1.25rem; font-weight: 600; overflow-wrap: anywhere; }
+.tv-code { font: 600 2rem var(--mono); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.tv-code-input { max-width: 300px; font-family: var(--mono); text-transform: uppercase; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .skeleton-line { animation: none; background: var(--panel-2); }
