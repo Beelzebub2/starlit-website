@@ -129,7 +129,7 @@ References: [OWASP session management](https://cheatsheetseries.owasp.org/cheats
 | Reload sign-in while following a deep link | Preserve the validated original task through a server-bound pending intent; do not silently fall back to Account home |
 | Open Devices while signed out | Sign in, then open Devices directly; no profile chooser or PIN |
 | Begin TV approval | Preserve the short-lived intent through login, show account and device consent, then approve explicitly; never silently approve a scanned code |
-| Forget password | A visible recovery action beside the password field, a secure web reset journey, an expired-link recovery path and a return to the original safe task |
+| Forget password | A visible recovery action beside the password field that reuses the existing identity recovery machinery and secure reset landing, with expired-link recovery and return to the original safe task |
 | Create an account | Show actual signup/approval requirements and pending status; preserve the current policy rather than inventing immediate access |
 | Follow Portuguese navigation | Public route establishes Portuguese on first entry; the explicit site-wide preference then stays consistent through account, recovery and return links |
 | Session expires during editing | Keep the in-tab draft available for reauthentication, then reload revisions and resolve conflicts before any save; do not silently submit stale edits |
