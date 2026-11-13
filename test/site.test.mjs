@@ -179,7 +179,7 @@ test('Download buttons open the latest release and versions come from the releas
   }
   for (const { route, html } of allPages()) {
     for (const [tag, href] of html.matchAll(/<a\b[^>]*href="(https:\/\/github\.com\/[^"]+)"[^>]*>/g)) {
-      assert.match(href, /^https:\/\/github\.com\/(Beelzebub2\/nuvio-native|NuvioMedia\/NuvioDesktop)(\/|$)/, 'Unexpected GitHub link on ' + route);
+      assert.match(href, /^https:\/\/github\.com\/(Beelzebub2\/(?:nuvio-native|starlit)|NuvioMedia\/NuvioDesktop)(\/|$)/, 'Unexpected GitHub link on ' + route);
       assert.doesNotMatch(href, /\/releases\/download\//, 'Pinned download link on ' + route);
       // Links to one release's notes are fine in the changelog, never as a download.
       if (/\/releases\/tag\//.test(href)) assert.match(tag, /class="release-link"/, 'Pinned release link on ' + route);

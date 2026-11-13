@@ -86,6 +86,23 @@ new" come from the app's GitHub releases, not from hand-written copy:
 Release notes are published in English; Portuguese pages show them with
 `lang="en"` and say so.
 
+### GitHub repository rename compatibility
+
+The app's GitHub repository is planned to move from
+`Beelzebub2/nuvio-native` to `Beelzebub2/starlit`. **It has not been
+renamed.** Before cutover, site builds use the old repository for links and
+release snapshots. The release-feed service retries only the new GitHub API
+path if the old one redirects or returns 404, and validates release URLs
+against exactly these two approved names.
+
+After the repository has actually been renamed, refresh the release snapshot
+with `npm run releases`, set `STARLIT_PUBLIC_REPO=Beelzebub2/starlit` for
+the website build, and deploy through the existing VPS process. The variable
+rejects unrelated repositories. Verify the live release feed, download
+links, /account/ routes, security headers and rollback before declaring the
+cutover complete. Keep the old GitHub repository slug unused so existing
+links continue redirecting.
+
 ## Build, test and preview
 
 ```

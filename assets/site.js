@@ -238,7 +238,14 @@
 
   // ------------------------------------------------------------ release data
 
-  const TAG = 'https://github.com/Beelzebub2/nuvio-native/releases/tag/v';
+  const TAGS = [
+    'https://github.com/Beelzebub2/nuvio-native/releases/tag/v',
+    'https://github.com/Beelzebub2/starlit/releases/tag/v'
+  ];
+  const SOURCES = [
+    'https://github.com/Beelzebub2/nuvio-native/releases',
+    'https://github.com/Beelzebub2/starlit/releases'
+  ];
   const VERSION = /^\d{1,3}\.\d{1,3}\.\d{1,3}$/;
   const FILES = {
     'windows-file': [/^Starlit-Windows-x64-\d+\.\d+\.\d+\.exe$/, r => r.files.windows],
@@ -258,9 +265,11 @@
   // The same rules as validateFeed in tools/releases.mjs.
   function valid(data) {
     const list = data && Array.isArray(data.releases) ? data.releases : null;
-    if (!list || !list.length || list.length > 5) return null;
+    if (!list || !list.length || list.length > 5 ||
+        (data.source && !SOURCES.includes(data.source))) return null;
     const ok = list.every((r, i) => r && VERSION.test(r.version) && /^\d{4}-\d{2}-\d{2}$/.test(r.date) &&
-      r.url === TAG + r.version && isText(r.headline, 160) && isText(r.summary, 400) && isText(r.brief, 600) &&
+      TAGS.some(tag => r.url === tag + r.version) &&
+      isText(r.headline, 160) && isText(r.summary, 400) && isText(r.brief, 600) &&
       r.files && FILES['windows-file'][0].test(r.files.windows) && FILES['android-file'][0].test(r.files.android) &&
       Array.isArray(r.highlights) && r.highlights.length <= 3 &&
       r.highlights.every(h => h && isText(h.title, 220) && isText(h.text, 220)) &&
