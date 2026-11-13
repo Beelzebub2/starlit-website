@@ -1,10 +1,114 @@
 {
-  "source": "https://github.com/Beelzebub2/nuvio-native/releases",
+  "source": "https://github.com/Beelzebub2/starlit/releases",
   "releases": [
+    {
+      "version": "1.23.0",
+      "date": "2026-11-13",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.23.0",
+      "headline": "Interface and navigation",
+      "summary": "Interface and navigation · Television experience · Library, subtitles and reliability · Verification and limitations",
+      "brief": "Refreshed Starlit screens. Samsung Tizen UI preview. Keep the existing library after connecting tracking accounts.",
+      "highlights": [
+        {
+          "title": "Refreshed Starlit screens",
+          "text": "More consistent controls, spacing and visual hierarchy across Downloads, Library, collections, Sources, Settings, subtitle styling and watch-order screens."
+        },
+        {
+          "title": "Samsung Tizen UI preview",
+          "text": "Redesigned TV navigation, search, sign-in, sources and display settings with visible remote-control focus, an on-screen keyboard, screen scaling and overscan adjustments."
+        },
+        {
+          "title": "Keep the existing library after connecting tracking accounts",
+          "text": "Unset or invalid tracking-source preferences continue to use the local library rather than silently switching to an external provider."
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.23.0.exe",
+        "android": "Starlit-Android-arm64-v8a-1.23.0.apk"
+      }
+    },
+    {
+      "version": "1.22.1",
+      "date": "2026-11-12",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.22.1",
+      "headline": "Release packaging",
+      "summary": "Release packaging · Playback and audio · Accounts and platforms · Downloads, updates and library · Verification and limitations",
+      "brief": "Verified Windows native runtimes. Play privately. Trakt public-client OAuth.",
+      "highlights": [
+        {
+          "title": "Verified Windows native runtimes",
+          "text": "Fetch the exact bundled libmpv and torrent runtime binaries from the release repository rather than depending on a separate repository's Git LFS bandwidth allowance."
+        },
+        {
+          "title": "Play privately",
+          "text": "Start a single playback session without watch history, progress, account synchronization, or Trakt/Simkl scrobbles."
+        },
+        {
+          "title": "Trakt public-client OAuth",
+          "text": "Use device authorization and PKCE without a bundled client secret."
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.22.1.exe",
+        "android": "Starlit-Android-arm64-v8a-1.22.1.apk"
+      }
+    },
+    {
+      "version": "1.20.1",
+      "date": "2026-11-11",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.20.1",
+      "headline": "Torrent playback and downloads",
+      "summary": "Torrent playback and downloads · Verification and limitations",
+      "brief": "Faster desktop torrent startup. More reliable tracker connections.",
+      "highlights": [
+        {
+          "title": "Faster desktop torrent startup",
+          "text": "Apply the final cache, connection and upload settings before starting the bundled engine, avoiding redundant reconfiguration."
+        },
+        {
+          "title": "The P2P changes passed all 10 pull-request checks, including Windows P2P integration, Android Full, Play Store and TV builds/emulator, iOS Kotlin compilation, storage safety and public source…",
+          "text": ""
+        },
+        {
+          "title": "More reliable tracker connections",
+          "text": "Streaming and offline downloads use bounded UDP, HTTP and HTTPS fallback trackers alongside provider trackers without waiting on an unbounded remote tracker-list request."
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.20.1.exe",
+        "android": "Starlit-Android-arm64-v8a-1.20.1.apk"
+      }
+    },
+    {
+      "version": "1.20.0",
+      "date": "2026-11-11",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.20.0",
+      "headline": "Playback and desktop reliability",
+      "summary": "Playback and desktop reliability · Airing Now · Home, browsing and playback controls · Windows screen-share audio (experimental) · Download reliability · Verification and limitations",
+      "brief": "Reliable completion tracking. Find hidden titles quickly. Continue Watching organization.",
+      "highlights": [
+        {
+          "title": "Reliable completion tracking",
+          "text": "Completed playback and external-player endings now report 100% progress to tracking integrations; a later partial stop event cannot overwrite a completed result."
+        },
+        {
+          "title": "Find hidden titles quickly",
+          "text": "Search titles hidden from Recently released and browse them alphabetically on Android and desktop."
+        },
+        {
+          "title": "Continue Watching organization",
+          "text": "Optionally group Continue Watching shelves by content type, with per-profile preferences and safeguards against stale resume updates."
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.20.0.exe",
+        "android": "Starlit-Android-arm64-v8a-1.20.0.apk"
+      }
+    },
     {
       "version": "1.19.0",
       "date": "2026-11-10",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.19.0",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.19.0",
       "headline": "Linux desktop",
       "summary": "Linux desktop · Compatibility and limitations",
       "brief": "Starlit for Linux x86_64. Native desktop integration.",
@@ -25,110 +129,6 @@
       "files": {
         "windows": "Starlit-Windows-x64-1.19.0.exe",
         "android": "Starlit-Android-arm64-v8a-1.19.0.apk"
-      }
-    },
-    {
-      "version": "1.18.0",
-      "date": "2026-11-10",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.18.0",
-      "headline": "Android TV and Google TV",
-      "summary": "Android TV and Google TV · Cross-device reliability · Verification and limitations",
-      "brief": "Starlit on your television. More efficient large watch-progress synchronization.",
-      "highlights": [
-        {
-          "title": "Starlit on your television",
-          "text": "A dedicated Android TV / Google TV application provides a Leanback launcher and large-screen Home, Search, Library and quick Settings, with D-pad focus and basic remote playback controls."
-        },
-        {
-          "title": "More efficient large watch-progress synchronization",
-          "text": "Account progress snapshots are fetched in bounded pages with compatibility fallback for older servers, reducing the amount of data handled at once on large libraries."
-        },
-        {
-          "title": "Android Full and Play Store builds, optimized TV and debug APKs, iOS Kotlin, desktop diagnostics, native Unix checks and security checks passed on the merged feature.",
-          "text": ""
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.18.0.exe",
-        "android": "Starlit-Android-arm64-v8a-1.18.0.apk"
-      }
-    },
-    {
-      "version": "1.17.1",
-      "date": "2026-11-10",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.17.1",
-      "headline": "Private reliability diagnostics",
-      "summary": "Private reliability diagnostics · Compatibility and limitations",
-      "brief": "Useful errors and warnings, only with consent. No browsing or viewing history in usage diagnostics.",
-      "highlights": [
-        {
-          "title": "Useful errors and warnings, only with consent",
-          "text": "The optional Usage Statistics setting now covers fixed, anonymous technical signals for slow playback startup, torrent-engine errors, download retries, storage-quota pauses, playback failures and…"
-        },
-        {
-          "title": "This version replaces an earlier tagged release candidate that did not publish after a desktop Settings UI test expected the previous diagnostics label.",
-          "text": ""
-        },
-        {
-          "title": "No browsing or viewing history in usage diagnostics",
-          "text": "Starlit stops reporting screen visits, player openings and download-list refreshes."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.17.1.exe",
-        "android": "Starlit-Android-arm64-v8a-1.17.1.apk"
-      }
-    },
-    {
-      "version": "1.16.1",
-      "date": "2026-11-09",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.16.1",
-      "headline": "Phone-to-PC playback",
-      "summary": "Phone-to-PC playback · Playback and MyAnimeList",
-      "brief": "Compare recommended sources on your phone. Fullscreen during stream preparation. Choose the PC's audio track remotely.",
-      "highlights": [
-        {
-          "title": "Compare recommended sources on your phone",
-          "text": "The paired-PC source picker places the desktop's best match first, explains its ranking, and shows resolution-tier stars, reported seed/peer availability and cached status on alternatives."
-        },
-        {
-          "title": "Fullscreen during stream preparation",
-          "text": "The desktop startup overlay now exposes fullscreen entry and exit before the player is ready, without hiding its close control or changing the torrent engine."
-        },
-        {
-          "title": "Choose the PC's audio track remotely",
-          "text": "The phone controller can show and select tracks offered by the playing desktop session."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.16.1.exe",
-        "android": "Starlit-Android-arm64-v8a-1.16.1.apk"
-      }
-    },
-    {
-      "version": "1.15.0",
-      "date": "2026-11-09",
-      "url": "https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.15.0",
-      "headline": "Anime franchise watch orders",
-      "summary": "Anime franchise watch orders · Phone-to-PC connectivity · Service reliability",
-      "brief": "Follow the story across seasons and films. Pair with wired computers over local Wi-Fi. Avoid repeated failed analytics submissions.",
-      "highlights": [
-        {
-          "title": "Follow the story across seasons and films",
-          "text": "Anime detail pages can show a compact viewing-order preview and a full franchise list."
-        },
-        {
-          "title": "Pair with wired computers over local Wi-Fi",
-          "text": "Restore reliable discovery, pairing and control when the phone is on Wi-Fi but the paired Windows PC uses Ethernet."
-        },
-        {
-          "title": "Avoid repeated failed analytics submissions",
-          "text": "The independent account-security analytics exporter handles stale ingestion failures without rapid retry loops."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.15.0.exe",
-        "android": "Starlit-Android-arm64-v8a-1.15.0.apk"
       }
     }
   ]
