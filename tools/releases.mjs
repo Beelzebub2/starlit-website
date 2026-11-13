@@ -11,9 +11,9 @@
 // ever writes it with textContent, so release notes can never inject markup.
 import { readFileSync } from 'node:fs';
 
-export const APP_REPO = 'Beelzebub2/nuvio-native';
-export const RENAMED_APP_REPO = 'Beelzebub2/starlit';
-export const ALLOWED_APP_REPOS = Object.freeze([APP_REPO, RENAMED_APP_REPO]);
+export const APP_REPO = 'Beelzebub2/starlit';
+export const LEGACY_APP_REPO = 'Beelzebub2/nuvio-native';
+export const ALLOWED_APP_REPOS = Object.freeze([APP_REPO, LEGACY_APP_REPO]);
 export const API_URL = `https://api.github.com/repos/${APP_REPO}/releases?per_page=15`;
 export const TAG_URL = `https://github.com/${APP_REPO}/releases/tag/`;
 const apiUrlFor = repo => `https://api.github.com/repos/${repo}/releases?per_page=15`;
@@ -162,9 +162,9 @@ export async function fetchFeed({
   if (token) headers.Authorization = 'Bearer ' + token;
   if (etag) headers['If-None-Match'] = etag;
   for (const [index, repository] of ALLOWED_APP_REPOS.entries()) {
-    // Do not follow a redirect supplied by an arbitrary third party. Probe
-    // only the fixed replacement repository after GitHub moves the old slug.
-    // Do not reuse the old repository's ETag for a different release source.
+    // Do not follow arbitrary redirects. Retry only the fixed legacy slug
+    // when the canonical API is unavailable; this keeps rollback possible.
+    // Do not reuse one repository's ETag for the other release source.
     const requestHeaders = { ...headers };
     if (index > 0) delete requestHeaders['If-None-Match'];
     const res = await fetchImpl(apiUrlFor(repository), {

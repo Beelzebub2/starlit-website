@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   summarize, toFeed, validateFeed, plain, firstSentence, readSnapshot,
-  fetchFeed, TAG_URL, APP_REPO, RENAMED_APP_REPO, SHOWN
+  fetchFeed, TAG_URL, APP_REPO, LEGACY_APP_REPO, SHOWN
 } from '../tools/releases.mjs';
 
 const asset = name => ({ name });
@@ -100,36 +100,36 @@ test('Invalid feeds are refused', () => {
 });
 
 test('Both repository names validate, but arbitrary release hosts and repos do not', () => {
-  const oldFeed = toFeed([release('1.14.1', BODY)], APP_REPO);
-  const newFeed = toFeed([release('1.14.1', BODY)], RENAMED_APP_REPO);
-  assert.equal(oldFeed.releases[0].url, TAG_URL + 'v1.14.1');
+  const oldFeed = toFeed([release('1.14.1', BODY)], LEGACY_APP_REPO);
+  const newFeed = toFeed([release('1.14.1', BODY)], APP_REPO);
+  assert.equal(oldFeed.releases[0].url, 'https://github.com/Beelzebub2/nuvio-native/releases/tag/v1.14.1');
   assert.equal(newFeed.releases[0].url,
-    'https://github.com/Beelzebub2/starlit/releases/tag/v1.14.1');
+    TAG_URL + 'v1.14.1');
   assert.doesNotThrow(() => validateFeed(oldFeed));
   assert.doesNotThrow(() => validateFeed(newFeed));
   assert.throws(() => toFeed([release('1.14.1', BODY)], 'attacker/repo'), /Untrusted/);
   assert.throws(() => validateFeed({ ...newFeed, source: 'https://evil.example/releases' }), /source/);
 });
 
-test('Release feed follows only the approved GitHub rename path', async () => {
+test('Release feed prefers the canonical repository and falls back only to the legacy path', async () => {
   const payload = [release('1.14.1', BODY)];
-  for (const oldStatus of [301, 308, 404]) {
+  for (const newStatus of [301, 308, 404]) {
     const requests = [];
     const result = await fetchFeed({
       etag: '"before-rename"',
       fetchImpl: async (url, options) => {
         requests.push([url, options.redirect, options.headers['If-None-Match']]);
-        if (url.includes('/nuvio-native/')) return { ok: false, status: oldStatus };
+        if (url.includes('/starlit/')) return { ok: false, status: newStatus };
         return { ok: true, status: 200, headers: { get: () => '"new-etag"' }, json: async () => payload };
       }
     });
     assert.deepEqual(requests, [
-      ['https://api.github.com/repos/Beelzebub2/nuvio-native/releases?per_page=15', 'manual', '"before-rename"'],
-      ['https://api.github.com/repos/Beelzebub2/starlit/releases?per_page=15', 'manual', undefined]
+      ['https://api.github.com/repos/Beelzebub2/starlit/releases?per_page=15', 'manual', '"before-rename"'],
+      ['https://api.github.com/repos/Beelzebub2/nuvio-native/releases?per_page=15', 'manual', undefined]
     ]);
     assert.equal(result.etag, '"new-etag"');
-    assert.equal(result.feed.source, 'https://github.com/Beelzebub2/starlit/releases');
-    assert.match(result.feed.releases[0].url, /\/starlit\/releases\/tag\/v1\.14\.1$/);
+    assert.equal(result.feed.source, 'https://github.com/Beelzebub2/nuvio-native/releases');
+    assert.match(result.feed.releases[0].url, /\/nuvio-native\/releases\/tag\/v1\.14\.1$/);
   }
 });
 

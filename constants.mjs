@@ -11,8 +11,8 @@ export const API = 'https://starlit-api.rrmtools.uk';
 
 // Public app repository. Releases publish the Windows installer, signed
 // Android APKs and SHA256SUMS.txt; link to "latest" so versions never go stale.
-// Default to the published repository before cutover. A deployment can select
-// the replacement only after it exists; reject every other repository.
+// Default to the canonical repository. Allow the legacy public repo only for
+// an intentional rollback, never an arbitrary owner/name.
 const publicRepository = process.env.STARLIT_PUBLIC_REPO || APP_REPO;
 if (!ALLOWED_APP_REPOS.includes(publicRepository)) {
   throw new Error('STARLIT_PUBLIC_REPO must be an approved Starlit repository');

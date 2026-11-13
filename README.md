@@ -88,20 +88,16 @@ Release notes are published in English; Portuguese pages show them with
 
 ### GitHub repository rename compatibility
 
-The app's GitHub repository is planned to move from
-`Beelzebub2/nuvio-native` to `Beelzebub2/starlit`. **It has not been
-renamed.** Before cutover, site builds use the old repository for links and
-release snapshots. The release-feed service retries only the new GitHub API
-path if the old one redirects or returns 404, and validates release URLs
-against exactly these two approved names.
-
-After the repository has actually been renamed, refresh the release snapshot
-with `npm run releases`, set `STARLIT_PUBLIC_REPO=Beelzebub2/starlit` for
-the website build, and deploy through the existing VPS process. The variable
-rejects unrelated repositories. Verify the live release feed, download
-links, /account/ routes, security headers and rollback before declaring the
-cutover complete. Keep the old GitHub repository slug unused so existing
-links continue redirecting.
+The app's canonical GitHub repository is
+`Beelzebub2/starlit`; `Beelzebub2/nuvio-native` is its former name.
+This site defaults to canonical links and release API requests, but permits
+the exact legacy source as a fallback for rollback and older release snapshots.
+The site accepts only these two approved GitHub release URL forms.
+Refresh the release snapshot with `npm run releases`, then deploy using
+the existing immutable VPS combined-site procedure. The optional
+`STARLIT_PUBLIC_REPO` override rejects unrelated repositories. Verify live
+release feed, download links, /account/ routes, security headers and rollback
+after deployment. Keep the old GitHub slug unused so redirects continue.
 
 ## Build, test and preview
 
