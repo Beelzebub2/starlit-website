@@ -12,8 +12,12 @@
 import { readFileSync } from 'node:fs';
 
 export const APP_REPO = 'Beelzebub2/nuvio-native';
+export const RENAMED_APP_REPO = 'Beelzebub2/starlit';
+export const ALLOWED_APP_REPOS = Object.freeze([APP_REPO, RENAMED_APP_REPO]);
 export const API_URL = `https://api.github.com/repos/${APP_REPO}/releases?per_page=15`;
 export const TAG_URL = `https://github.com/${APP_REPO}/releases/tag/`;
+const apiUrlFor = repo => `https://api.github.com/repos/${repo}/releases?per_page=15`;
+const tagUrlFor = repo => `https://github.com/${repo}/releases/tag/`;
 export const SHOWN = 5; // the latest release plus four older ones
 
 const VERSION = /^v?(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
@@ -53,7 +57,8 @@ export const compareVersions = (a, b) => {
 };
 
 // One GitHub release object to the website's summary, or null to skip it.
-export function summarize(release) {
+export function summarize(release, repository = APP_REPO) {
+  if (!ALLOWED_APP_REPOS.includes(repository)) throw new Error('Untrusted app release repository');
   const match = VERSION.exec(release?.tag_name ?? '');
   if (!match || release.draft || release.prerelease) return null;
   const version = match.slice(1).join('.');
@@ -93,7 +98,7 @@ export function summarize(release) {
   return {
     version,
     date: String(release.published_at ?? '').slice(0, 10),
-    url: TAG_URL + 'v' + version,
+    url: tagUrlFor(repository) + 'v' + version,
     headline: shown[0]?.title || `Starlit ${version}`,
     summary: shown.map(s => s.title).join(' · ') || `Starlit ${version}`,
     brief: titled.length ? titled.map(h => h.title).join('. ') + '.' : (highlights[0]?.text ?? ''),
@@ -103,11 +108,12 @@ export function summarize(release) {
 }
 
 // The GitHub API list to the feed: published releases, newest first.
-export function toFeed(list) {
+export function toFeed(list, repository = APP_REPO) {
+  if (!ALLOWED_APP_REPOS.includes(repository)) throw new Error('Untrusted app release repository');
   if (!Array.isArray(list)) throw new Error('GitHub did not return a list of releases');
-  const releases = list.map(summarize).filter(Boolean)
+  const releases = list.map(release => summarize(release, repository)).filter(Boolean)
     .sort((a, b) => compareVersions(b.version, a.version)).slice(0, SHOWN);
-  return validateFeed({ source: `https://github.com/${APP_REPO}/releases`, releases });
+  return validateFeed({ source: `https://github.com/${repository}/releases`, releases });
 }
 
 // Throws unless the feed has exactly the shape the site expects. Run on
@@ -118,13 +124,15 @@ export function validateFeed(feed) {
     if (typeof value !== 'string' || (!optional && !value.trim()) || value.length > max) fail(name);
   };
   if (!feed || !Array.isArray(feed.releases) || !feed.releases.length || feed.releases.length > SHOWN) fail('releases');
+  if (feed.source !== undefined &&
+      !ALLOWED_APP_REPOS.some(repo => feed.source === `https://github.com/${repo}/releases`)) fail('source');
   let previous = null;
   for (const r of feed.releases) {
     if (!VERSION.test(r.version) || r.version.startsWith('v')) fail('version');
     if (previous && compareVersions(previous, r.version) <= 0) fail('order');
     previous = r.version;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(r.date)) fail('date of ' + r.version);
-    if (r.url !== TAG_URL + 'v' + r.version) fail('url of ' + r.version);
+    if (!ALLOWED_APP_REPOS.some(repo => r.url === tagUrlFor(repo) + 'v' + r.version)) fail('url of ' + r.version);
     text(r.headline, 160, 'headline');
     text(r.summary, 400, 'summary');
     text(r.brief, 600, 'brief', true);
@@ -143,7 +151,9 @@ export function readSnapshot(path = new URL('../data/releases.json', import.meta
 
 // Fetch the releases. GitHub allows 60 unauthenticated requests an hour;
 // a 304 for an unchanged ETag doesn't count against that.
-export async function fetchFeed({ etag, token = process.env.GITHUB_TOKEN, timeout = 15000 } = {}) {
+export async function fetchFeed({
+  etag, token = process.env.GITHUB_TOKEN, timeout = 15000, fetchImpl = globalThis.fetch
+} = {}) {
   const headers = {
     Accept: 'application/vnd.github+json',
     'User-Agent': 'starlit-website-release-feed',
@@ -151,8 +161,20 @@ export async function fetchFeed({ etag, token = process.env.GITHUB_TOKEN, timeou
   };
   if (token) headers.Authorization = 'Bearer ' + token;
   if (etag) headers['If-None-Match'] = etag;
-  const res = await fetch(API_URL, { headers, signal: AbortSignal.timeout(timeout) });
-  if (res.status === 304) return { notModified: true, etag };
-  if (!res.ok) throw new Error('GitHub releases request failed with HTTP ' + res.status);
-  return { etag: res.headers.get('etag'), feed: toFeed(await res.json()) };
+  for (const [index, repository] of ALLOWED_APP_REPOS.entries()) {
+    // Do not follow a redirect supplied by an arbitrary third party. Probe
+    // only the fixed replacement repository after GitHub moves the old slug.
+    // Do not reuse the old repository's ETag for a different release source.
+    const requestHeaders = { ...headers };
+    if (index > 0) delete requestHeaders['If-None-Match'];
+    const res = await fetchImpl(apiUrlFor(repository), {
+      headers: requestHeaders, signal: AbortSignal.timeout(timeout), redirect: 'manual'
+    });
+    if (index === 0 && (res.type === 'opaqueredirect' ||
+        [301, 302, 307, 308, 404].includes(res.status))) continue;
+    if (res.status === 304) return { notModified: true, etag };
+    if (!res.ok) throw new Error('GitHub releases request failed with HTTP ' + res.status);
+    return { etag: res.headers.get('etag'), feed: toFeed(await res.json(), repository) };
+  }
+  throw new Error('GitHub releases unavailable under both approved repository names');
 }

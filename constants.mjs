@@ -1,6 +1,6 @@
 // Shared facts used by every page. Keep them in step with the deployed
 // Starlit releases and the account service before publishing.
-import { readSnapshot } from './tools/releases.mjs';
+import { readSnapshot, ALLOWED_APP_REPOS, APP_REPO } from './tools/releases.mjs';
 
 export const ORIGIN = 'https://starlit.rrmtools.uk';
 export const CONTACT = 'support.starlit@rrmtools.uk';
@@ -11,9 +11,13 @@ export const API = 'https://starlit-api.rrmtools.uk';
 
 // Public app repository. Releases publish the Windows installer, signed
 // Android APKs and SHA256SUMS.txt; link to "latest" so versions never go stale.
-// Keep these links until the repository is renamed (the app already follows
-// GitHub's redirect to Beelzebub2/starlit).
-export const REPO = 'https://github.com/Beelzebub2/nuvio-native';
+// Default to the published repository before cutover. A deployment can select
+// the replacement only after it exists; reject every other repository.
+const publicRepository = process.env.STARLIT_PUBLIC_REPO || APP_REPO;
+if (!ALLOWED_APP_REPOS.includes(publicRepository)) {
+  throw new Error('STARLIT_PUBLIC_REPO must be an approved Starlit repository');
+}
+export const REPO = `https://github.com/${publicRepository}`;
 export const RELEASES = REPO + '/releases';
 export const LATEST = RELEASES + '/latest';
 export const ISSUES = REPO + '/issues';

@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { summarize, toFeed, validateFeed, plain, firstSentence, readSnapshot, TAG_URL, SHOWN } from '../tools/releases.mjs';
+import {
+  summarize, toFeed, validateFeed, plain, firstSentence, readSnapshot,
+  fetchFeed, TAG_URL, APP_REPO, RENAMED_APP_REPO, SHOWN
+} from '../tools/releases.mjs';
 
 const asset = name => ({ name });
 const release = (version, body, extra = {}) => ({
@@ -96,6 +99,50 @@ test('Invalid feeds are refused', () => {
   assert.throws(broken(f => { f.releases[0].version = 'v1.14.1'; }), /version/);
 });
 
+test('Both repository names validate, but arbitrary release hosts and repos do not', () => {
+  const oldFeed = toFeed([release('1.14.1', BODY)], APP_REPO);
+  const newFeed = toFeed([release('1.14.1', BODY)], RENAMED_APP_REPO);
+  assert.equal(oldFeed.releases[0].url, TAG_URL + 'v1.14.1');
+  assert.equal(newFeed.releases[0].url,
+    'https://github.com/Beelzebub2/starlit/releases/tag/v1.14.1');
+  assert.doesNotThrow(() => validateFeed(oldFeed));
+  assert.doesNotThrow(() => validateFeed(newFeed));
+  assert.throws(() => toFeed([release('1.14.1', BODY)], 'attacker/repo'), /Untrusted/);
+  assert.throws(() => validateFeed({ ...newFeed, source: 'https://evil.example/releases' }), /source/);
+});
+
+test('Release feed follows only the approved GitHub rename path', async () => {
+  const payload = [release('1.14.1', BODY)];
+  for (const oldStatus of [301, 308, 404]) {
+    const requests = [];
+    const result = await fetchFeed({
+      etag: '"before-rename"',
+      fetchImpl: async (url, options) => {
+        requests.push([url, options.redirect, options.headers['If-None-Match']]);
+        if (url.includes('/nuvio-native/')) return { ok: false, status: oldStatus };
+        return { ok: true, status: 200, headers: { get: () => '"new-etag"' }, json: async () => payload };
+      }
+    });
+    assert.deepEqual(requests, [
+      ['https://api.github.com/repos/Beelzebub2/nuvio-native/releases?per_page=15', 'manual', '"before-rename"'],
+      ['https://api.github.com/repos/Beelzebub2/starlit/releases?per_page=15', 'manual', undefined]
+    ]);
+    assert.equal(result.etag, '"new-etag"');
+    assert.equal(result.feed.source, 'https://github.com/Beelzebub2/starlit/releases');
+    assert.match(result.feed.releases[0].url, /\/starlit\/releases\/tag\/v1\.14\.1$/);
+  }
+});
+
+test('Release API permission and rate-limit failures do not trigger fallback', async () => {
+  for (const status of [401, 403, 429, 500]) {
+    let calls = 0;
+    await assert.rejects(fetchFeed({
+      fetchImpl: async () => { calls++; return { ok: false, status }; }
+    }), new RegExp(`HTTP ${status}`));
+    assert.equal(calls, 1);
+  }
+});
+
 test('The committed snapshot is valid', () => {
   const feed = readSnapshot();
   assert.ok(feed.releases.length >= 3, 'Home shows three releases');
@@ -106,7 +153,7 @@ test('site.js only writes text, only talks to this origin and validates the feed
   const js = readFileSync(new URL('../assets/site.js', import.meta.url), 'utf8');
   const code = js.replace(/^\s*\/\/.*$/gm, '');
   assert.doesNotMatch(code, /innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\(|new Function|setTimeout\(['"`]/);
-  assert.doesNotMatch(code, /https?:\/\/(?!github\.com\/Beelzebub2\/nuvio-native\/releases\/tag\/v')/, 'Only the release-notes URL prefix may appear');
+  assert.doesNotMatch(code, /https?:\/\/(?!github\.com\/Beelzebub2\/(?:nuvio-native|starlit)\/releases(?:\/tag\/v)?')/, 'Only allowlisted GitHub release URLs may appear');
   assert.doesNotMatch(code, /localStorage|document\.cookie|navigator\.sendBeacon/);
   for (const [, url] of code.matchAll(/fetch\(([^,)]+)/g)) {
     assert.match(url.trim(), /^(key|'\/releases\.json')$/, 'Unexpected fetch target ' + url);
