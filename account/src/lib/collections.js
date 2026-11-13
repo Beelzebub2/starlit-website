@@ -1,5 +1,5 @@
 // Collections editor model. The JSON must stay compatible with the Starlit
-// client (nuvio-native Dev: features/collection/CollectionModels.kt). The
+// client (starlit Dev: features/collection/CollectionModels.kt). The
 // server stores the array as-is and does not check TMDB/Trakt semantics, so
 // every rule the client enforces on import is checked here, plus a few
 // stricter ones the client would only discover when the row fails to load.
