@@ -17,6 +17,25 @@ const strip = html => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 const OWN_SCRIPT = /^<script src="\/assets\/site\.js\?v=[0-9a-f]{10}" defer><\/script>$/;
 const scriptTags = html => [...html.matchAll(/<script\b[^>]*>[\s\S]*?<\/script>|<script\b[^>]*>/gi)].map(m => m[0]);
 
+test('TV installer is discoverable without advertising an unverified release', () => {
+  const guide = 'https://github.com/Beelzebub2/starlit/blob/Dev/tv-installer/README.md';
+  for (const lang of ['en', 'pt']) {
+    const home = read(fileFor(routes[lang].home));
+    const download = read(fileFor(routes[lang].download));
+    assert.ok(home.includes('href="' + routes[lang].download + '#tv-installer"'), 'Home TV link on ' + lang);
+    assert.match(home, /Samsung Tizen/);
+    assert.match(home, /LG webOS/);
+    assert.ok(download.includes('id="tv-installer"'), 'TV Installer section on ' + lang);
+    assert.ok(download.includes('href="' + guide + '"'), 'Development setup guide on ' + lang);
+    assert.match(download, /Samsung Tizen/);
+    assert.match(download, /LG webOS/);
+    assert.match(download, /TV Installer/);
+    assert.match(download, /Developer Mode|Modo de programador/);
+    assert.match(download, /No stable TV download yet|Ainda sem transferência estável para TV/);
+    assert.doesNotMatch(download, /href="[^"]*\.wgt"|href="[^"]*\.ipk"/, 'No unverified TV artifact link on ' + lang);
+  }
+});
+
 test('Both localisations cover the six product pages and the six policy pages', () => {
   assert.deepEqual(Object.keys(en), DOCS);
   assert.deepEqual(Object.keys(pt), DOCS);
