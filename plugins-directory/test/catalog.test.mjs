@@ -82,7 +82,8 @@ test('directory explicitly avoids app-store installs and links to original publi
 test('snapshot stays explicit and never implies rights approval', () => {
   const en = read('dist/index.html');
   assert.match(en,/2026-11-14/);
-  assert.match(en,/not.*audited.*media sources licensed/i);
+  assert.match(en,/not made, hosted, maintained, security-audited or endorsed/i);
+  assert.match(en,/legally authorized to use/i);
   assert.match(en,/204/);
   assert.match(read('dist/pt/index.html'), /204/);
   assert.match(read('dist/sitemap.xml'), /https:\/\/starlitplugins\.rrmtools\.uk\/pt\/legal\//);
