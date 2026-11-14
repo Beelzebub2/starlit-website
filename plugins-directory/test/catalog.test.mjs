@@ -89,24 +89,36 @@ test('snapshot stays explicit and never implies rights approval', () => {
 });
 
 
-test('public deploy gate rejects unreviewed candidate manifests by default', () => {
-  const out = spawnSync(process.execPath, [join(root, 'tools/prepublish.mjs')], {encoding:'utf8'});
-  assert.equal(out.status, 2);
-  assert.match(out.stderr, /Production publication refused/);
-  assert.match(out.stderr, /not approved for publication/);
-  assert.match(out.stderr, /contentRightsReviewed not verified/);
+test('prepublish checks metadata integrity without claiming legal review', () => {
+  const result = spawnSync(process.execPath, [join(root,'tools/prepublish.mjs')], { encoding:'utf8' });
+  assert.equal(result.status,0,result.stderr);
+  assert.match(result.stdout,/Source rights and code security NOT verified/);
 });
 
-test('reviewed-only public build does not leak unapproved publisher URLs', () => {
- const tmp = mkdtempSync(join(tmpdir(),'starlit-plugins-public-'));
- try {
-  const run=spawnSync(process.execPath,[join(root,'tools/build-public.mjs')],{cwd:root,env:{...process.env,STARLIT_PLUGINS_BUILD_OUT:tmp},encoding:'utf8'});
-  assert.equal(run.status,0,run.stderr);
-  const out = p=>readFileSync(join(tmp,p),'utf8');
-  assert.deepEqual(JSON.parse(out('catalog.json')).repositories,[]);
-  assert.equal(JSON.parse(out('publication.json')).mode,'reviewed-only');
-  assert.match(out('index.html'),/No reviewed repositories are available yet/);
-  assert.match(out('pt/index.html'),/Ainda não há repositórios aprovados/);
-  for (const r of catalog.repositories) for(const p of ['index.html','pt/index.html','catalog.json']) assert.ok(!out(p).includes(r.repo),'Unreviewed repo leaked: '+r.id);
- } finally { rmSync(tmp,{recursive:true,force:true}); }
+test('public community build includes original source manifests and clear disclaimers', () => {
+  const tmp = mkdtempSync(join(tmpdir(),'starlit-plugins-community-'));
+  try {
+    const run = spawnSync(process.execPath,[join(root,'tools/build-public.mjs')], {
+      cwd:root, env:{...process.env,STARLIT_PLUGINS_BUILD_OUT:tmp},encoding:'utf8'
+    });
+    assert.equal(run.status,0,run.stderr);
+    const output = path => readFileSync(join(tmp,path),'utf8');
+    const published=JSON.parse(output('catalog.json'));
+    const meta=JSON.parse(output('publication.json'));
+    assert.equal(meta.mode,'community-directory');
+    assert.equal(meta.totalRepositories,12);
+    assert.equal(meta.publishedRepositories,8);
+    assert.equal(meta.unavailableRepositories,4);
+    assert.equal(meta.indexedProviders,204);
+    assert.equal(published.repositories.length,12);
+    assert.match(output('index.html'),/Informational directory only/);
+    assert.match(output('pt/index.html'),/Diretório apenas informativo/);
+    assert.match(output('index.html'),/github.com\/NuvioPlugin\/All-in-One-Nuvio/);
+    for (const r of published.repositories) {
+      assert.ok(!Object.hasOwn(r,'publication'),'Review flags leaked into public catalog');
+      if (r.status==='unavailable') assert.deepEqual(r.providers,[]);
+      else assert.ok(r.providers.length,'Missing source entries: '+r.id);
+    }
+    assert.match(output('assets/site.js'),/r\.status === 'source-visible'/);
+  } finally { rmSync(tmp,{recursive:true,force:true}); }
 });

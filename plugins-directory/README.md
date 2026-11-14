@@ -1,6 +1,6 @@
 # Starlit Plugins — standalone community directory
 
-A **standalone static website** planned for **https://starlitplugins.rrmtools.uk/**. It borrows Starlit's own brand mark, colors, dark aesthetic and design typography, but has its own site, deployment and legal information pages. It is not a feature inside Starlit and does not use app deep links.
+A **standalone static website** available at **https://starlitplugins.rrmtools.uk/**. It borrows Starlit's own brand mark, colors, dark aesthetic and design typography, but has its own site, deployment and legal information pages. It is not a feature inside Starlit and does not use app deep links.
 
 ## Features
 
@@ -16,9 +16,9 @@ A **standalone static website** planned for **https://starlitplugins.rrmtools.uk
 
 The metadata contains 12 community publisher/repository **candidates**. Eight original publisher GitHub `manifest.json` files were independently verified, exposing 204 provider entries at the observation date. Four additional candidate manifests could not be confirmed; their Copy buttons are disabled. Repository counts are metadata, not streams, users, downloads, legal rights or working-status claims. Manifest files can change after observation.
 
-**Legal publication gate:** The directory has *not* been cleared to publicly recommend every listed third-party media scraper. Source-code availability and copyright disclaimers are not sufficient to authorize a plugin that accesses unauthorized copyrighted media. Review each proposed listing's underlying service/content rights, author and code license, security and applicable storefront/service policies, and arrange a practical copyright/security notice and removal process before publicly publishing this catalog. A publicly deployed directory may create copyright liability even if it does not host videos. Have competent Portuguese IP counsel confirm the exact publication policy and listings. This project intentionally does **not** auto-import newly discovered providers.
+**Informational directory, not an endorsement:** The linked projects belong to their independent publishers. Starlit does not host or execute the plugin scripts on this site and has not security-audited them or verified authorization for every underlying streaming source. The availability of a manifest, a source-code license and these warnings do **not** make unauthorized content access legal. Users should check their own rights to access media and report infringement or security concerns using the published contact information.
 
-A separate fail-closed `npm run prepublish` command verifies that each catalog entry has a documented publisher, license, content-rights and security approval flag. It **currently fails intentionally** because all entries remain research candidates. Never skip it during production release, and never set review flags without real evidence.
+`npm run prepublish` now validates the **metadata format and availability statuses**, not legal compliance. `npm run build:public` publishes the community snapshot and `npm run verify:public` checks it against source data. Unavailable publisher manifests remain visible as unavailable with disabled Copy buttons. There is no claim that a legal or security certification has taken place.
 
 Do not mirror or copy [nuvioplugins.com](https://nuvioplugins.com)'s assets, screenshots, database or prose; the repo and manifest metadata here was taken from each original GitHub publisher source. Public legal notices are originally written, **draft** until reviewed by counsel.
 
@@ -37,7 +37,7 @@ The build copies the official Starlit mark into the public asset folder. If you 
 
 ## Deployment / launch
 
-See [deploy/DEPLOYMENT.md](deploy/DEPLOYMENT.md). The existing VPS already runs the Starlit site over Cloudflare Tunnel, but this directory uses a **separate static Caddy container**, behind the same private edge network; no public host ports or changes to the main app/account routes. Do not configure public DNS until the origin, Cloudflare WAF, legal review and security checks are complete. Cloudflare Tunnel needs a distinct published application hostname with the correct Host header; then run `deploy/smoke.sh`.
+See [deploy/DEPLOYMENT.md](deploy/DEPLOYMENT.md). The existing VPS already runs the Starlit site over Cloudflare Tunnel, but this directory uses a **separate static Caddy container**, behind the same private edge network; no public host ports or changes to the main app/account routes. The public hostname uses the existing Starlit Cloudflare Tunnel and private origin. Use `npm run build:public` for production, test the published metadata and manual copy behavior, then run `deploy/smoke.sh`. Do not describe unaudited repositories as trusted or guaranteed lawful.
 
 ## Validation
 

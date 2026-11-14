@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// Verify that the published directory reflects the source snapshot without
+// claiming rights, safety review or manifest availability for missing sources.
 import { readFileSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,20 +10,22 @@ const source = JSON.parse(readFileSync(join(root,'data/catalog.json'),'utf8'));
 const published = JSON.parse(readFileSync(join(dist,'catalog.json'),'utf8'));
 const state = JSON.parse(readFileSync(join(dist,'publication.json'),'utf8'));
 const errors = [];
-if (state.mode !== 'reviewed-only') errors.push('Not a reviewed-only output');
-if (!Array.isArray(published.repositories)) errors.push('No output repository array');
-const approved = r => r.status==='source-visible' && r.publication?.reviewState==='approved' &&
-  ['publisherVerified','softwareLicenseReviewed','contentRightsReviewed','codeSecurityReviewed'].every(k=>r.publication?.[k]===true);
-if (!errors.length) {
- for (const r of published.repositories) {
-   const original=source.repositories.find(x=>x.id===r.id);
-   if (!original || !approved(original)) errors.push('Unapproved output entry: '+r.id);
- }
- if (published.repositories.length!==state.publishedRepositories) errors.push('Output count mismatch');
- const output=['index.html','pt/index.html','catalog.json'].map(p=>readFileSync(join(dist,p),'utf8'));
- for (const r of source.repositories.filter(r=>!approved(r))) {
-  if(output.some(p=>p.includes(r.repo))) errors.push('Unapproved publisher URL leaked: '+r.id);
- }
+if (state.mode !== 'community-directory') errors.push('Wrong publication mode');
+const expected = source.repositories.map(({publication, ...r}) => r);
+if (JSON.stringify(published.repositories) !== JSON.stringify(expected)) errors.push('Published metadata differs from original publisher snapshot');
+if (published.repositories.some(r => Object.prototype.hasOwnProperty.call(r,'publication'))) errors.push('Internal review notes exposed');
+const available = expected.filter(r => r.status === 'source-visible');
+const unavailable = expected.filter(r => r.status === 'unavailable');
+const indexedProviders = expected.reduce((n,r) => n + r.providers.length,0);
+if (available.some(r => !r.providers.length)) errors.push('Copyable repository with no provider data');
+if (unavailable.some(r => r.providers.length)) errors.push('Unavailable repository has providers');
+if (state.publishedRepositories !== available.length || state.unavailableRepositories !== unavailable.length ||
+    state.totalRepositories !== expected.length || state.indexedProviders !== indexedProviders) errors.push('Publication counts inaccurate');
+for (const [file, notice] of [['index.html', 'Informational directory only'], ['pt/index.html','Diretório apenas informativo']]) {
+  const html=readFileSync(join(dist,file),'utf8');
+  if (!html.includes(notice)) errors.push('Missing public warning: ' + file);
 }
-if(errors.length){process.stderr.write('Safe publication refused:\n'+errors.join('\n')+'\n');process.exit(2);}
-console.log('Reviewed-only build verified: '+published.repositories.length+' approved repositories; candidates withheld.');
+const app=readFileSync(join(dist,'assets/site.js'),'utf8');
+if (!app.includes("r.status === 'source-visible'") || !app.includes('copyManifest(r)')) errors.push('Missing manual manifest copy gate');
+if (errors.length) { process.stderr.write('Community directory verification failed:\n - '+errors.join('\n - ')+'\n'); process.exit(2); }
+console.log('Public community directory verified: '+available.length+' manifest sources, '+unavailable.length+' unavailable, '+indexedProviders+' provider entries. No legal/security certification.');

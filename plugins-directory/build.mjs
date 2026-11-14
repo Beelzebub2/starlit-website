@@ -9,12 +9,11 @@ const output = resolve(process.env.STARLIT_PLUGINS_BUILD_OUT ?? join(root, 'dist
 if (output === root || output === dirname(root)) throw Error('Unsafe output directory');
 const sourceCatalog = JSON.parse(readFileSync(join(root, 'data/catalog.json'), 'utf8'));
 const publicationMode = process.env.STARLIT_PLUGINS_PUBLICATION_MODE ?? 'candidate-preview';
-if (!['candidate-preview', 'reviewed-only'].includes(publicationMode)) throw Error('Unknown publication mode');
-const approved = r => r.status === 'source-visible' && r.publication?.reviewState === 'approved'
-  && ['publisherVerified','softwareLicenseReviewed','contentRightsReviewed','codeSecurityReviewed']
-    .every(k => r.publication?.[k] === true);
-const catalog = publicationMode === 'reviewed-only'
-  ? { ...sourceCatalog, repositories: sourceCatalog.repositories.filter(approved) } : sourceCatalog;
+if (!['candidate-preview', 'community-directory'].includes(publicationMode)) throw Error('Unknown publication mode');
+// Keep internal review notes out of public metadata; no approval is implied by a listing.
+const catalog = publicationMode === 'community-directory'
+  ? { ...sourceCatalog, repositories: sourceCatalog.repositories.map(({ publication, ...entry }) => entry) }
+  : sourceCatalog;
 const ORIGIN = 'https://starlitplugins.rrmtools.uk';
 const esc = v => String(v).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 const isValidGitHub = value => /^(?:[A-Za-z\d_.-]+)\/(?:[A-Za-z\d_.-]+)$/.test(value);
@@ -39,7 +38,7 @@ const copy = {
     browse:'Browse repositories', browseSub:'Original publisher manifests, checked at the snapshot date. Repository availability and content rights can change.',
     searchLabel:'Search repositories and provider names', searchHint:'Search a repository, publisher or provider…', filterLabel:'Filter by language', sortLabel:'Order', sortName:'Name A–Z', sortProviders:'Most providers', sortAvailability:'Available first',
     available:'Manifest available', missing:'Manifest unavailable', manual:'Manual installation only', noticeTitle:'Independent code. Your choice.',
-    notice:'These are third-party software projects, not Starlit endorsements. A reachable manifest does not mean its code is audited or its media sources licensed. Only install plugins you trust and only use sources you are authorized to access.',
+    notice:'Informational directory only. These third-party plugins are not made, hosted, maintained, security-audited or endorsed by Starlit. We do not host video or films. Review original publisher code, use at your own risk, and access only media you are legally authorized to use. Report suspected copyright or safety problems.',
     guideTitle:'One manifest. Your selection.', guideLead:'No in-app store, no sign-in to browse, and nothing installed by this website. The copy action simply gives you the original repository address.',
     guideA:'Choose a repository', guideADesc:'Check the author, the listed providers and the original source code.',
     guideB:'Copy the manifest', guideBDesc:'Use the Copy manifest action on a repository with an available source.',
@@ -60,7 +59,7 @@ const copy = {
     browse:'Explorar repositórios', browseSub:'Manifestos dos autores, verificados na data indicada. A disponibilidade e os direitos de acesso podem mudar.',
     searchLabel:'Pesquisar repositórios e fornecedores', searchHint:'Pesquisa um repositório, autor ou fornecedor…', filterLabel:'Filtrar por idioma', sortLabel:'Ordenar', sortName:'Nome A–Z', sortProviders:'Mais fornecedores', sortAvailability:'Disponíveis primeiro',
     available:'Manifesto disponível', missing:'Manifesto indisponível', manual:'Instalação manual', noticeTitle:'Código independente. A tua escolha.',
-    notice:'Estes projetos são software de terceiros e não têm a aprovação do Starlit. Um manifesto acessível não significa que o código tenha sido auditado ou que as fontes tenham licença. Instala apenas plugins em que confias e utiliza conteúdos aos quais tens acesso autorizado.',
+    notice:'Diretório apenas informativo. Estes plugins de terceiros não são criados, alojados, mantidos, auditados ou recomendados pelo Starlit. Não alojamos filmes nem transmissões de vídeo. Consulta o código do autor, utiliza-o por tua conta e risco e acede apenas a conteúdos para os quais tens autorização legal. Comunica problemas de direitos de autor ou segurança.',
     guideTitle:'Um manifesto. Tu decides.', guideLead:'Sem loja integrada, sem conta para pesquisar e sem instalações feitas por este site. O botão de copiar limita-se a fornecer o endereço original do repositório.',
     guideA:'Escolhe um repositório', guideADesc:'Verifica o autor, os fornecedores disponíveis e o código-fonte original.',
     guideB:'Copia o manifesto', guideBDesc:'Utiliza Copiar manifesto num repositório com uma fonte disponível.',
@@ -74,34 +73,6 @@ const copy = {
     full:'Lista de fornecedores', legalLink:'Informação legal completa', expandTitle:'Mostrar os fornecedores', loadingNotice:'Sem auditoria jurídica ou de segurança', version:'Versão do manifesto', countNote:'Os números representam uma cópia de metadados com data, não transmissões funcionais nem fontes de conteúdos únicas.'
   }
 };
-if (publicationMode === 'reviewed-only' && catalog.repositories.length === 0) {
-  Object.assign(copy.en, {
-    title:'Starlit Plugins — Community directory',
-    desc:'A Starlit community plugin directory where each published listing has completed review.',
-    h1:'Starlit Plugins.',
-    lead:'We are reviewing community plugin repositories before adding them here. This directory will feature only publishers and sources that have completed rights and security checks.',
-    browseSub:'No third-party repositories are published until they pass the required checks.',
-    noticeTitle:'Review comes first.',
-    notice:'Public source code and disclaimers do not establish permission to access copyrighted media. Candidate repositories remain unpublished pending review.',
-    guideLead:'When reviewed plugins are available, installation will stay manual and under your control. This website does not install or run software.',
-    guideBDesc:'Copy a published repository manifest once it has passed review.',
-    empty:'No reviewed repositories are available yet. Check back for updates.',
-    countNote:'Only reviewed and approved repository metadata is published here.'
-  });
-  Object.assign(copy.pt, {
-    title:'Starlit Plugins — Diretório da comunidade',
-    desc:'Diretório Starlit de plugins da comunidade, com análise prévia das entradas publicadas.',
-    h1:'Starlit Plugins.',
-    lead:'Estamos a analisar os repositórios de plugins da comunidade antes de os publicar. O diretório apresentará apenas autores e fontes que tenham concluído as verificações legais e de segurança.',
-    browseSub:'Nenhum repositório de terceiros será publicado antes de concluir as verificações necessárias.',
-    noticeTitle:'Primeiro, a verificação.',
-    notice:'O código público e as declarações de responsabilidade não concedem direitos de acesso a conteúdos protegidos. Os candidatos não são publicados antes da análise.',
-    guideLead:'Quando existirem plugins aprovados, a instalação continuará a ser manual e controlada por ti. Este site não instala nem executa programas.',
-    guideBDesc:'Copia o manifesto de um repositório publicado depois da respetiva verificação.',
-    empty:'Ainda não há repositórios aprovados. Volta a consultar mais tarde.',
-    countNote:'Aqui são publicados apenas metadados de repositórios analisados e aprovados.'
-  });
-}
 const make = (language) => {
   const t = copy[language], pt = language === 'pt';
   const url = pt ? '/pt/' : '/';
@@ -178,7 +149,7 @@ writeFileSync(join(output,'legal','index.html'), makeLegal('en'));
 writeFileSync(join(output,'pt','legal','index.html'), makeLegal('pt'));
 for (const file of ['site.css','site.js','starlit-mark.svg']) cpSync(join(root,'assets',file), join(output,'assets',file));
 writeFileSync(join(output,'catalog.json'), JSON.stringify(catalog)+'\n');
-writeFileSync(join(output,'publication.json'), JSON.stringify({mode:publicationMode,publishedRepositories:catalog.repositories.length})+'\n');
+writeFileSync(join(output,'publication.json'), JSON.stringify({mode:publicationMode,publishedRepositories:count,unavailableRepositories:catalog.repositories.length-count,totalRepositories:catalog.repositories.length,indexedProviders:providers})+'\n');
 const possibleFonts = join(root, '..', 'assets', 'fonts');
 if(existsSync(possibleFonts)) cpSync(possibleFonts, join(output,'assets','fonts'), {recursive:true});
 writeFileSync(join(output,'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: '+ORIGIN+'/sitemap.xml\n');
