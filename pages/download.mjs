@@ -4,12 +4,13 @@ import { VERSION, WINDOWS_FILE, ANDROID_FILE, LATEST, RELEASES, ISSUES, CONTACT,
 import { icon, eyebrow, pill, checkList, esc, inEnglish, releaseDate, rel } from '../ui.mjs';
 
 const winFile = rel('windows-file', WINDOWS_FILE, 'code', 'code-hl');
+const TV_INSTALLER_GUIDE = 'https://github.com/Beelzebub2/starlit/blob/Dev/tv-installer/README.md';
 
 const copy = {
   en: {
     meta: {
       title: 'Download Starlit for Windows, Android and Linux',
-      description: `Get Starlit ${VERSION} for Windows, Android and Linux x86_64 from its public GitHub releases. DEB, RPM, AppImage and Flatpak packages have SHA-256 checksums.`,
+      description: `Get Starlit ${VERSION} for Windows, Android and Linux. The Samsung Tizen and LG webOS TV Installer is in development and not yet a stable download.`,
     },
     kicker: `Latest release · ${rel('version', VERSION)}`, title: 'Get Starlit.',
     lede: 'Free and open source under GPL-3.0. Windows, Android and Linux installers come from the same GitHub release, with checksums for every package.',
@@ -21,6 +22,15 @@ const copy = {
     linux: { name: 'Linux', req: 'x86_64 · X11 or XWayland', cta: 'Download for Linux',
       points: ['Choose a <code>.deb</code>, <code>.rpm</code>, <code>.AppImage</code> or <code>.flatpak</code> package.', 'Native video playback needs compatible media and graphics libraries.', 'All four packages are checksum-verified. Install updates manually unless you configure a separate package source.'] },
     others: [['iPhone and iPad', 'The code exists, but no build has been released or tested.'], ['Mac', 'No Mac app is available.']],
+    tv: {
+      title: 'Starlit for your TV.',
+      description: 'The Starlit TV Installer is a Windows tool for Samsung Tizen and LG webOS. Pair with your TV in Developer Mode and install the matching Starlit TV package.',
+      status: 'In development · No stable TV download yet',
+      samsung: { name: 'Samsung Tizen', detail: 'Developer Mode and a signed WGT package. Initial playback and update tests passed on Tizen 5.0; wider TV support is still being checked.' },
+      lg: { name: 'LG webOS', detail: 'Developer Mode and an IPK package. Builds and package checks pass, but installation on real LG hardware still needs testing.' },
+      guide: 'Read the TV Installer setup guide',
+      note: 'The TV Installer and TV apps are not in stable releases yet. The Windows, Android and Linux downloads above are for those devices, not for a television.',
+    },
     install: { title: 'Installing takes a minute.', win: 'On Windows', android: 'On Android', linux: 'On Linux',
       winSteps: [`Download ${winFile} from the latest release.`, 'Run it. Starlit installs for your Windows user and lets you choose the folder and shortcuts.', 'Open Starlit, add your sources, and you’re set. It checks for updates at startup, every six hours, and from Settings → About.'],
       androidSteps: ['On your phone, download the APK for its processor. If you’re not sure, it’s <code class="code-hl">arm64-v8a</code>. Older 32-bit phones use <code class="code-hl">armeabi-v7a</code>.', 'Open it and allow your browser or file manager to install apps when Android asks.', 'Sign in or continue as a guest. To use it as a remote, open Settings → PC controller.'],
@@ -45,7 +55,7 @@ const copy = {
   pt: {
     meta: {
       title: 'Transferir o Starlit para Windows, Android e Linux',
-      description: `Obtém o Starlit ${VERSION} para Windows, Android e Linux x86_64 a partir do GitHub. Os pacotes DEB, RPM, AppImage e Flatpak incluem somas SHA-256.`,
+      description: `Obtém o Starlit ${VERSION} para Windows, Android e Linux. O TV Installer para Samsung Tizen e LG webOS está em desenvolvimento e ainda não tem transferência estável.`,
     },
     kicker: `Versão mais recente · ${rel('version', VERSION)}`, title: 'Obtém o Starlit.',
     lede: 'Gratuito e de código aberto sob a GPL-3.0. Os instaladores para Windows, Android e Linux vêm da mesma versão no GitHub, com somas de verificação para cada pacote.',
@@ -57,6 +67,15 @@ const copy = {
     linux: { name: 'Linux', req: 'x86_64 · X11 ou XWayland', cta: 'Transferir para Linux',
       points: ['Escolhe um pacote <code>.deb</code>, <code>.rpm</code>, <code>.AppImage</code> ou <code>.flatpak</code>.', 'A reprodução nativa requer bibliotecas multimédia e gráficas compatíveis.', 'Os quatro pacotes têm somas verificadas. Instala as atualizações manualmente, salvo se configurares outra fonte de pacotes.'] },
     others: [['iPhone e iPad', 'O código existe, mas nenhuma versão foi publicada nem testada.'], ['Mac', 'Não existe uma aplicação para Mac.']],
+    tv: {
+      title: 'Starlit na tua televisão.',
+      description: 'O Starlit TV Installer é uma ferramenta para Windows destinada a televisores Samsung Tizen e LG webOS. Emparelha com a TV no Modo de programador e instala o pacote Starlit adequado.',
+      status: 'Em desenvolvimento · Ainda sem transferência estável para TV',
+      samsung: { name: 'Samsung Tizen', detail: 'Modo de programador e pacote WGT assinado. Os primeiros testes de reprodução e atualização passaram no Tizen 5.0; a compatibilidade com outras TVs ainda está a ser verificada.' },
+      lg: { name: 'LG webOS', detail: 'Modo de programador e pacote IPK. A compilação e a validação do pacote passaram, mas a instalação numa TV LG real ainda não foi testada.' },
+      guide: 'Consultar o guia do TV Installer',
+      note: 'O TV Installer e as aplicações para TV ainda não fazem parte das versões estáveis. As transferências para Windows, Android e Linux acima não se destinam a televisores.',
+    },
     install: { title: 'Instalar demora um minuto.', win: 'No Windows', android: 'No Android', linux: 'No Linux',
       winSteps: [`Transfere ${winFile} da versão mais recente.`, 'Executa-o. O Starlit instala-se para o teu utilizador do Windows e deixa-te escolher a pasta e os atalhos.', 'Abre o Starlit, adiciona as tuas fontes e está feito. Procura atualizações ao iniciar, a cada seis horas e em Definições → Acerca.'],
       androidSteps: ['No telemóvel, transfere o APK para o respetivo processador. Se não tiveres a certeza, é o <code class="code-hl">arm64-v8a</code>. Os telemóveis mais antigos de 32 bits usam o <code class="code-hl">armeabi-v7a</code>.', 'Abre-o e autoriza o navegador ou o gestor de ficheiros a instalar aplicações quando o Android pedir.', 'Inicia sessão ou continua como convidado. Para o usares como comando, abre Definições → Controlar PC.'],
@@ -137,6 +156,24 @@ export function render(lang) {
     </div>
     <div class="cells cells-2 others mt-20">${c.others.map(([t, b]) => `
       <div class="cell other"><span class="other-text"><b>${t}</b><span>${b}</span></span>${pill('no', c.notYet, 'pill-plain')}</div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section class="sec pb-96" id="tv-installer" aria-labelledby="tv-installer-title">
+  <div class="wrap">
+    <div class="tv-install">
+      <div>
+        <h2 id="tv-installer-title" class="t-l">${c.tv.title}</h2>
+        <p class="body-m mt-18">${c.tv.description}</p>
+        <p class="tv-install-status">${c.tv.status}</p>
+        <a class="arrow-link mt-26" href="${TV_INSTALLER_GUIDE}" rel="noopener noreferrer">${c.tv.guide}${icon('arrowRight', 16)}</a>
+      </div>
+      <div class="tv-install-devices">
+        <div><h3>${c.tv.samsung.name}</h3><p>${c.tv.samsung.detail}</p></div>
+        <div><h3>${c.tv.lg.name}</h3><p>${c.tv.lg.detail}</p></div>
+        <p class="tv-install-note">${c.tv.note}</p>
+      </div>
     </div>
   </div>
 </section>

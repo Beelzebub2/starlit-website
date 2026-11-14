@@ -15,6 +15,7 @@ const copy = {
     title: 'Watch on your PC.<br><span class="hl">Steer from your phone.</span>',
     lede: 'Starlit is an anime and TV app for Windows, Linux and Android. Stream from your own add-ons in a player built on mpv, follow every episode in Airing Now, download whole seasons for offline, and keep one library in sync. Then pick up your phone and run the PC from the couch.',
     ctaWin: 'Download for Windows', ctaAndroid: 'Get the Android APK',
+    tvLink: 'Samsung and LG TVs: meet the TV Installer (in development)',
     metaLine: `v${rel('version', VERSION)} · Windows 10 &amp; 11 (64-bit) · Linux x86_64 · Android 7.0+ · Free and open source, GPL-3.0`,
     log: { label: 'Recent releases', title: 'Shipping log', all: 'All notes' },
     app: {
@@ -40,6 +41,7 @@ const copy = {
       ['ok', 'Linux x86_64', 'DEB, RPM, AppImage and Flatpak releases. X11/XWayland; device playback validation still pending.'],
       ['ok', 'Phone remote over Wi-Fi', 'Android phone to Windows PC, with QR pairing.'],
       ['beta', 'Phone remote over Bluetooth', 'Windows PC and Android phone, no shared network needed.'],
+      ['no', 'Samsung Tizen &amp; LG webOS', 'The Windows TV Installer is in development. No stable TV download yet.'],
       ['no', 'iPhone and Mac', 'No public builds yet. We’ll say so here when there are.'],
     ] },
     pcRemote: {
@@ -89,6 +91,7 @@ const copy = {
     title: 'Vê no PC.<br><span class="hl">Comanda pelo telemóvel.</span>',
     lede: 'O Starlit é uma aplicação de anime e séries para Windows, Linux e Android. Faz streaming a partir dos teus próprios addons num leitor baseado no mpv, acompanha cada episódio no Airing Now, transfere temporadas inteiras para ver offline e mantém uma só biblioteca sincronizada. Depois pega no telemóvel e comanda o PC a partir do sofá.',
     ctaWin: 'Transferir para Windows', ctaAndroid: 'Obter o APK para Android',
+    tvLink: 'TVs Samsung e LG: conhece o TV Installer (em desenvolvimento)',
     metaLine: `v${rel('version', VERSION)} · Windows 10 e 11 (64 bits) · Linux x86_64 · Android 7.0+ · Gratuito e de código aberto, GPL-3.0`,
     log: { label: 'Versões recentes', title: 'Registo de versões', all: 'Todas as notas' },
     app: {
@@ -114,6 +117,7 @@ const copy = {
       ['ok', 'Linux x86_64', 'Versões DEB, RPM, AppImage e Flatpak. X11/XWayland; a reprodução em equipamentos reais ainda não foi validada.'],
       ['ok', 'Comando por Wi-Fi', 'Do telemóvel Android para o PC com Windows, com emparelhamento por QR.'],
       ['beta', 'Comando por Bluetooth', 'PC com Windows e telemóvel Android, sem precisar de rede partilhada.'],
+      ['no', 'Samsung Tizen e LG webOS', 'O TV Installer para Windows está em desenvolvimento. Ainda não há transferência estável para TV.'],
       ['no', 'iPhone e Mac', 'Ainda não há versões públicas. Diremos aqui quando houver.'],
     ] },
     pcRemote: {
@@ -268,6 +272,7 @@ ${segments(rm.tabs, 0, 'p-seg')}
         <p class="lede mt-28 measure-620">${c.lede}</p>
         <p class="cta-row mt-36"><a class="btn btn-accent btn-lg" href="${r.download}">${icon('monitor', 20)}${c.ctaWin}</a><a class="btn btn-ghost btn-lg" href="${r.download}">${icon('phone', 20)}${c.ctaAndroid}</a></p>
         <p class="meta-line mt-22">${c.metaLine}</p>
+        <p class="mt-16"><a class="arrow-link" href="${r.download}#tv-installer">${c.tvLink}${icon('arrowRight', 16)}</a></p>
       </div>
       <aside class="log" aria-label="${c.log.label}">
         <p class="log-head"><span class="label-mono">${c.log.title}</span><a href="${r.download}#${pageIds.download.news}">${c.log.all}</a></p>
