@@ -1,0 +1,29 @@
+{
+    admin off
+    auto_https off
+}
+
+# Private Docker-network listener only. TLS/WAF terminate at Cloudflare Tunnel.
+# This site is independent of starlit.rrmtools.uk's account and release service.
+:8082 {
+    root * /srv/releases/current
+    encode zstd gzip
+
+    @private path /_headers /.env* /.git /.git/* /node_modules/* /data/* /deploy/* /tools/*
+    respond @private 404
+
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        X-Frame-Options "DENY"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
+    }
+    @assets path /assets/*
+    header @assets Cache-Control "public, max-age=86400, no-transform"
+    @pages not path /assets/*
+    header @pages Cache-Control "public, max-age=300, no-transform"
+    try_files {path} {path}/index.html
+    file_server
+}

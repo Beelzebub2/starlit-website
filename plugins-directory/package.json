@@ -1,0 +1,14 @@
+{
+  "name": "starlit-plugins-directory",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Static, standalone Starlit-themed metadata directory for community Nuvio JS plugin repositories",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check build.mjs && node --check legal-content.mjs && node --check assets/site.js && npm run build && npm test",
+    "preview": "node tools/preview.mjs"
+  },
+  "engines": {"node": ">=20"}
+}

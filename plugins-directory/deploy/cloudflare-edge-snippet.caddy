@@ -1,0 +1,11 @@
+# Insert INSIDE the existing :8088 Cloudflare Tunnel edge listener, before
+# its final `respond 404`. Do not create another :8088 block or remove Starlit,
+# CrowdSec logging, push, API, or other services.
+@starlitplugins host starlitplugins.rrmtools.uk
+handle @starlitplugins {
+    encode zstd gzip
+    reverse_proxy starlit-plugins-web:8082 {
+        header_up Host {http.request.host}
+        header_up X-Forwarded-Proto https
+    }
+}

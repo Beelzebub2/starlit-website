@@ -1,0 +1,33 @@
+name: Starlit Plugins directory
+on:
+  pull_request:
+    paths:
+      - 'plugins-directory/**'
+      - '.github/workflows/starlit-plugins-directory.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'plugins-directory/**'
+      - '.github/workflows/starlit-plugins-directory.yml'
+permissions:
+  contents: read
+jobs:
+  static-directory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate generated directory, catalog and client actions
+        working-directory: plugins-directory
+        run: npm run check
+      - name: Ensure generated site has no secrets or app-account scripts
+        shell: bash
+        run: |
+          test -f plugins-directory/dist/index.html
+          test -f plugins-directory/dist/pt/index.html
+          test -f plugins-directory/dist/legal/index.html
+          test -f plugins-directory/dist/pt/legal/index.html
+          ! grep -R -E 'service_role|ANON_SECRET|SECRET_KEY|PRIVATE_KEY' plugins-directory/dist
