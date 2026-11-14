@@ -17,6 +17,7 @@ createServer(async (req, res) => {
   try {
     const url = new URL(req.url ?? '/', 'http://localhost');
     const path = decodeURIComponent(url.pathname);
+    if (path === '/_headers' || /^\/(?:\.git|\.env|node_modules|data|deploy|tools)(?:\/|$)/.test(path)) throw Error('Not a public asset');
     if (path.includes('\\') || path.includes('\0') || path.split('/').includes('..')) throw Error('Invalid request path');
     const leaf = path.endsWith('/') ? path + 'index.html' : path;
     filename = resolve(root, '.' + leaf);

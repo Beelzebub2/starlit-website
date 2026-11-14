@@ -128,7 +128,7 @@ function makeLegal(language) {
 </div></header>
 <main id="policy" class="wrap legal-main"><header class="legal-intro"><a class="legal-back" href="${back}">← ${esc(t.home)}</a><h1>${esc(t.title)}</h1><p>${esc(t.subtitle)}</p></header>
 <div class="legal-content">${sections}</div>
-<div class="legal-contacts"><a class="report-link" href="mailto:support.starlit@rrmtools.uk?subject=Starlit%20Plugins%20rights%20or%20security%20report">${esc(t.contact)} ↗</a><a href="https://starlit.rrmtools.uk/privacy/">${esc(t.policy)}</a><a href="https://starlit.rrmtools.uk/terms/">${esc(t.terms)}</a></div>
+<div class="legal-contacts"><a class="report-link" href="mailto:support.starlit@rrmtools.uk?subject=Starlit%20Plugins%20rights%20or%20security%20report">${esc(t.contact)} ↗</a><a href="${pt ? 'https://starlit.rrmtools.uk/pt/privacidade/' : 'https://starlit.rrmtools.uk/privacy/'}">${esc(t.policy)}</a><a href="${pt ? 'https://starlit.rrmtools.uk/pt/termos/' : 'https://starlit.rrmtools.uk/terms/'}">${esc(t.terms)}</a></div>
 <footer class="legal-footnote"><p>${esc(t.footer)}</p><p>${esc(t.last)}</p></footer>
 </main></body></html>`;
 }

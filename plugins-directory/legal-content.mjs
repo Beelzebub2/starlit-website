@@ -22,7 +22,7 @@ export const legalCopy = {
         'We will assess sufficiently detailed notices, seek appropriate information when necessary, and remove or correct listings where warranted. A notice does not automatically establish infringement. Applicable EU notice-and-action and user appeal obligations depend on the service’s legal classification.'
       ]},
       { title: 'Privacy and availability', body: [
-        'Browsing needs no account. The public pages do not use third-party analytics, cookies or local storage for personalization. Normal requests may be processed and logged by the hosting, security or network providers; the operator’s published privacy policy covers those operations.',
+        'Browsing needs no account. The public pages do not use third-party analytics, cookies or local storage for personalization. Normal requests may be processed and logged by the hosting, security or network providers; Refer to the operator’s published privacy policy and contact Starlit support for details specific to this directory.',
         'This directory is provided as an informational resource. Links may stop working or become unsafe. Nothing here excludes mandatory consumer or legal rights that cannot lawfully be waived.'
       ]}
     ],
@@ -50,7 +50,7 @@ export const legalCopy = {
         'Analisaremos comunicações suficientemente detalhadas, solicitaremos elementos adicionais quando necessário e retiraremos ou corrigiremos entradas quando se justificar. Uma comunicação não prova automaticamente a existência de infração. Os deveres aplicáveis de notificação e recurso dependem da classificação jurídica do serviço.'
       ]},
       { title: 'Privacidade e disponibilidade', body: [
-        'Não é necessária conta para consultar o diretório. As páginas públicas não usam análises de terceiros, cookies ou armazenamento local para personalização. Os pedidos podem ser processados e registados pelos serviços de alojamento, segurança e rede; a política de privacidade publicada pelo operador abrange esses tratamentos.',
+        'Não é necessária conta para consultar o diretório. As páginas públicas não usam análises de terceiros, cookies ou armazenamento local para personalização. Os pedidos podem ser processados e registados pelos serviços de alojamento, segurança e rede; consulta a política de privacidade publicada pelo operador e contacta o suporte do Starlit para informações específicas deste diretório.',
         'Este diretório é disponibilizado para fins informativos. As ligações podem deixar de funcionar ou tornar-se inseguras. Nenhuma destas informações afasta direitos legais ou de consumo imperativos.'
       ]}
     ],

@@ -53,6 +53,8 @@ test('actual website pages, privacy/copyright policy and strict CSP are generate
   assert.match(read('dist/pt/legal/index.html'), /direitos de autor/i);
   assert.match(read('dist/legal/index.html'), /support\.starlit@rrmtools\.uk/);
   assert.match(read('dist/pt/legal/index.html'), /support\.starlit@rrmtools\.uk/);
+  assert.match(read('dist/pt/legal/index.html'), /https:\/\/starlit\.rrmtools\.uk\/pt\/privacidade\//);
+  assert.match(read('dist/pt/legal/index.html'), /https:\/\/starlit\.rrmtools\.uk\/pt\/termos\//);
   const headers = read('dist/_headers');
   assert.match(headers,/default-src 'none'/);
   assert.match(headers,/script-src 'self'/);
