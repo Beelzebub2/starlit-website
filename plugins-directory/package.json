@@ -9,7 +9,9 @@
     "test": "node --test test/*.test.mjs",
     "check": "node --check build.mjs && node --check legal-content.mjs && node --check assets/site.js && npm run build && npm test",
     "preview": "node tools/preview.mjs",
-    "prepublish": "node tools/prepublish.mjs"
+    "prepublish": "node tools/prepublish.mjs",
+    "build:public": "node tools/build-public.mjs",
+    "verify:public": "node tools/verify-public.mjs"
   },
   "engines": {
     "node": ">=20"

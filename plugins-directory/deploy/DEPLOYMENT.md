@@ -41,3 +41,7 @@ Use Cloudflare's current [published application route guidance](https://develope
 ## Limitations
 
 The templates assume the private Docker edge service names were not renamed after the reference snapshot. Live VPS/Cloudflare state must be verified. No actual DNS, Caddy, Tunnel or VPS mutation was made by generating these files. Plugin installation stays manual; there is no Starlit app modification or deep-link handler change.
+
+## Reviewed-only public launch while rights review is pending
+
+The source includes a candidate catalog for local testing; **do not deploy it**. Run `npm run check` to verify all candidate-preview tests, then **`npm run build:public`** to build and verify a reviewed-only public site. The output contains only entries for which all review flags are true; currently that produces **zero third-party listings**, not a claim of legal clearance. Deploy only the newly produced `dist/` tree after verifying `dist/publication.json` has `mode: "reviewed-only"` and `npm run verify:public` succeeds. `npm run prepublish` must continue to fail for the unreviewed candidate source. Publishing a reviewed-only holding page does not approve the source catalog.

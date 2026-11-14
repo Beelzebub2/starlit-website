@@ -5,16 +5,24 @@ import { fileURLToPath } from 'node:url';
 import { legalCopy } from './legal-content.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
-const output = resolve(root, 'dist');
-const catalog = JSON.parse(readFileSync(join(root, 'data/catalog.json'), 'utf8'));
+const output = resolve(process.env.STARLIT_PLUGINS_BUILD_OUT ?? join(root, 'dist'));
+if (output === root || output === dirname(root)) throw Error('Unsafe output directory');
+const sourceCatalog = JSON.parse(readFileSync(join(root, 'data/catalog.json'), 'utf8'));
+const publicationMode = process.env.STARLIT_PLUGINS_PUBLICATION_MODE ?? 'candidate-preview';
+if (!['candidate-preview', 'reviewed-only'].includes(publicationMode)) throw Error('Unknown publication mode');
+const approved = r => r.status === 'source-visible' && r.publication?.reviewState === 'approved'
+  && ['publisherVerified','softwareLicenseReviewed','contentRightsReviewed','codeSecurityReviewed']
+    .every(k => r.publication?.[k] === true);
+const catalog = publicationMode === 'reviewed-only'
+  ? { ...sourceCatalog, repositories: sourceCatalog.repositories.filter(approved) } : sourceCatalog;
 const ORIGIN = 'https://starlitplugins.rrmtools.uk';
 const esc = v => String(v).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 const isValidGitHub = value => /^(?:[A-Za-z\d_.-]+)\/(?:[A-Za-z\d_.-]+)$/.test(value);
 const allowed = new Set(['source-visible', 'unavailable']);
 if (!/^\d{4}-\d{2}-\d{2}$/.test(catalog.snapshotDate)) throw Error('Snapshot date must be ISO');
-if (!Array.isArray(catalog.repositories) || !catalog.repositories.length) throw Error('Catalog is empty');
-if (new Set(catalog.repositories.map(r => r.id)).size !== catalog.repositories.length) throw Error('Duplicate IDs');
-for (const r of catalog.repositories) {
+if (!Array.isArray(sourceCatalog.repositories) || !sourceCatalog.repositories.length) throw Error('Source catalog is empty');
+if (new Set(sourceCatalog.repositories.map(r => r.id)).size !== sourceCatalog.repositories.length) throw Error('Duplicate IDs');
+for (const r of sourceCatalog.repositories) {
   if (!/^[a-z][a-z0-9-]{1,48}$/.test(r.id) || !isValidGitHub(r.repo) || !['main', 'master'].includes(r.branch) || !allowed.has(r.status)) throw Error('Invalid catalog entry: ' + r.id);
   if (!Array.isArray(r.providers) || !Array.isArray(r.languages) || !r.languages.every(x => /^[a-z]{2,3}$/.test(x))) throw Error('Invalid metadata: ' + r.id);
   if (r.status === 'unavailable' && r.providers.length) throw Error('Unverified manifest must not claim providers');
@@ -66,6 +74,34 @@ const copy = {
     full:'Lista de fornecedores', legalLink:'Informação legal completa', expandTitle:'Mostrar os fornecedores', loadingNotice:'Sem auditoria jurídica ou de segurança', version:'Versão do manifesto', countNote:'Os números representam uma cópia de metadados com data, não transmissões funcionais nem fontes de conteúdos únicas.'
   }
 };
+if (publicationMode === 'reviewed-only' && catalog.repositories.length === 0) {
+  Object.assign(copy.en, {
+    title:'Starlit Plugins — Community directory',
+    desc:'A Starlit community plugin directory where each published listing has completed review.',
+    h1:'Starlit Plugins.',
+    lead:'We are reviewing community plugin repositories before adding them here. This directory will feature only publishers and sources that have completed rights and security checks.',
+    browseSub:'No third-party repositories are published until they pass the required checks.',
+    noticeTitle:'Review comes first.',
+    notice:'Public source code and disclaimers do not establish permission to access copyrighted media. Candidate repositories remain unpublished pending review.',
+    guideLead:'When reviewed plugins are available, installation will stay manual and under your control. This website does not install or run software.',
+    guideBDesc:'Copy a published repository manifest once it has passed review.',
+    empty:'No reviewed repositories are available yet. Check back for updates.',
+    countNote:'Only reviewed and approved repository metadata is published here.'
+  });
+  Object.assign(copy.pt, {
+    title:'Starlit Plugins — Diretório da comunidade',
+    desc:'Diretório Starlit de plugins da comunidade, com análise prévia das entradas publicadas.',
+    h1:'Starlit Plugins.',
+    lead:'Estamos a analisar os repositórios de plugins da comunidade antes de os publicar. O diretório apresentará apenas autores e fontes que tenham concluído as verificações legais e de segurança.',
+    browseSub:'Nenhum repositório de terceiros será publicado antes de concluir as verificações necessárias.',
+    noticeTitle:'Primeiro, a verificação.',
+    notice:'O código público e as declarações de responsabilidade não concedem direitos de acesso a conteúdos protegidos. Os candidatos não são publicados antes da análise.',
+    guideLead:'Quando existirem plugins aprovados, a instalação continuará a ser manual e controlada por ti. Este site não instala nem executa programas.',
+    guideBDesc:'Copia o manifesto de um repositório publicado depois da respetiva verificação.',
+    empty:'Ainda não há repositórios aprovados. Volta a consultar mais tarde.',
+    countNote:'Aqui são publicados apenas metadados de repositórios analisados e aprovados.'
+  });
+}
 const make = (language) => {
   const t = copy[language], pt = language === 'pt';
   const url = pt ? '/pt/' : '/';
@@ -141,11 +177,12 @@ mkdirSync(join(output,'pt','legal'), { recursive: true });
 writeFileSync(join(output,'legal','index.html'), makeLegal('en'));
 writeFileSync(join(output,'pt','legal','index.html'), makeLegal('pt'));
 for (const file of ['site.css','site.js','starlit-mark.svg']) cpSync(join(root,'assets',file), join(output,'assets',file));
-cpSync(join(root,'data','catalog.json'), join(output,'catalog.json'));
+writeFileSync(join(output,'catalog.json'), JSON.stringify(catalog)+'\n');
+writeFileSync(join(output,'publication.json'), JSON.stringify({mode:publicationMode,publishedRepositories:catalog.repositories.length})+'\n');
 const possibleFonts = join(root, '..', 'assets', 'fonts');
 if(existsSync(possibleFonts)) cpSync(possibleFonts, join(output,'assets','fonts'), {recursive:true});
 writeFileSync(join(output,'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: '+ORIGIN+'/sitemap.xml\n');
 writeFileSync(join(output,'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>'+ORIGIN+'/</loc></url><url><loc>'+ORIGIN+'/pt/</loc></url><url><loc>'+ORIGIN+'/legal/</loc></url><url><loc>'+ORIGIN+'/pt/legal/</loc></url></urlset>');
 const csp = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests";
 writeFileSync(join(output,'_headers'), '/*\n  Content-Security-Policy: '+csp+'\n  Referrer-Policy: no-referrer\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()\n  Cache-Control: public, max-age=300\n');
-console.log('Built Starlit Plugins: '+catalog.repositories.length+' publisher candidates, '+count+' checked manifests, '+providers+' indexed provider entries.');
+console.log('Built Starlit Plugins ('+publicationMode+'): '+catalog.repositories.length+' publisher candidates, '+count+' checked manifests, '+providers+' indexed provider entries.');

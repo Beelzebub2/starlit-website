@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { resolve, dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = path => readFileSync(join(root, path), 'utf8');
 const catalog = JSON.parse(read('data/catalog.json'));
@@ -94,4 +95,18 @@ test('public deploy gate rejects unreviewed candidate manifests by default', () 
   assert.match(out.stderr, /Production publication refused/);
   assert.match(out.stderr, /not approved for publication/);
   assert.match(out.stderr, /contentRightsReviewed not verified/);
+});
+
+test('reviewed-only public build does not leak unapproved publisher URLs', () => {
+ const tmp = mkdtempSync(join(tmpdir(),'starlit-plugins-public-'));
+ try {
+  const run=spawnSync(process.execPath,[join(root,'tools/build-public.mjs')],{cwd:root,env:{...process.env,STARLIT_PLUGINS_BUILD_OUT:tmp},encoding:'utf8'});
+  assert.equal(run.status,0,run.stderr);
+  const out = p=>readFileSync(join(tmp,p),'utf8');
+  assert.deepEqual(JSON.parse(out('catalog.json')).repositories,[]);
+  assert.equal(JSON.parse(out('publication.json')).mode,'reviewed-only');
+  assert.match(out('index.html'),/No reviewed repositories are available yet/);
+  assert.match(out('pt/index.html'),/Ainda não há repositórios aprovados/);
+  for (const r of catalog.repositories) for(const p of ['index.html','pt/index.html','catalog.json']) assert.ok(!out(p).includes(r.repo),'Unreviewed repo leaked: '+r.id);
+ } finally { rmSync(tmp,{recursive:true,force:true}); }
 });
