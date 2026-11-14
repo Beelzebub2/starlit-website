@@ -18,6 +18,8 @@ The metadata contains 12 community publisher/repository **candidates**. Eight or
 
 **Legal publication gate:** The directory has *not* been cleared to publicly recommend every listed third-party media scraper. Source-code availability and copyright disclaimers are not sufficient to authorize a plugin that accesses unauthorized copyrighted media. Review each proposed listing's underlying service/content rights, author and code license, security and applicable storefront/service policies, and arrange a practical copyright/security notice and removal process before publicly publishing this catalog. A publicly deployed directory may create copyright liability even if it does not host videos. Have competent Portuguese IP counsel confirm the exact publication policy and listings. This project intentionally does **not** auto-import newly discovered providers.
 
+A separate fail-closed `npm run prepublish` command verifies that each catalog entry has a documented publisher, license, content-rights and security approval flag. It **currently fails intentionally** because all entries remain research candidates. Never skip it during production release, and never set review flags without real evidence.
+
 Do not mirror or copy [nuvioplugins.com](https://nuvioplugins.com)'s assets, screenshots, database or prose; the repo and manifest metadata here was taken from each original GitHub publisher source. Public legal notices are originally written, **draft** until reviewed by counsel.
 
 ## Run locally

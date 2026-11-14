@@ -8,7 +8,10 @@
     "build": "node build.mjs",
     "test": "node --test test/*.test.mjs",
     "check": "node --check build.mjs && node --check legal-content.mjs && node --check assets/site.js && npm run build && npm test",
-    "preview": "node tools/preview.mjs"
+    "preview": "node tools/preview.mjs",
+    "prepublish": "node tools/prepublish.mjs"
   },
-  "engines": {"node": ">=20"}
+  "engines": {
+    "node": ">=20"
+  }
 }

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { resolve, dirname, join } from 'node:path';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = path => readFileSync(join(root, path), 'utf8');
@@ -82,4 +83,13 @@ test('snapshot stays explicit and never implies rights approval', () => {
   assert.match(en,/204/);
   assert.match(read('dist/pt/index.html'), /204/);
   assert.match(read('dist/sitemap.xml'), /https:\/\/starlitplugins\.rrmtools\.uk\/pt\/legal\//);
+});
+
+
+test('public deploy gate rejects unreviewed candidate manifests by default', () => {
+  const out = spawnSync(process.execPath, [join(root, 'tools/prepublish.mjs')], {encoding:'utf8'});
+  assert.equal(out.status, 2);
+  assert.match(out.stderr, /Production publication refused/);
+  assert.match(out.stderr, /not approved for publication/);
+  assert.match(out.stderr, /contentRightsReviewed not verified/);
 });

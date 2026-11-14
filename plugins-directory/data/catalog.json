@@ -85,7 +85,14 @@
         "Kisskh",
         "Reanime",
         "Mapple"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "yoru",
@@ -133,7 +140,14 @@
         "HiAnime",
         "Kurage",
         "AniZone"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "michat88",
@@ -178,7 +192,14 @@
         "Xprime",
         "Yflix",
         "Adimoviebox"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "spidey",
@@ -205,7 +226,14 @@
         "Animelok",
         "XDmovies",
         "DramaFull"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "gowaru",
@@ -257,7 +285,14 @@
         "Aniverse",
         "AnimeVOST.fr",
         "Webflix"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "mooncrown",
@@ -290,7 +325,14 @@
         "AltiYuzAltmisAltiFilm",
         "CinemaCity",
         "Vidlink"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "saimuelbr",
@@ -308,7 +350,14 @@
         "MegaEmbed",
         "Peachify",
         "RedeFlix"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "kenneth",
@@ -333,7 +382,14 @@
         "Detodopeliculas",
         "LaMovie",
         "HackStore"
-      ]
+      ],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "phisher",
@@ -346,7 +402,14 @@
         "en"
       ],
       "status": "unavailable",
-      "providers": []
+      "providers": [],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "nvmindl",
@@ -359,7 +422,14 @@
         "ar"
       ],
       "status": "unavailable",
-      "providers": []
+      "providers": [],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "easystreams",
@@ -372,7 +442,14 @@
         "it"
       ],
       "status": "unavailable",
-      "providers": []
+      "providers": [],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     },
     {
       "id": "iamtoxiic",
@@ -385,7 +462,14 @@
         "fr"
       ],
       "status": "unavailable",
-      "providers": []
+      "providers": [],
+      "publication": {
+        "reviewState": "candidate",
+        "publisherVerified": false,
+        "softwareLicenseReviewed": false,
+        "contentRightsReviewed": false,
+        "codeSecurityReviewed": false
+      }
     }
   ]
 }

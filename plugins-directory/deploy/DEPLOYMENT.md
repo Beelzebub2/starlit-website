@@ -10,7 +10,7 @@ The verified Starlit website deployment uses `starlit-site-web:8081` on private 
 
 1. Obtain copyright/source licensing and safety review per indexed manifest/provider, with a real notice-and-removal process and qualified legal review under applicable EU/Portuguese law. Do not claim that “no videos hosted” alone makes the directory lawful. Replace or remove unapproved catalog candidates.
 2. Confirm the real Cloudflare zone, tunnel identity, access rights, WAF/rate limiting, and the existing private edge/container network. Inspect remote deployment state and unrelated services first; never force-reset/overwrite.
-3. Build and run all tests with a fresh reviewed source; inspect actual browser layouts at desktop/phone sizes. Hash and record the intended release.
+3. Build and run all tests with a fresh reviewed source; **`npm run prepublish` must pass without bypasses** after legal/source/security review of the selected entries. It intentionally fails on the current unapproved candidate snapshot. Inspect actual browser layouts at desktop/phone sizes. Hash and record the intended release.
 
 ## Origin setup (after gates)
 

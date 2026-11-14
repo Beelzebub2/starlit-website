@@ -18,6 +18,7 @@ for (const r of catalog.repositories) {
   if (!/^[a-z][a-z0-9-]{1,48}$/.test(r.id) || !isValidGitHub(r.repo) || !['main', 'master'].includes(r.branch) || !allowed.has(r.status)) throw Error('Invalid catalog entry: ' + r.id);
   if (!Array.isArray(r.providers) || !Array.isArray(r.languages) || !r.languages.every(x => /^[a-z]{2,3}$/.test(x))) throw Error('Invalid metadata: ' + r.id);
   if (r.status === 'unavailable' && r.providers.length) throw Error('Unverified manifest must not claim providers');
+  if (!r.publication || !['candidate','approved','suspended'].includes(r.publication.reviewState)) throw Error('Missing publication review state: '+r.id);
 }
 const count = catalog.repositories.filter(r => r.status === 'source-visible').length;
 const providers = catalog.repositories.reduce((n, r) => n + r.providers.length, 0);
