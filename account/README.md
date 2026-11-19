@@ -26,7 +26,7 @@ in live builds and requires service and device acceptance checks before rollout.
 | Overview | Server-side counts for the chosen profile, plus when it last changed | `account_overview` |
 | Profiles | Create, edit or delete secondary profiles (1–6). Set, change or remove a PIN, with lockout feedback | `account_profiles`, `account_save_profile`, `account_delete_profile`, `account_change_pin`, `account_remove_pin`, `verify_profile_pin` |
 | Addons, plugins | Turn items on or off, rename, reorder (keyboard buttons), add by address and remove. Every change is staged and saved together | `account_extensions`, `account_save_extensions` |
-| Library, continue watching, history | Lists paged by keyset ("Load more"). Change a resume point, or remove an entry | `account_items`, `account_save_item`, `account_delete_item` |
+| Library (shelves: Library, Continue watching, History) | Posters (the synced artwork, or a stand-in in an app-icon colourway) or a list; search that loads the whole shelf first; type filter; sort; a details dialog. Lists page by keyset ("Load more"). Change a resume point, or remove an entry | `account_items`, `account_save_item`, `account_delete_item` |
 | Collections | List, reorder, duplicate, remove, import and export. A full-page editor with templates, folders, sources, artwork and a review step | `account_blob` / `account_save_blob` (`collections`) |
 | Synced settings | Edit leaf values of the profile and home-row blobs. Unknown keys are kept, device-only values are read-only, and keys and tokens are hidden | `account_blob` / `account_save_blob` |
 | Media servers | Name and address of Jellyfin and Emby servers only | `account_media_servers`, `account_save_media_server`, `account_delete_media_server` |

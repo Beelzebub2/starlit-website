@@ -51,7 +51,8 @@ test('library: keyset "Load more" keeps focus in place and ends', async ({ page 
   await expect(page.getByText('Showing 25 of 62')).toBeVisible();
   await page.getByRole('button', { name: 'Load more' }).click();
   await expect(page.locator('.item-row')).toHaveCount(50);
-  await expect(page.locator('.item-row').nth(25)).toBeFocused();
+  // Focus lands on the first newly loaded title's poster button.
+  await expect(page.locator('.item-row').nth(25).locator('.item-open')).toBeFocused();
   await page.getByRole('button', { name: 'Load more' }).click();
   await expect(page.locator('.item-row')).toHaveCount(62);
   await expect(page.getByRole('button', { name: 'Load more' })).toBeHidden();

@@ -468,9 +468,10 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
 
 /* ------------------------------------------------------------ night sky */
 
-/* One fixed, viewport-sized sky behind every page. Three star layers drift
+/* One fixed, viewport-sized sky behind every page. Three star layers; two drift
    upwards at different speeds (a seamless loop: each moves by exactly one
-   tile), so the GPU only moves three textures; nothing repaints. The stars
+   tile) while the faintest layer stays put, so the compositor only moves two
+   textures and nothing repaints. The stars
    are background gradients, not elements. Reduced motion keeps them still. */
 .sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; }
 .sky-glow { position: absolute; border-radius: 50%; }
@@ -497,13 +498,11 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
 }
 .sky-shoot { position: absolute; top: 16%; left: 66%; width: 180px; height: 1px; background: linear-gradient(90deg, rgba(69, 214, 235, 0), #bff3fa); opacity: 0; transform: rotate(-24deg); }
 @media (prefers-reduced-motion: no-preference) {
-  .sky-l { will-change: transform; }
-  .sky-l1 { animation: drift-256 160s linear infinite; }
+  .sky-l2, .sky-l3 { will-change: transform; }
   .sky-l2 { animation: drift-384 115s linear infinite; }
   .sky-l3 { animation: drift-512 85s linear infinite, twinkle 5s ease-in-out infinite alternate; }
   .sky-shoot { animation: shoot 14s ease-out 4s infinite; }
 }
-@keyframes drift-256 { to { transform: translate3d(0, -256px, 0); } }
 @keyframes drift-384 { to { transform: translate3d(0, -384px, 0); } }
 @keyframes drift-512 { to { transform: translate3d(0, -512px, 0); } }
 @keyframes twinkle { from { opacity: .5; } to { opacity: 1; } }

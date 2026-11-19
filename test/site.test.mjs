@@ -115,10 +115,10 @@ test('The home page animates with CSS only and honours reduced motion', () => {
   // Every keyframe animation of the sky, hero and constellations sits behind
   // a reduced-motion check, and the stars only move with transforms.
   const motionFree = css.replace(/@media \(prefers-reduced-motion: ?no-preference\)\{(?:[^{}]|\{[^{}]*\})*\}/g, '');
-  for (const cls of ['.sky-l1', '.hm-line', '.hm-mark', '.cst-line', '.get-orbit', '.hero-rise']) {
+  for (const cls of ['.sky-l2', '.sky-l3', '.hm-line', '.hm-mark', '.cst-line', '.get-orbit', '.hero-rise']) {
     assert.doesNotMatch(motionFree, new RegExp(cls.replace('.', '\.') + '\{[^}]*animation:'), cls + ' animates without a reduced-motion guard');
   }
-  for (const frames of ['drift-256', 'drift-384', 'drift-512']) {
+  for (const frames of ['drift-384', 'drift-512']) {
     assert.match(css, new RegExp('@keyframes ' + frames + '\{to\{transform:translate3d'), frames);
   }
 });

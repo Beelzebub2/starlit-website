@@ -28,8 +28,8 @@ import notFound from './views/not-found.js';
 const ROUTES = [
   { path: '/', view: overview, nav: 'overview' },
   { path: '/library', view: library, nav: 'library' },
-  { path: '/progress', view: progress, nav: 'progress' },
-  { path: '/history', view: watchedHistory, nav: 'history' },
+  { path: '/progress', view: progress, nav: 'library' },
+  { path: '/history', view: watchedHistory, nav: 'library' },
   { path: '/collections', view: collections, nav: 'collections' },
   { path: '/collections/new', view: collectionEditor, nav: 'collections' },
   { path: '/collections/edit/:id', view: collectionEditor, nav: 'collections' },
@@ -42,8 +42,7 @@ const ROUTES = [
   { path: '/tv', view: tvApproval, nav: 'security', account: true },
 ];
 const NAV = {
-  profile: [['overview', '/', 'home'], ['library', '/library', 'library'], ['progress', '/progress', 'progress'], ['history', '/history', 'history'],
-    ['collections', '/collections', 'collections'], ['addons', '/addons', 'addons'], ['plugins', '/plugins', 'plugins'],
+  profile: [['overview', '/', 'home'], ['library', '/library', 'library'], ['collections', '/collections', 'collections'], ['addons', '/addons', 'addons'], ['plugins', '/plugins', 'plugins'],
     ['settings', '/settings', 'settings'], ['servers', '/servers', 'servers']],
   account: [['profiles', '/profiles', 'profiles'], ['security', '/security', 'security']],
 };

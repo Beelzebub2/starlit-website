@@ -32,12 +32,19 @@ site stays live until that external configuration is complete.
 
 | English | Portuguese (Portugal) | Contents |
 | --- | --- | --- |
-| `/` | `/pt/` | Home: the PC and phone together, feature status, highlights |
-| `/remote/` | `/pt/comando/` | PC remote: pairing, what the phone can do, Wi-Fi and Bluetooth, firewall, security |
-| `/anime/` | `/pt/anime/` | Airing Now, the MyAnimeList tab, rewatches and tracking |
-| `/watch/` | `/pt/ver/` | The player, Google Cast, sources, offline downloads and storage |
-| `/sync/` | `/pt/conta/` | What syncs, self-service registration, sign-in methods, diagnostics |
-| `/download/` | `/pt/transferir/` | Downloads, install steps, what's new, checksums and FAQ |
+| `/` | `/pt/` | One scroll page: the animated Starlit mark, the app, five feature "constellations" (PC remote, Airing Now, player, offline, account sync), platform status, shipping log and downloads |
+| `/download/` | `/pt/transferir/` | Downloads, TV Installer, install steps, what's new, checksums and FAQ |
+
+The old feature pages (`/remote/`, `/anime/`, `/watch/`, `/sync/` and their
+Portuguese addresses) redirect to their section of the home page
+(`LEGACY_REDIRECTS` in `constants.mjs`, mirrored in `_redirects` and
+`deploy/vps/Caddyfile`).
+
+**Motion.** The night sky behind every page, the logo assembling itself in the
+hero and the constellations drawing in as you scroll are all CSS. Only
+`transform`, `opacity` and SVG stroke offsets animate; everything sits behind
+`prefers-reduced-motion: no-preference`, and browsers without scroll-driven
+animation simply show the finished drawings.
 
 Plus the six policy pages (privacy, terms, cookies, delete account, contact,
 legal operator) in both languages, and `404.html` / `pt/404.html`: Cloudflare
