@@ -85,6 +85,24 @@
             redir @oldEnglish / 301
             @oldEnglishPath path_regexp enredirect ^/en/(.*)$
             redir @oldEnglishPath /{re.enredirect.1} 301
+            # The feature pages became sections of the one-page home
+            # (LEGACY_REDIRECTS in constants.mjs; tests keep both in step).
+            redir /remote /#pc-remote 301
+            redir /remote/ /#pc-remote 301
+            redir /anime /#airing-now 301
+            redir /anime/ /#airing-now 301
+            redir /watch /#player 301
+            redir /watch/ /#player 301
+            redir /sync /#account-sync 301
+            redir /sync/ /#account-sync 301
+            redir /pt/comando /pt/#comando-do-pc 301
+            redir /pt/comando/ /pt/#comando-do-pc 301
+            redir /pt/anime /pt/#airing-now 301
+            redir /pt/anime/ /pt/#airing-now 301
+            redir /pt/ver /pt/#leitor 301
+            redir /pt/ver/ /pt/#leitor 301
+            redir /pt/conta /pt/#sincronizacao 301
+            redir /pt/conta/ /pt/#sincronizacao 301
             import public_headers
             @assets path /assets/*
             header @assets Cache-Control "public, max-age=86400, no-transform"

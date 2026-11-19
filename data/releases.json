@@ -2,133 +2,133 @@
   "source": "https://github.com/Beelzebub2/starlit/releases",
   "releases": [
     {
-      "version": "1.23.0",
-      "date": "2026-11-13",
-      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.23.0",
-      "headline": "Interface and navigation",
-      "summary": "Interface and navigation · Television experience · Library, subtitles and reliability · Verification and limitations",
-      "brief": "Refreshed Starlit screens. Samsung Tizen UI preview. Keep the existing library after connecting tracking accounts.",
+      "version": "1.32.0",
+      "date": "2026-11-19",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.32.0",
+      "headline": "Audio and subtitle menus",
+      "summary": "Audio and subtitle menus · Compatibility and distribution",
+      "brief": "One panel for audio and subtitles. Readable track names.",
       "highlights": [
         {
-          "title": "Refreshed Starlit screens",
-          "text": "More consistent controls, spacing and visual hierarchy across Downloads, Library, collections, Sources, Settings, subtitle styling and watch-order screens."
+          "title": "One panel for audio and subtitles",
+          "text": "The desktop player, phones, tablets, iOS source builds and Android TV now open a single Audio & subtitles panel from either player button."
         },
         {
-          "title": "Samsung Tizen UI preview",
-          "text": "Redesigned TV navigation, search, sign-in, sources and display settings with visible remote-control focus, an on-screen keyboard, screen scaling and overscan adjustments."
-        },
-        {
-          "title": "Keep the existing library after connecting tracking accounts",
-          "text": "Unset or invalid tracking-source preferences continue to use the local library rather than silently switching to an external provider."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.23.0.exe",
-        "android": "Starlit-Android-arm64-v8a-1.23.0.apk"
-      }
-    },
-    {
-      "version": "1.22.1",
-      "date": "2026-11-12",
-      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.22.1",
-      "headline": "Release packaging",
-      "summary": "Release packaging · Playback and audio · Accounts and platforms · Downloads, updates and library · Verification and limitations",
-      "brief": "Verified Windows native runtimes. Play privately. Trakt public-client OAuth.",
-      "highlights": [
-        {
-          "title": "Verified Windows native runtimes",
-          "text": "Fetch the exact bundled libmpv and torrent runtime binaries from the release repository rather than depending on a separate repository's Git LFS bandwidth allowance."
-        },
-        {
-          "title": "Play privately",
-          "text": "Start a single playback session without watch history, progress, account synchronization, or Trakt/Simkl scrobbles."
-        },
-        {
-          "title": "Trakt public-client OAuth",
-          "text": "Use device authorization and PKCE without a bundled client secret."
-        }
-      ],
-      "files": {
-        "windows": "Starlit-Windows-x64-1.22.1.exe",
-        "android": "Starlit-Android-arm64-v8a-1.22.1.apk"
-      }
-    },
-    {
-      "version": "1.20.1",
-      "date": "2026-11-11",
-      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.20.1",
-      "headline": "Torrent playback and downloads",
-      "summary": "Torrent playback and downloads · Verification and limitations",
-      "brief": "Faster desktop torrent startup. More reliable tracker connections.",
-      "highlights": [
-        {
-          "title": "Faster desktop torrent startup",
-          "text": "Apply the final cache, connection and upload settings before starting the bundled engine, avoiding redundant reconfiguration."
-        },
-        {
-          "title": "The P2P changes passed all 10 pull-request checks, including Windows P2P integration, Android Full, Play Store and TV builds/emulator, iOS Kotlin compilation, storage safety and public source…",
+          "title": "New interface strings have entries in every supported Compose and TV catalog; native-speaker review remains outstanding.",
           "text": ""
         },
         {
-          "title": "More reliable tracker connections",
-          "text": "Streaming and offline downloads use bounded UDP, HTTP and HTTPS fallback trackers alongside provider trackers without waiting on an unbounded remote tracker-list request."
+          "title": "Readable track names",
+          "text": "Long release titles such as \"Japanese / Opus / 2.0 / 48 kHz / 192 kbps / JPBD\" now appear as the language followed by a short line of stream facts: codec, channels, bitrate and edition."
         }
       ],
       "files": {
-        "windows": "Starlit-Windows-x64-1.20.1.exe",
-        "android": "Starlit-Android-arm64-v8a-1.20.1.apk"
+        "windows": "Starlit-Windows-x64-1.32.0.exe",
+        "android": "Starlit-Android-arm64-v8a-1.32.0.apk"
       }
     },
     {
-      "version": "1.20.0",
-      "date": "2026-11-11",
-      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.20.0",
-      "headline": "Playback and desktop reliability",
-      "summary": "Playback and desktop reliability · Airing Now · Home, browsing and playback controls · Windows screen-share audio (experimental) · Download reliability · Verification and limitations",
-      "brief": "Reliable completion tracking. Find hidden titles quickly. Continue Watching organization.",
+      "version": "1.31.0",
+      "date": "2026-11-19",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.31.0",
+      "headline": "Lists and tracking integrations",
+      "summary": "Lists and tracking integrations · Playback and Samsung TV reliability · Sign-in and profile PIN screens · Compatibility and distribution",
+      "brief": "Unified desktop Lists tab. Recover skip markers. Refreshed sign-in screens.",
       "highlights": [
         {
-          "title": "Reliable completion tracking",
-          "text": "Completed playback and external-player endings now report 100% progress to tracking integrations; a later partial stop event cannot overwrite a completed result."
+          "title": "Unified desktop Lists tab",
+          "text": "Manage supported statuses, ratings and watched-episode progress across connected MyAnimeList, Simkl, Trakt and MDBList accounts."
         },
         {
-          "title": "Find hidden titles quickly",
-          "text": "Search titles hidden from Recently released and browse them alphabetically on Android and desktop."
+          "title": "Recover skip markers",
+          "text": "Combine chapters from the active media file with available intro, recap and credits timing sources on desktop and compatible TVs, preserving known post-credits scenes."
         },
         {
-          "title": "Continue Watching organization",
-          "text": "Optionally group Continue Watching shelves by content type, with per-profile preferences and safeguards against stale resume updates."
+          "title": "Refreshed sign-in screens",
+          "text": "Update phone, desktop, Android TV, iOS source and Samsung/LG TV layouts with clearer sign-in controls and improved focus and keyboard navigation."
         }
       ],
       "files": {
-        "windows": "Starlit-Windows-x64-1.20.0.exe",
-        "android": "Starlit-Android-arm64-v8a-1.20.0.apk"
+        "windows": "Starlit-Windows-x64-1.31.0.exe",
+        "android": "Starlit-Android-arm64-v8a-1.31.0.apk"
       }
     },
     {
-      "version": "1.19.0",
-      "date": "2026-11-10",
-      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.19.0",
-      "headline": "Linux desktop",
-      "summary": "Linux desktop · Compatibility and limitations",
-      "brief": "Starlit for Linux x86_64. Native desktop integration.",
+      "version": "1.30.7",
+      "date": "2026-11-18",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.30.7",
+      "headline": "MyAnimeList and playback improvements",
+      "summary": "MyAnimeList and playback improvements · Improvements included since the last published release · Compatibility and distribution",
+      "brief": "Completed rewatch counts on desktop. More accurate desktop playback.",
       "highlights": [
         {
-          "title": "Starlit for Linux x86_64",
-          "text": "Download a Debian/Ubuntu .deb, Fedora/RPM .rpm, portable .AppImage or sandboxed .flatpak from the same release page as Windows, Android phones and Android TV."
+          "title": "Completed rewatch counts on desktop",
+          "text": "Synchronize MyAnimeList's completed-rewatch total, show it in anime details and MAL list entries, and provide an explicit Finish rewatch action and count correction."
         },
         {
-          "title": "Linux installers currently target x86_64 and are distributed as GitHub Release downloads, not through configured APT/DNF repositories or Flathub.",
+          "title": "More accurate desktop playback",
+          "text": "Preserve resume positions until confirmed and improve intro-skip seeking."
+        },
+        {
+          "title": "Existing accounts, profiles, playback history, downloads, device pairings and local preferences are retained; no migration or backend deployment is required.",
+          "text": ""
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.30.7.exe",
+        "android": "Starlit-Android-arm64-v8a-1.30.7.apk"
+      }
+    },
+    {
+      "version": "1.30.5",
+      "date": "2026-11-16",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.30.5",
+      "headline": "Profile PIN protection and avatar choices",
+      "summary": "Profile PIN protection and avatar choices · TV installer discovery · Compatibility and release scope",
+      "brief": "Profile security restored. Scan only the chosen platform.",
+      "highlights": [
+        {
+          "title": "Profile security restored",
+          "text": "Existing signed-in profiles now show the PIN lock controls in Edit Profile."
+        },
+        {
+          "title": "Scan only the chosen platform",
+          "text": "Samsung and LG scans now respect the selected television type instead of scanning both brands together."
+        },
+        {
+          "title": "Existing profiles, PINs, libraries, account sessions and custom avatar URLs are preserved; no data migration or backend deployment is required for this client update.",
+          "text": ""
+        }
+      ],
+      "files": {
+        "windows": "Starlit-Windows-x64-1.30.5.exe",
+        "android": "Starlit-Android-arm64-v8a-1.30.5.apk"
+      }
+    },
+    {
+      "version": "1.30.4",
+      "date": "2026-11-16",
+      "url": "https://github.com/Beelzebub2/starlit/releases/tag/v1.30.4",
+      "headline": "Windows installer experience",
+      "summary": "Windows installer experience · Compatibility and release scope",
+      "brief": "Clearer installation choices. Guided updates and removal.",
+      "highlights": [
+        {
+          "title": "Clearer installation choices",
+          "text": "The Windows setup screen now keeps the destination, Start menu and desktop shortcuts, and optional Starlit TV Installer developer preview together before installation begins."
+        },
+        {
+          "title": "The redesign uses the existing Windows setup engine and command interface, without changing install locations, account data, add-ons, download logic, TV pairing or automatic update behavior.",
           "text": ""
         },
         {
-          "title": "Native desktop integration",
-          "text": "Linux packages use the Starlit launcher and desktop entry, with a separate Flatpak application ID to avoid replacing a Nuvio installation."
+          "title": "Guided updates and removal",
+          "text": "Update review shows the installed and target versions and offers a direct way to change installation options."
         }
       ],
       "files": {
-        "windows": "Starlit-Windows-x64-1.19.0.exe",
-        "android": "Starlit-Android-arm64-v8a-1.19.0.apk"
+        "windows": "Starlit-Windows-x64-1.30.4.exe",
+        "android": "Starlit-Android-arm64-v8a-1.30.4.apk"
       }
     }
   ]

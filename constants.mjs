@@ -42,18 +42,24 @@ export const PUBLIC_CSP = "default-src 'none'; style-src 'self'; img-src 'self';
   "frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests";
 
 // Product pages first, then the policy pages (whose wording is a legal draft).
-export const PRODUCT = ['home', 'remote', 'anime', 'watch', 'sync', 'download'];
+export const PRODUCT = ['home', 'download'];
 export const DOCS = ['privacy', 'terms', 'cookies', 'delete', 'contact', 'legal'];
 export const KEYS = [...PRODUCT, ...DOCS];
 
 export const routes = {
-  en: { home:'/', remote:'/remote/', anime:'/anime/', watch:'/watch/', sync:'/sync/',
-    download:'/download/', privacy:'/privacy/', terms:'/terms/', cookies:'/cookies/',
+  en: { home:'/', download:'/download/', privacy:'/privacy/', terms:'/terms/', cookies:'/cookies/',
     delete:'/delete-account/', contact:'/contact/', legal:'/legal/' },
-  pt: { home:'/pt/', remote:'/pt/comando/', anime:'/pt/anime/', watch:'/pt/ver/', sync:'/pt/conta/',
-    download:'/pt/transferir/', privacy:'/pt/privacidade/', terms:'/pt/termos/',
+  pt: { home:'/pt/', download:'/pt/transferir/', privacy:'/pt/privacidade/', terms:'/pt/termos/',
     cookies:'/pt/cookies/', delete:'/pt/apagar-conta/',
     contact:'/pt/contacto/', legal:'/pt/informacoes-legais/' },
 };
+
+// The four feature pages became sections of the one-page home in the
+// November 2026 redesign. Old links land on the matching section.
+export const LEGACY_REDIRECTS = [
+  ['/remote/', '/#pc-remote'], ['/anime/', '/#airing-now'], ['/watch/', '/#player'], ['/sync/', '/#account-sync'],
+  ['/pt/comando/', '/pt/#comando-do-pc'], ['/pt/anime/', '/pt/#airing-now'], ['/pt/ver/', '/pt/#leitor'],
+  ['/pt/conta/', '/pt/#sincronizacao'],
+];
 
 export const mailto = subject => 'mailto:' + CONTACT + '?subject=' + encodeURIComponent(subject);

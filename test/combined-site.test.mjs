@@ -22,7 +22,7 @@ test('one immutable release contains the real marketing site and a nested read-o
       },
     });
     assert.equal(build.status, 0, build.stderr);
-    for (const file of ['index.html', 'pt/index.html', 'remote/index.html', 'download/index.html',
+    for (const file of ['index.html', 'pt/index.html', 'download/index.html',
       'privacy/index.html', 'assets/site.css', 'account/index.html', 'account/config.js',
       'account/app.js', 'account/styles/account.css', 'account/fonts/geist-latin.woff2']) {
       assert.ok(existsSync(join(out, file)), 'Missing combined file: ' + file);

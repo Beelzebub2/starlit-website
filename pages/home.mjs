@@ -1,9 +1,12 @@
-// Homepage. Feature claims follow the Starlit release notes; re-check them
-// after each release. The version, "New" pill and shipping log come from the
-// GitHub releases (data/releases.json) and site.js keeps them current.
+// Homepage: one scroll page that shows the whole product. Feature claims
+// follow the Starlit README and release notes; re-check them after each
+// release. The version, "New" pill and shipping log come from the GitHub
+// releases (data/releases.json) and site.js keeps them current.
+//
+// Everything that moves is CSS (assets/site.css): the public CSP forbids
+// inline styles and scripts, and the page must work with no JavaScript.
 import { VERSION, LATEST_RELEASE, RELEASE_DATA } from '../constants.mjs';
-import { icon, eyebrow, pill, art, chips, markImg, appWindow, phone, appTabs, segments, qrCode,
-  esc, inEnglish, rel } from '../ui.mjs';
+import { icon, pill, markImg, esc, inEnglish, rel } from '../ui.mjs';
 
 const copy = {
   en: {
@@ -12,74 +15,57 @@ const copy = {
       description: 'Starlit is a free, open-source anime and TV app for Windows, Linux x86_64 and Android, with a phone remote, Airing Now schedules, offline downloads and optional account sync.',
     },
     news: 'New',
-    title: 'Watch on your PC.<br><span class="hl">Steer from your phone.</span>',
-    lede: 'Starlit is an anime and TV app for Windows, Linux and Android. Stream from your own add-ons in a player built on mpv, follow every episode in Airing Now, download whole seasons for offline, and keep one library in sync. Then pick up your phone and run the PC from the couch.',
-    ctaWin: 'Download for Windows', ctaAndroid: 'Get the Android APK',
+    title: 'Every show you follow, <span class="hl">in one sky.</span>',
+    lede: 'Starlit is a free anime and TV app for Windows, Linux and Android. Stream from your own add-ons in a player built on mpv, follow every episode in Airing Now, download whole seasons, keep one library in sync, and run the PC from your phone.',
+    ctaWin: 'Download for Windows', ctaAll: 'All platforms',
+    metaLine: `v${rel('version', VERSION)} · Windows 10 &amp; 11 · Linux x86_64 · Android 7.0+ · Free and open source, GPL-3.0`,
     tvLink: 'Samsung and LG TVs: meet the TV Installer (in development)',
-    metaLine: `v${rel('version', VERSION)} · Windows 10 &amp; 11 (64-bit) · Linux x86_64 · Android 7.0+ · Free and open source, GPL-3.0`,
-    log: { label: 'Recent releases', title: 'Shipping log', all: 'All notes' },
+    logo: 'The Starlit logo: a play button holding a four-point star',
     app: {
-      label: 'Illustration of the Starlit desktop app showing the Home screen, with Continue watching and Airing Now rows',
-      tabs: ['Home', 'Discover', 'Library', 'MyAnimeList'],
-      kicker: 'SERIES · SCI-FI · 12 EPISODES',
-      blurb: 'A salvage crew drifts past the last lit station in the system, and finds it still answering calls.',
-      resume: 'Resume S1 E7', later: 'Watch later', cont: 'Continue watching', all: 'See all',
-      cards: [['b', 64, 'Paper Lanterns', 'S2 E3 · 9 min left'], ['c', 22, 'Saltwind Academy', 'S1 E5 · 18 min left'],
-        ['d', 81, 'Ironbloom', 'S1 E11 · 4 min left'], ['f', 40, 'Lantern Moth', 'Movie · 52 min left']],
-      airing: 'Airing Now', today: 'Today', episode: 'Episode',
+      label: 'Illustration of the Starlit desktop app: the Home screen with a featured show, Continue watching and Airing Now. The shows are made up.',
+      airing: 'Airing now · Episode 7', show: 'Hollow Orbit', when: 'Sub in 2 hours · Dub on Friday',
+      resume: 'Resume S1 E7', cont: 'Continue watching', today: 'Airing today',
+      cards: [['p1', 64, 'Paper Lanterns'], ['p2', 22, 'Saltwind Academy'], ['p3', 81, 'Ironbloom'], ['p4', 40, 'Lantern Moth'], ['p5', 0, 'Velvet Kingdom']],
+      times: [['18:30', 'Neon Ferry'], ['20:00', 'Hollow Orbit'], ['22:15', 'Quiet Static']],
     },
-    paired: 'Paired over Wi-Fi',
-    remote: {
-      label: 'Illustration of Starlit on Android: the PC controller, playing Hollow Orbit on a paired PC',
-      title: 'PC controller', tabs: ['Remote', 'Downloads', 'PCs'], pc: 'Living-room PC', pcSub: 'Wi-Fi · paired',
-      ep: 'S1 · E7 · The Quiet Shore', skip: 'Skip intro', buttons: ['Episodes', 'Sources', 'Subtitles'],
-    },
-    caption: 'Illustrations of the Starlit apps. The shows and artwork are made up.',
-    status: { title: 'What runs Starlit today', as: `Status as of release ${rel('version', VERSION)}`, available: 'Available', beta: 'Beta', notYet: 'Not yet', items: [
-      ['ok', 'Windows 10 &amp; 11', 'Own installer, no admin rights, verified in-app updates.'],
-      ['ok', 'Android 7.0 and later', 'Signed APKs with every release on GitHub.'],
-      ['ok', 'Linux x86_64', 'DEB, RPM, AppImage and Flatpak releases. X11/XWayland; device playback validation still pending.'],
-      ['ok', 'Phone remote over Wi-Fi', 'Android phone to Windows PC, with QR pairing.'],
-      ['beta', 'Phone remote over Bluetooth', 'Windows PC and Android phone, no shared network needed.'],
-      ['no', 'Samsung Tizen &amp; LG webOS', 'The Windows TV Installer is in development. No stable TV download yet.'],
-      ['no', 'iPhone and Mac', 'No public builds yet. We’ll say so here when there are.'],
-    ] },
-    pcRemote: {
-      kicker: '01 · PC remote', title: 'Your phone runs the PC.',
-      body: 'Open Connect phone on the PC, scan its code from Android, and check that the six digits match on both screens. Then play, pause, seek, change the volume, skip intros and credits, and switch episodes, sources or subtitles without getting up.',
-      points: ['Find your PC on Wi-Fi, from its QR code, or by typing its address', 'Send a title from your phone with Play on Starlit PC', 'Check, pause and resume the PC’s downloads'],
-      bluetooth: 'Connect over Bluetooth when there’s no shared network', link: 'How the remote works',
-      win: { label: 'Illustration of the Phone remote window on Windows, showing a pairing QR code, the PC’s local addresses and the six-digit confirmation code',
-        title: 'Phone remote', scan: 'On your phone, open <b>Settings → PC controller</b> and scan this code.', code: 'Confirmation code', firewall: 'Windows Firewall allows phones on this network' },
-    },
-    features: {
-      title: 'Everything a season needs, <span class="muted">from the first episode to the last download.</span>',
-      airing: { kicker: '02 · Airing Now', title: 'Tonight’s episodes, in your time zone.', link: 'See the schedule',
-        body: 'Today and the next six days from AniList, with Sub and Dub times from Tsuzuki. Hide what you don’t follow and it stays hidden on your other devices.',
-        days: ['Today', 'Sat 7', 'Sun 8', 'Mon 9', 'Tue 10', 'Wed 11'], aired: 'aired', soon: 'in 42 min' },
-      player: { kicker: '03 · Player', title: 'Built on mpv. Skips the bits you’ve seen.', link: 'Inside the player',
+    caption: 'Illustration of the Starlit app. The shows and artwork are made up.',
+    chapters: {
+      kicker: 'Five constellations',
+      title: 'Everything a season needs, charted in one app.',
+      remote: { n: '01', label: 'PC remote', name: 'The Handset', title: 'Your phone runs the PC.',
+        body: 'Open Connect phone on the PC, scan its code from Android, and check that the six digits match on both screens. Then control everything from the couch.',
+        points: ['Find your PC on Wi-Fi, from its QR code, or by its address', 'Play, pause, seek, skip intros and switch episodes, sources or subtitles', 'Check, pause and resume the PC’s downloads'],
+        beta: 'Connect over Bluetooth when there’s no shared network', art: 'A constellation in the shape of a phone' },
+      airing: { n: '02', label: 'Airing Now', name: 'The Almanac', title: 'Tonight’s episodes, in your time zone.',
+        body: 'Today and the next six days from AniList, with Sub and Dub times from Tsuzuki.',
+        points: ['Hide what you don’t follow, and it stays hidden on your other devices', 'Correct episode numbers with Fribb’s anime ID mappings', 'An optional MyAnimeList tab on desktop that knows a rewatch'],
+        art: 'A constellation in the shape of a crescent moon' },
+      player: { n: '03', label: 'Player', name: 'The Projector', title: 'Built on mpv. Skips the bits you’ve seen.',
         body: 'Intro, recap and credits skipping from IntroDB, a side panel for subtitle tracks, style and timing, and the next episode lined up when the credits roll.',
-        skip: 'Skip intro' },
-      offline: { kicker: '04 · Offline downloads', title: 'Download the season, skip the buffering.', link: 'How downloads work',
-        body: 'Each episode finds its own best-quality source. Downloads resume after a restart, an optional limit keeps them within the space you choose, and storage tools suggest what to clear without ever deleting on their own.',
-        heading: 'Downloads', pause: 'Pause all', resume: 'Resume all', queued: 'Queued', paused: 'Paused',
-        rows: ['1080p · 8.4 MB/s · 2 min left', 'Finding the best source', 'Resumes where it stopped'] },
-      mal: { kicker: '05 · Library &amp; MyAnimeList', title: 'Your list, and it knows a rewatch.', link: 'MyAnimeList in Starlit',
-        body: 'Browse Watching, Completed, On hold, Dropped and Plan to watch in an optional MyAnimeList tab on desktop. Start a finished anime again and Starlit marks it as rewatching, keeping your score.',
-        statuses: ['Watching', 'Completed', 'On hold', 'Dropped', 'Plan to watch'], rewatching: 'Rewatching' },
+        points: ['Streams from your own add-ons and plugins', 'Cloud playback through Premiumize and TorBox', 'Torrent streaming through a bundled TorrServer engine'],
+        art: 'A constellation in the shape of a play button' },
+      offline: { n: '04', label: 'Offline', name: 'The Satchel', title: 'Download the season, skip the buffering.',
+        body: 'Each episode finds its own best-quality source and saves to a folder you choose.',
+        points: ['Downloads resume after a restart', 'An optional limit keeps them within the space you choose', 'Progress, speed, Pause all and Resume all in one place'],
+        art: 'A constellation in the shape of a download arrow' },
+      sync: { n: '05', label: 'Account sync', name: 'The Bridge', title: 'Start on the PC. Finish on the phone.',
+        body: 'Sign in to the same Starlit account and profile on Windows and Android, and your library follows you. Email sign-ups ask you to verify your email first. Prefer no account? Guest mode keeps everything on the device.',
+        points: ['Library, history, resume points and collections', 'Profiles, add-ons and home rows', 'Downloaded episodes stay on the device that saved them'],
+        account: 'Open your account', art: 'A constellation in the shape of a bridge between two stars' },
     },
-    sync: {
-      kicker: '06 · Account sync', title: 'Start on the PC. Finish on the phone.', link: 'What syncs, and what stays put',
-      body: 'Sign in to the same Starlit account and profile on Windows and Android, and your library, history and resume points follow you. Prefer no account? Guest mode works offline-first, and you can bring that data into an account later.',
-      nodes: ['Windows PC', 'Your account', 'Android phone'], listLabel: 'Synced data',
-      items: ['Library', 'Watch history', 'Resume points', 'Collections', 'Profiles', 'Add-ons', 'Home rows', 'Hidden Airing Now titles'],
-      note: 'Downloaded episodes stay on the device that saved them.',
-    },
-    get: {
-      title: 'Free, open source, and ready tonight.',
-      body: 'Starlit is a client: you bring the add-ons and sources you’re allowed to use. It doesn’t host or sell any media.',
-      win: ['Windows', 'Installer · 10 &amp; 11, 64-bit'], android: ['Android', 'APK · Android 7.0+'],
-    },
+    status: { kicker: 'Platforms', title: 'Where Starlit runs today', as: `Status as of release ${rel('version', VERSION)}`,
+      available: 'Available', beta: 'Beta', notYet: 'Not yet', items: [
+        ['ok', 'monitor', 'Windows 10 &amp; 11', 'Own installer, no admin rights, verified in-app updates.'],
+        ['ok', 'phone', 'Android 7.0 and later', 'Signed APKs with every release on GitHub.'],
+        ['ok', 'terminal', 'Linux x86_64', 'DEB, RPM, AppImage and Flatpak. X11/XWayland; device playback validation still pending.'],
+        ['ok', 'tv', 'Android TV', 'A TV build made for the remote, in every release.'],
+        ['beta', 'bluetooth', 'Phone remote over Bluetooth', 'Windows PC and Android phone, no shared network needed.'],
+        ['no', 'tv', 'Samsung Tizen &amp; LG webOS', 'The Windows TV Installer is in development. No stable TV download yet.'],
+      ] },
+    log: { label: 'Recent releases', title: 'Shipping log', all: 'All notes' },
+    get: { title: 'Bring every show into one sky.',
+      body: 'Free, open source and yours to keep. Starlit is a client: you bring the add-ons and sources you’re allowed to use. It doesn’t host or sell any media.',
+      win: ['Windows', 'Installer · 10 &amp; 11, 64-bit'], android: ['Android', 'APK · Android 7.0+'], linux: ['Linux', 'x86_64 · DEB, RPM, AppImage, Flatpak'] },
   },
 
   pt: {
@@ -88,278 +74,245 @@ const copy = {
       description: 'O Starlit é uma aplicação gratuita e de código aberto de anime e séries para Windows, Linux x86_64 e Android, com comando pelo telemóvel, Airing Now, transferências offline e sincronização opcional.',
     },
     news: 'Novo',
-    title: 'Vê no PC.<br><span class="hl">Comanda pelo telemóvel.</span>',
-    lede: 'O Starlit é uma aplicação de anime e séries para Windows, Linux e Android. Faz streaming a partir dos teus próprios addons num leitor baseado no mpv, acompanha cada episódio no Airing Now, transfere temporadas inteiras para ver offline e mantém uma só biblioteca sincronizada. Depois pega no telemóvel e comanda o PC a partir do sofá.',
-    ctaWin: 'Transferir para Windows', ctaAndroid: 'Obter o APK para Android',
+    title: 'Todas as tuas séries, <span class="hl">no mesmo céu.</span>',
+    lede: 'O Starlit é uma aplicação gratuita de anime e séries para Windows, Linux e Android. Faz streaming a partir dos teus addons num leitor baseado no mpv, acompanha cada episódio no Airing Now, transfere temporadas inteiras, mantém uma só biblioteca sincronizada e comanda o PC pelo telemóvel.',
+    ctaWin: 'Transferir para Windows', ctaAll: 'Todas as plataformas',
+    metaLine: `v${rel('version', VERSION)} · Windows 10 e 11 · Linux x86_64 · Android 7.0+ · Gratuito e de código aberto, GPL-3.0`,
     tvLink: 'TVs Samsung e LG: conhece o TV Installer (em desenvolvimento)',
-    metaLine: `v${rel('version', VERSION)} · Windows 10 e 11 (64 bits) · Linux x86_64 · Android 7.0+ · Gratuito e de código aberto, GPL-3.0`,
-    log: { label: 'Versões recentes', title: 'Registo de versões', all: 'Todas as notas' },
+    logo: 'O logótipo do Starlit: um botão de reprodução com uma estrela de quatro pontas',
     app: {
-      label: 'Ilustração da aplicação Starlit para computador no ecrã Início, com as filas Continuar a ver e Airing Now',
-      tabs: ['Início', 'Explorar', 'Biblioteca', 'MyAnimeList'],
-      kicker: 'SÉRIE · FICÇÃO CIENTÍFICA · 12 EPISÓDIOS',
-      blurb: 'Uma equipa de resgate passa pela última estação iluminada do sistema e descobre que ainda atende chamadas.',
-      resume: 'Retomar T1 E7', later: 'Ver mais tarde', cont: 'Continuar a ver', all: 'Ver tudo',
-      cards: [['b', 64, 'Paper Lanterns', 'T2 E3 · faltam 9 min'], ['c', 22, 'Saltwind Academy', 'T1 E5 · faltam 18 min'],
-        ['d', 81, 'Ironbloom', 'T1 E11 · faltam 4 min'], ['f', 40, 'Lantern Moth', 'Filme · faltam 52 min']],
-      airing: 'Airing Now', today: 'Hoje', episode: 'Episódio',
+      label: 'Ilustração da aplicação Starlit para computador: o ecrã Início com uma série em destaque, Continuar a ver e Airing Now. As séries são fictícias.',
+      airing: 'Em exibição · Episódio 7', show: 'Hollow Orbit', when: 'Legendado daqui a 2 horas · Dobrado na sexta',
+      resume: 'Retomar T1 E7', cont: 'Continuar a ver', today: 'Hoje no Airing Now',
+      cards: [['p1', 64, 'Paper Lanterns'], ['p2', 22, 'Saltwind Academy'], ['p3', 81, 'Ironbloom'], ['p4', 40, 'Lantern Moth'], ['p5', 0, 'Velvet Kingdom']],
+      times: [['18:30', 'Neon Ferry'], ['20:00', 'Hollow Orbit'], ['22:15', 'Quiet Static']],
     },
-    paired: 'Emparelhado por Wi-Fi',
-    remote: {
-      label: 'Ilustração do Starlit no Android: o comando do PC a reproduzir Hollow Orbit num PC emparelhado',
-      title: 'Controlar PC', tabs: ['Comando', 'Transferências', 'PCs'], pc: 'PC da sala', pcSub: 'Wi-Fi · emparelhado',
-      ep: 'T1 · E7 · A Margem Silenciosa', skip: 'Saltar introdução', buttons: ['Episódios', 'Fontes', 'Legendas'],
-    },
-    caption: 'Ilustrações das aplicações Starlit. As séries e as imagens são fictícias.',
-    status: { title: 'Onde o Starlit funciona hoje', as: `Estado na versão ${rel('version', VERSION)}`, available: 'Disponível', beta: 'Beta', notYet: 'Ainda não', items: [
-      ['ok', 'Windows 10 e 11', 'Instalador próprio, sem direitos de administrador, atualizações verificadas na aplicação.'],
-      ['ok', 'Android 7.0 ou posterior', 'APK assinados em cada versão no GitHub.'],
-      ['ok', 'Linux x86_64', 'Versões DEB, RPM, AppImage e Flatpak. X11/XWayland; a reprodução em equipamentos reais ainda não foi validada.'],
-      ['ok', 'Comando por Wi-Fi', 'Do telemóvel Android para o PC com Windows, com emparelhamento por QR.'],
-      ['beta', 'Comando por Bluetooth', 'PC com Windows e telemóvel Android, sem precisar de rede partilhada.'],
-      ['no', 'Samsung Tizen e LG webOS', 'O TV Installer para Windows está em desenvolvimento. Ainda não há transferência estável para TV.'],
-      ['no', 'iPhone e Mac', 'Ainda não há versões públicas. Diremos aqui quando houver.'],
-    ] },
-    pcRemote: {
-      kicker: '01 · Comando do PC', title: 'O telemóvel comanda o PC.',
-      body: 'Abre Ligar telemóvel no PC, lê o código no Android e confirma que os seis dígitos coincidem nos dois ecrãs. Depois reproduz, pausa, avança, muda o volume, salta introduções e créditos e troca de episódio, fonte ou legendas sem te levantares.',
-      points: ['Encontra o PC por Wi-Fi, pelo código QR ou escrevendo o endereço', 'Envia um título do telemóvel com Reproduzir no PC Starlit', 'Vê, pausa e retoma as transferências do PC'],
-      bluetooth: 'Liga por Bluetooth quando não há rede partilhada', link: 'Como funciona o comando',
-      win: { label: 'Ilustração da janela Controlo pelo telemóvel no Windows, com um código QR de emparelhamento, os endereços locais do PC e o código de confirmação de seis dígitos',
-        title: 'Controlo pelo telemóvel', scan: 'No telemóvel, abre <b>Definições → Controlar PC</b> e lê este código.', code: 'Código de confirmação', firewall: 'A Firewall do Windows permite telemóveis nesta rede' },
-    },
-    features: {
-      title: 'Tudo o que uma temporada precisa, <span class="muted">do primeiro episódio à última transferência.</span>',
-      airing: { kicker: '02 · Airing Now', title: 'Os episódios de hoje, no teu fuso horário.', link: 'Ver o calendário',
-        body: 'Hoje e os próximos seis dias a partir do AniList, com horários de legendas e dobragens do Tsuzuki. Oculta o que não acompanhas e continua oculto nos teus outros dispositivos.',
-        days: ['Hoje', 'Sáb 7', 'Dom 8', 'Seg 9', 'Ter 10', 'Qua 11'], aired: 'já saiu', soon: 'daqui a 42 min' },
-      player: { kicker: '03 · Leitor', title: 'Baseado no mpv. Salta o que já viste.', link: 'Por dentro do leitor',
+    caption: 'Ilustração da aplicação Starlit. As séries e as imagens são fictícias.',
+    chapters: {
+      kicker: 'Cinco constelações',
+      title: 'Tudo o que uma temporada precisa, numa só aplicação.',
+      remote: { n: '01', label: 'Comando do PC', name: 'O Comando', title: 'O telemóvel comanda o PC.',
+        body: 'Abre Ligar telemóvel no PC, lê o código no Android e confirma que os seis dígitos coincidem nos dois ecrãs. Depois controla tudo a partir do sofá.',
+        points: ['Encontra o PC por Wi-Fi, pelo código QR ou pelo endereço', 'Reproduz, pausa, avança, salta introduções e troca de episódio, fonte ou legendas', 'Vê, pausa e retoma as transferências do PC'],
+        beta: 'Liga por Bluetooth quando não há rede partilhada', art: 'Uma constelação com a forma de um telemóvel' },
+      airing: { n: '02', label: 'Airing Now', name: 'O Almanaque', title: 'Os episódios de hoje, no teu fuso horário.',
+        body: 'Hoje e os próximos seis dias a partir do AniList, com horários de legendas e dobragens do Tsuzuki.',
+        points: ['Oculta o que não acompanhas e continua oculto nos teus outros dispositivos', 'Números de episódio corretos com os mapeamentos de IDs de anime do Fribb', 'Um separador opcional do MyAnimeList no computador que sabe quando revês'],
+        art: 'Uma constelação com a forma de uma lua em quarto crescente' },
+      player: { n: '03', label: 'Leitor', name: 'O Projetor', title: 'Baseado no mpv. Salta o que já viste.',
         body: 'Saltar introduções, resumos e créditos com o IntroDB, um painel lateral para as faixas, o estilo e a sincronização das legendas, e o episódio seguinte pronto quando os créditos começam.',
-        skip: 'Saltar introdução' },
-      offline: { kicker: '04 · Transferências offline', title: 'Transfere a temporada e esquece o buffering.', link: 'Como funcionam as transferências',
-        body: 'Cada episódio encontra a sua própria fonte com a melhor qualidade. As transferências são retomadas depois de reiniciar, um limite opcional mantém-nas dentro do espaço que escolheres e as ferramentas de armazenamento sugerem o que limpar sem nunca apagarem nada sozinhas.',
-        heading: 'Transferências', pause: 'Pausar tudo', resume: 'Retomar tudo', queued: 'Na fila', paused: 'Em pausa',
-        rows: ['1080p · 8,4 MB/s · faltam 2 min', 'A procurar a melhor fonte', 'Retoma onde parou'] },
-      mal: { kicker: '05 · Biblioteca e MyAnimeList', title: 'A tua lista, e sabe quando revês.', link: 'O MyAnimeList no Starlit',
-        body: 'Percorre A ver, Completos, Em pausa, Desistidos e Planeados num separador opcional do MyAnimeList no computador. Começa outra vez um anime que já terminaste e o Starlit marca-o como a rever, mantendo a tua pontuação.',
-        statuses: ['A ver', 'Completos', 'Em pausa', 'Desistidos', 'Planeados'], rewatching: 'A rever' },
+        points: ['Streaming a partir dos teus addons e plugins', 'Reprodução na nuvem com Premiumize e TorBox', 'Streaming de torrents com o motor TorrServer incluído'],
+        art: 'Uma constelação com a forma de um botão de reprodução' },
+      offline: { n: '04', label: 'Offline', name: 'A Mochila', title: 'Transfere a temporada e esquece o buffering.',
+        body: 'Cada episódio encontra a sua própria fonte com a melhor qualidade e é guardado na pasta que escolheres.',
+        points: ['As transferências são retomadas depois de reiniciar', 'Um limite opcional mantém-nas dentro do espaço que escolheres', 'Progresso, velocidade, Pausar tudo e Retomar tudo no mesmo sítio'],
+        art: 'Uma constelação com a forma de uma seta de transferência' },
+      sync: { n: '05', label: 'Sincronização', name: 'A Ponte', title: 'Começa no PC. Acaba no telemóvel.',
+        body: 'Inicia sessão na mesma conta e no mesmo perfil Starlit no Windows e no Android, e a biblioteca acompanha-te. Ao criares conta por e-mail, confirma o teu e-mail antes de sincronizar. Preferes não ter conta? O modo convidado guarda tudo no dispositivo.',
+        points: ['Biblioteca, histórico, pontos de retoma e coleções', 'Perfis, addons e filas do Início', 'Os episódios transferidos ficam no dispositivo que os guardou'],
+        account: 'Abrir a tua conta', art: 'Uma constelação com a forma de uma ponte entre duas estrelas' },
     },
-    sync: {
-      kicker: '06 · Sincronização da conta', title: 'Começa no PC. Acaba no telemóvel.', link: 'O que sincroniza e o que fica',
-      body: 'Inicia sessão na mesma conta e no mesmo perfil Starlit no Windows e no Android, e a biblioteca, o histórico e os pontos de retoma acompanham-te. Preferes não ter conta? O modo convidado funciona primeiro offline e podes levar esses dados para uma conta mais tarde.',
-      nodes: ['PC com Windows', 'A tua conta', 'Telemóvel Android'], listLabel: 'Dados sincronizados',
-      items: ['Biblioteca', 'Histórico', 'Pontos de retoma', 'Coleções', 'Perfis', 'Addons', 'Filas do Início', 'Títulos ocultos no Airing Now'],
-      note: 'Os episódios transferidos ficam no dispositivo que os guardou.',
-    },
-    get: {
-      title: 'Gratuito, de código aberto e pronto para hoje à noite.',
-      body: 'O Starlit é um cliente: tu trazes os addons e as fontes que podes usar. Não aloja nem vende conteúdos multimédia.',
-      win: ['Windows', 'Instalador · 10 e 11, 64 bits'], android: ['Android', 'APK · Android 7.0+'],
-    },
+    status: { kicker: 'Plataformas', title: 'Onde o Starlit funciona hoje', as: `Estado na versão ${rel('version', VERSION)}`,
+      available: 'Disponível', beta: 'Beta', notYet: 'Ainda não', items: [
+        ['ok', 'monitor', 'Windows 10 e 11', 'Instalador próprio, sem direitos de administrador, atualizações verificadas na aplicação.'],
+        ['ok', 'phone', 'Android 7.0 ou posterior', 'APK assinados em cada versão no GitHub.'],
+        ['ok', 'terminal', 'Linux x86_64', 'DEB, RPM, AppImage e Flatpak. X11/XWayland; a reprodução em equipamentos reais ainda não foi validada.'],
+        ['ok', 'tv', 'Android TV', 'Uma versão para TV feita para o comando, em cada versão.'],
+        ['beta', 'bluetooth', 'Comando por Bluetooth', 'PC com Windows e telemóvel Android, sem precisar de rede partilhada.'],
+        ['no', 'tv', 'Samsung Tizen e LG webOS', 'O TV Installer para Windows está em desenvolvimento. Ainda não há transferência estável para TV.'],
+      ] },
+    log: { label: 'Versões recentes', title: 'Registo de versões', all: 'Todas as notas' },
+    get: { title: 'Traz todas as tuas séries para o mesmo céu.',
+      body: 'Gratuito, de código aberto e teu. O Starlit é um cliente: tu trazes os addons e as fontes que podes usar. Não aloja nem vende conteúdos multimédia.',
+      win: ['Windows', 'Instalador · 10 e 11, 64 bits'], android: ['Android', 'APK · Android 7.0+'], linux: ['Linux', 'x86_64 · DEB, RPM, AppImage, Flatpak'] },
   },
 };
 
 export const meta = { en: copy.en.meta, pt: copy.pt.meta };
 
-// Anchors other pages link to, localised so Portuguese URLs read naturally.
-export const ids = { en: { features: 'features', download: 'download' },
-  pt: { features: 'funcionalidades', download: 'transferir' } };
+// Anchors other pages (and the old feature-page redirects) link to,
+// localised so Portuguese URLs read naturally.
+export const ids = {
+  en: { features: 'features', platforms: 'platforms', download: 'download',
+    remote: 'pc-remote', airing: 'airing-now', player: 'player', offline: 'offline', sync: 'account-sync' },
+  pt: { features: 'funcionalidades', platforms: 'plataformas', download: 'transferir',
+    remote: 'comando-do-pc', airing: 'airing-now', player: 'leitor', offline: 'offline', sync: 'sincronizacao' },
+};
 
-const progress = pct => `<span class="m-bar"><span class="m-fill w-${pct}"></span></span>`;
+// ---------------------------------------------------------------- sky drawing
 
-export function render(lang, { r, pageIds }) {
-  const c = copy[lang], a = c.app, rm = c.remote, f = c.features;
+// The four-point star from the Starlit mark, centred on 0,0: `rx` wide and a
+// little taller, with the same inward-curving sides.
+const sparkle = rx => {
+  const ry = +(rx * 1.18).toFixed(1), k = +(rx * .12).toFixed(2), ky = +(ry * .12).toFixed(2);
+  return `M0 ${-ry}Q${k} ${-ky} ${rx} 0Q${k} ${ky} 0 ${ry}Q${-k} ${ky} ${-rx} 0Q${-k} ${-ky} 0 ${-ry}Z`;
+};
+const STAR = { s: sparkle(5), m: sparkle(8), l: sparkle(12) };
+
+// A constellation: hairlines that draw themselves in as the panel scrolls into
+// view (where the browser supports scroll-driven animation), and stars shaped
+// like the logo's. [x, y, size, tone] per star; tone "hi" uses the brand gradient.
+function constellation({ id, label, lines, stars }) {
+  return `<svg class="cst" viewBox="0 0 520 400" role="img" aria-label="${label}">
+<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#45D6EB"/><stop offset=".52" stop-color="#3965D4"/><stop offset="1" stop-color="#B250EF"/></linearGradient></defs>
+${lines.map(([d, faint]) => `<path class="cst-line${faint ? ' cst-faint' : ''}" pathLength="1" d="${d}"/>`).join('\n')}
+${stars.map(([x, y, size, tone]) => `<g transform="translate(${x} ${y})">${tone === 'hi' ? '<circle class="cst-halo" r="22"/>' : ''}<path class="cst-star cst-${tone}"${tone === 'hi' ? ` fill="url(#${id})"` : ''} d="${STAR[size]}"/></g>`).join('\n')}
+</svg>`;
+}
+
+const SKIES = {
+  remote: { lines: [['M190 50 L330 50 L330 350 L190 350 Z'], ['M235 320 L285 320', true], ['M330 140 L420 90 L470 150', true]],
+    stars: [[190, 50, 'm', 'white'], [330, 50, 'm', 'white'], [330, 350, 'm', 'white'], [190, 350, 'm', 'white'], [260, 320, 'l', 'hi'], [420, 90, 's', 'cyan'], [470, 150, 's', 'cyan']] },
+  airing: { lines: [['M170 90 L250 60 L340 80 L400 150 L410 240 L360 310 L270 340 L190 320'], ['M170 90 L250 150 L300 220 L270 290 L190 320', true]],
+    stars: [[170, 90, 'm', 'white'], [250, 60, 's', 'cyan'], [340, 80, 'm', 'white'], [400, 150, 's', 'cyan'], [410, 240, 'l', 'hi'], [360, 310, 's', 'cyan'], [270, 340, 'm', 'white'], [190, 320, 's', 'cyan'], [300, 220, 's', 'cyan']] },
+  player: { lines: [['M150 80 L150 320 L370 200 Z'], ['M370 200 L430 130 L470 250', true]],
+    stars: [[150, 80, 'm', 'white'], [150, 320, 'm', 'white'], [370, 200, 'l', 'hi'], [430, 130, 's', 'cyan'], [470, 250, 's', 'cyan']] },
+  offline: { lines: [['M260 50 L260 270'], ['M170 190 L260 280 L350 190'], ['M130 340 L390 340', true]],
+    stars: [[260, 50, 'm', 'white'], [260, 150, 's', 'cyan'], [170, 190, 's', 'cyan'], [350, 190, 's', 'cyan'], [260, 280, 'l', 'hi'], [130, 340, 's', 'white'], [390, 340, 's', 'white']] },
+  sync: { lines: [['M80 290 L160 170 L260 120 L360 170 L440 290'], ['M80 290 L440 290', true], ['M260 120 L260 50', true]],
+    stars: [[80, 290, 'l', 'hi'], [160, 170, 's', 'cyan'], [260, 120, 'm', 'white'], [360, 170, 's', 'cyan'], [440, 290, 'l', 'hi'], [260, 50, 's', 'white']] },
+};
+
+// The hero: the real Starlit mark (branding/starlit-mark.svg) assembling from
+// its own constellation. Lines draw, star nodes flare and fade, the mark
+// settles in and its small star keeps twinkling. Pure CSS animation.
+const HERO_NODES = [[250, 190, 'l'], [250, 834, 'l'], [836, 512, 'l'], [470, 334, 'm'], [620, 512, 'm'], [470, 690, 'm'], [320, 512, 'm'], [788, 318, 'l']];
+const heroMark = label => `<div class="hero-mark">
+<span class="hero-halo" aria-hidden="true"></span>
+<svg class="hero-svg" viewBox="132 132 760 760" role="img" aria-label="${label}">
+<defs>
+<path id="hm-play" d="M381.5 262.2 Q250 190 250 340 L250 684 Q250 834 381.5 761.8 L704.5 584.2 Q836 512 704.5 439.8 Z"/>
+<clipPath id="hm-clip"><use href="#hm-play"/></clipPath>
+<linearGradient id="hm-body" x1="250" y1="190" x2="836" y2="834" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#45D6EB"/><stop offset=".52" stop-color="#3965D4"/><stop offset="1" stop-color="#B250EF"/></linearGradient>
+<linearGradient id="hm-tw" x1="730" y1="252" x2="846" y2="384" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#45D6EB"/><stop offset="1" stop-color="#B250EF"/></linearGradient>
+<linearGradient id="hm-sheen" x1="250" y1="190" x2="520" y2="640" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".3"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<radialGradient id="hm-glow" cx="470" cy="512" r="250" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".5"/><stop offset=".55" stop-color="#FFFFFF" stop-opacity=".12"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+</defs>
+<g transform="translate(-36 0)">
+<path class="hm-line" pathLength="1" d="M250 190 L250 834 L836 512 Z"/>
+<path class="hm-line hd-2" pathLength="1" d="M470 334 L620 512 L470 690 L320 512 Z"/>
+<path class="hm-line hd-4" pathLength="1" d="M836 512 L788 318"/>
+${HERO_NODES.map(([x, y, size], i) => `<g transform="translate(${x} ${y})"><path class="hm-node hd-${i + 1}" d="${sparkle(size === 'l' ? 16 : 12)}"/></g>`).join('\n')}
+<g class="hm-mark">
+<use href="#hm-play" fill="url(#hm-body)"/>
+<g clip-path="url(#hm-clip)"><rect width="1024" height="1024" fill="url(#hm-sheen)"/><circle cx="470" cy="512" r="250" fill="url(#hm-glow)"/></g>
+<path fill="#FFFFFF" d="M470 334 Q488 490.6 620 512 Q488 533.4 470 690 Q452 533.4 320 512 Q452 490.6 470 334 Z"/>
+<path class="hm-twinkle" fill="url(#hm-tw)" d="M788 252 Q795 310.1 846 318 Q795 325.9 788 384 Q781 325.9 730 318 Q781 310.1 788 252 Z"/>
+</g>
+</g>
+</svg>
+</div>`;
+
+const bullet = `<svg class="sp-bullet" viewBox="-7 -7 14 14" width="14" height="14" aria-hidden="true" focusable="false"><path d="${sparkle(6)}"/></svg>`;
+
+export function render(lang, { r, pageIds, account }) {
+  const c = copy[lang], a = c.app, ch = c.chapters, id = ids[lang];
   const statusLabel = { ok: c.status.available, beta: c.status.beta, no: c.status.notYet };
+  const news = `${r.download}#${pageIds.download.news}`;
 
-  const homeApp = appWindow({ label: a.label, cls: 'win-home', body: `
-<div class="m-feature">
-  <span class="m-shade-side"></span><span class="m-shade-bottom"></span>
-  ${appTabs(a.tabs, 0, 'm-float-tabs')}
-  <span class="m-top-actions"><span class="m-round">${icon('search', 15)}</span><span class="m-round m-avatar">M</span></span>
-  <div class="m-feature-copy">
-    <p class="m-kicker">${a.kicker}</p>
-    <p class="m-feature-title">Hollow Orbit</p>
-    <p class="m-feature-blurb">${a.blurb}</p>
-    <p class="m-btns mt-16"><span class="m-btn m-btn-light">${icon('playFill', 14)}${a.resume}</span><span class="m-btn m-btn-glass">${a.later}</span></p>
-  </div>
-</div>
-<div class="m-rows">
-  <p class="m-row-head"><span>${a.cont}</span><span class="m-dim">${a.all}</span></p>
-  <div class="m-grid4">${a.cards.map(([l, pct, title, sub]) => `
-    <div><span class="m-thumb art-${l}"><span class="m-thumb-bar"><span class="w-${pct}"></span></span></span><span class="m-name">${title}</span><span class="m-sub">${sub}</span></div>`).join('')}
-  </div>
-  <p class="m-row-head m-row-head-2"><span>${a.airing}</span><span class="m-chip">${a.today}</span></p>
-  <div class="m-grid4">${[['h', '17:00 · SUB', 'Velvet Kingdom', 6, true], ['g', '18:30 · SUB', 'Neon Ferry', 19, true],
-    ['a', '20:00 · DUB', 'Hollow Orbit', 8], ['e', '22:15 · SUB', 'Quiet Static', 2]].map(([l, time, title, ep, hot]) => `
-    <div class="m-airing">${art(l, 'm-poster-s')}<span class="m-airing-text"><span class="m-time${hot ? ' hot' : ''}">${time}</span><span class="m-name">${title}</span><span class="m-sub">${a.episode} ${ep}</span></span></div>`).join('')}
-  </div>
-</div>` });
-
-  const remotePhone = phone({ label: rm.label, cls: 'phone-float', body: `
-<p class="p-head">${icon('back', 20)}<span>${rm.title}</span></p>
-${segments(rm.tabs, 0, 'p-seg')}
-<div class="p-device"><span class="p-device-icon">${icon('monitor', 16)}</span><span class="p-device-text"><b>${rm.pc}</b><span>${rm.pcSub}</span></span><span class="p-tag">LAN</span></div>
-<span class="p-art art-a"></span>
-<div><p class="p-title">Hollow Orbit</p><p class="p-sub">${rm.ep}</p></div>
-<div class="p-scrub"><span class="p-track"><span class="p-done"></span><span class="p-knob"></span></span><span class="p-times"><span>08:51</span><span>23:40</span></span></div>
-<div class="p-transport"><span>${icon('back10', 26)}</span><span class="p-play">${icon('pause', 24)}</span><span>${icon('fwd10', 26)}</span></div>
-<span class="p-skip">${icon('skip', 15)}${rm.skip}</span>
-<div class="p-shortcuts">${[['list', rm.buttons[0]], ['layers', rm.buttons[1]], ['subtitles', rm.buttons[2]]].map(([ic, t]) => `<span>${icon(ic, 18)}${t}</span>`).join('')}</div>` });
-
-  const w = c.pcRemote.win;
-  const pairWindow = appWindow({ label: w.label, title: w.title, cls: 'win-pair', max: false, body: `
-<div class="pair">
-  <span class="qr-box">${qrCode(168)}</span>
-  <div class="pair-info">
-    <p class="pair-hint">${w.scan}</p>
-    <dl class="m-kv"><div><dt>Wi-Fi</dt><dd class="mono">192.168.1.24</dd></div><div><dt>Ethernet</dt><dd class="mono m-dim">10.0.0.8</dd></div></dl>
-    <div><p class="m-dim m-small">${w.code}</p><p class="pair-code">482 913</p></div>
-    <p class="pair-ok">${icon('shieldCheck', 14)}${w.firewall}</p>
-  </div>
-</div>` });
-
-  const card = (k, mock, href) => `
-<article class="card">
-  ${eyebrow(k.kicker)}
-  <h3 class="t-card">${k.title}</h3>
-  <p class="card-body">${k.body}</p>
-  ${mock}
-  <a class="card-link" href="${href}">${k.link}</a>
-</article>`;
-
-  const airingMock = `<div class="m-panel" aria-hidden="true">
-  <div class="m-pills">${f.airing.days.map((d, i) => `<span${i === 0 ? ' class="on"' : ''}>${d}</span>`).join('')}</div>
-  <ul class="m-sched" role="list">
-    <li><span class="m-clock">17:00</span>${art('h', 'm-poster')}<span class="m-sched-text"><b>Velvet Kingdom</b><span>${a.episode} 6 · ${f.airing.aired}</span></span><span class="m-code">SUB</span></li>
-    <li><span class="m-clock hot">18:30</span>${art('g', 'm-poster')}<span class="m-sched-text"><b>Neon Ferry</b><span class="hot">${a.episode} 19 · ${f.airing.soon}</span></span><span class="m-code">SUB</span></li>
-    <li><span class="m-clock">20:00</span>${art('a', 'm-poster')}<span class="m-sched-text"><b>Hollow Orbit</b><span>${a.episode} 8</span></span><span class="m-code">DUB</span></li>
-  </ul>
-</div>`;
-
-  const playerMock = `<div class="m-player" aria-hidden="true">
-  <span class="m-player-shade"></span>
-  <p class="m-player-title">Paper Lanterns <span>· ${lang === 'pt' ? 'T2' : 'S2'} E3</span></p>
-  <span class="m-skip-btn">${f.player.skip}${icon('skip', 13)}</span>
-  <span class="m-timeline"><span class="m-tl-intro"></span><span class="m-tl-done"></span></span>
-  <p class="m-player-controls">${icon('playFill', 16)}${icon('volume', 16)}<span class="mono">01:24 / 23:52</span><span class="m-spacer"></span>${icon('subtitles', 16)}${icon('layers', 16)}${icon('list', 16)}</p>
-</div>`;
-
-  const o = f.offline;
-  const offlineMock = `<div class="m-panel" aria-hidden="true">
-  <p class="m-panel-head"><b>${o.heading}</b><span class="m-mini-btns"><span>${o.pause}</span><span>${o.resume}</span></span></p>
-  <ul class="m-dl" role="list">
-    <li>${art('c', 'm-thumb-s')}<span class="m-dl-text"><span class="m-dl-top"><b>Saltwind Academy · ${lang === 'pt' ? 'T1' : 'S1'} E4</b><span class="mono hot">72%</span></span>${progress(72)}<span class="m-sub">${o.rows[0]}</span></span></li>
-    <li>${art('c', 'm-thumb-s')}<span class="m-dl-text"><span class="m-dl-top"><b>Saltwind Academy · ${lang === 'pt' ? 'T1' : 'S1'} E5</b><span class="mono m-dim">${o.queued}</span></span><span class="m-bar"></span><span class="m-sub">${o.rows[1]}</span></span></li>
-    <li>${art('d', 'm-thumb-s')}<span class="m-dl-text"><span class="m-dl-top"><b>Ironbloom · ${lang === 'pt' ? 'T2' : 'S2'} E1</b><span class="mono warn">${o.paused}</span></span><span class="m-bar"><span class="m-fill m-fill-paused w-31"></span></span><span class="m-sub">${o.rows[2]}</span></span></li>
-  </ul>
-</div>`;
-
-  const m = f.mal;
-  const malMock = `<div class="m-panel" aria-hidden="true">
-  <div class="m-pills">${m.statuses.map((s, i) => `<span${i === 1 ? ' class="on"' : ''}>${s}</span>`).join('')}</div>
-  <div class="m-posters">${[['a', 'Hollow Orbit', '12/12 · ★ 9', true], ['b', 'Paper Lanterns', '24/24 · ★ 8'], ['c', 'Saltwind Academy', '13/13 · ★ 7'], ['h', 'Velvet Kingdom', '12/12 · ★ 7']].map(([l, t, s, rw]) => `
-    <div><span class="m-cover art-${l}">${rw ? `<span class="m-rewatch">${icon('refresh', 10)}${m.rewatching}</span>` : ''}</span><span class="m-name">${t}</span><span class="m-sub mono">${s}</span></div>`).join('')}
+  const showcase = `<div class="show-win" role="img" aria-label="${a.label}">
+  <div class="show-rail" aria-hidden="true">${markImg('show-mark', 30)}<span class="show-ico on">${icon('home', 18)}</span><span class="show-ico">${icon('search', 18)}</span><span class="show-ico">${icon('calendar', 18)}</span><span class="show-ico">${icon('library', 18)}</span><span class="show-ico">${icon('download', 18)}</span></div>
+  <div class="show-main" aria-hidden="true">
+    <div class="show-hero">
+      <span class="show-tag">${a.airing}</span>
+      <span class="show-title">${a.show}</span>
+      <span class="show-when">${a.when}</span>
+      <span class="show-btn">${icon('playFill', 14)}${a.resume}</span>
+    </div>
+    <div class="show-rows">
+      <div class="show-cont">
+        <span class="show-head">${a.cont}</span>
+        <span class="show-posters">${a.cards.map(([art, pct, title]) => `<span class="show-poster ${art}"><span class="show-ptitle">${title}</span>${pct ? `<span class="show-bar"><span class="fill-${pct}"></span></span>` : ''}</span>`).join('')}</span>
+      </div>
+      <div class="show-air">
+        <span class="show-head">${a.today}</span>
+        ${a.times.map(([time, title]) => `<span class="show-time"><b>${time}</b><span>${title}</span></span>`).join('')}
+      </div>
+    </div>
   </div>
 </div>`;
+
+  const chapter = (key, flip) => {
+    const k = ch[key];
+    const extra = key === 'remote'
+      ? `<li class="beta-item">${icon('bluetooth', 18)}<span>${k.beta} ${pill('beta', 'Beta', 'pill-inline')}</span></li>` : '';
+    const link = key === 'sync' && account
+      ? `<a class="btn btn-ghost mt-30" href="/account?tab=overview">${k.account}${icon('arrowRight', 16)}</a>` : '';
+    return `
+<section class="chapter${flip ? ' chapter-flip' : ''}" id="${id[key]}" aria-labelledby="${id[key]}-title">
+  <div class="wrap chapter-grid">
+    <figure class="cst-card">
+      ${constellation({ id: 'cg-' + key, label: k.art, ...SKIES[key] })}
+      <figcaption><span>${k.n} · ${k.name}</span><span>${k.label}</span></figcaption>
+    </figure>
+    <div class="chapter-copy reveal">
+      <p class="eyebrow">${k.n} — ${k.label}</p>
+      <h2 id="${id[key]}-title" class="t-l mt-14">${k.title}</h2>
+      <p class="body-l mt-20">${k.body}</p>
+      <ul class="sp-list mt-26" role="list">${k.points.map(p => `<li>${bullet}<span>${p}</span></li>`).join('')}${extra}</ul>${link}
+    </div>
+  </div>
+</section>`;
+  };
 
   return `
-<section class="sec hero-home" aria-labelledby="hero-title">
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero-inner">
+    ${heroMark(c.logo)}
+    <a class="news-pill hero-rise hr-1" href="${news}"><span class="news-tag">${c.news.toUpperCase()} ${rel('version', LATEST_RELEASE.version)}</span><span${inEnglish(lang)} data-rel="headline">${esc(LATEST_RELEASE.headline)}</span>${icon('arrowRight', 14)}</a>
+    <h1 id="hero-title" class="t-hero hero-rise hr-2">${c.title}</h1>
+    <p class="lede hero-lede hero-rise hr-3">${c.lede}</p>
+    <p class="cta-row hero-cta hero-rise hr-4"><a class="btn btn-accent btn-lg" href="${r.download}">${icon('download', 20)}${c.ctaWin}</a><a class="btn btn-ghost btn-lg" href="#${id.platforms}">${c.ctaAll}</a></p>
+    <p class="meta-line hero-rise hr-5">${c.metaLine}</p>
+    <p class="hero-rise hr-5"><a class="arrow-link tv-link" href="${r.download}#tv-installer">${c.tvLink}${icon('arrowRight', 16)}</a></p>
+  </div>
+  <div class="wrap show-stage">
+    ${showcase}
+    <p class="caption">${c.caption}</p>
+  </div>
+</section>
+
+<section class="chapters-intro" id="${id.features}" aria-labelledby="features-title">
   <div class="wrap">
-    <div class="grid cols-hero-home">
-      <div>
-        <a class="news-pill" href="${r.download}#${pageIds.download.news}"><span class="news-tag">${c.news.toUpperCase()} ${rel('version', LATEST_RELEASE.version)}</span><span${inEnglish(lang)} data-rel="headline">${esc(LATEST_RELEASE.headline)}</span>${icon('arrowRight', 14)}</a>
-        <h1 id="hero-title" class="t-hero mt-28">${c.title}</h1>
-        <p class="lede mt-28 measure-620">${c.lede}</p>
-        <p class="cta-row mt-36"><a class="btn btn-accent btn-lg" href="${r.download}">${icon('monitor', 20)}${c.ctaWin}</a><a class="btn btn-ghost btn-lg" href="${r.download}">${icon('phone', 20)}${c.ctaAndroid}</a></p>
-        <p class="meta-line mt-22">${c.metaLine}</p>
-        <p class="mt-16"><a class="arrow-link" href="${r.download}#tv-installer">${c.tvLink}${icon('arrowRight', 16)}</a></p>
-      </div>
-      <aside class="log" aria-label="${c.log.label}">
-        <p class="log-head"><span class="label-mono">${c.log.title}</span><a href="${r.download}#${pageIds.download.news}">${c.log.all}</a></p>
+    <p class="eyebrow reveal">${ch.kicker}</p>
+    <h2 id="features-title" class="t-xl mt-16 measure-820 reveal">${ch.title}</h2>
+  </div>
+</section>
+${chapter('remote', false)}
+${chapter('airing', true)}
+${chapter('player', false)}
+${chapter('offline', true)}
+${chapter('sync', false)}
+
+<section class="platforms" id="${id.platforms}" aria-labelledby="platforms-title">
+  <div class="wrap">
+    <div class="platforms-head">
+      <div><p class="eyebrow">${c.status.kicker}</p><h2 id="platforms-title" class="t-xl mt-16">${c.status.title}</h2></div>
+      <p class="meta-line">${c.status.as}</p>
+    </div>
+    <div class="platforms-grid mt-40">
+      <ul class="plat-list" role="list">${c.status.items.map(([kind, ic, title, body]) => `
+        <li class="plat reveal">${icon(ic, 26, 'plat-icon')}<div class="plat-text"><h3>${title}</h3><p>${body}</p></div>${pill(kind, statusLabel[kind])}</li>`).join('')}
+      </ul>
+      <aside class="log reveal" aria-label="${c.log.label}">
+        <p class="log-head"><span class="label-mono">${c.log.title}</span><a href="${news}">${c.log.all}</a></p>
         <ol class="log-list" role="list" data-rel-list="releases" data-rel-start="0">${RELEASE_DATA.releases.slice(0, 3).map(release => `
           <li data-rel-item><span class="log-v" data-rel-field="version">${esc(release.version)}</span><span${inEnglish(lang)} data-rel-field="summary">${esc(release.summary)}</span></li>`).join('')}
         </ol>
       </aside>
     </div>
-    <div class="composite">
-      ${homeApp}
-      <p class="pair-chip" aria-hidden="true"><span class="live-dot"></span><span>${c.paired}</span><span class="mono">482 913</span></p>
-      ${remotePhone}
-    </div>
-    <p class="caption composite-caption">${c.caption}</p>
   </div>
 </section>
 
-<section class="band status-band" aria-labelledby="status-title">
+<section class="get" id="${id.download}" aria-labelledby="get-title">
   <div class="wrap">
-    <div class="status-head"><h2 id="status-title" class="label-mono">${c.status.title}</h2><p>${c.status.as}</p></div>
-    <div class="cells cells-5 status-cells">${c.status.items.map(([kind, title, body]) => `
-      <div class="cell">${pill(kind, statusLabel[kind])}<h3>${title}</h3><p>${body}</p></div>`).join('')}
-    </div>
-  </div>
-</section>
-
-<section class="sec pt-128 pb-64" aria-labelledby="remote-title">
-  <div class="wrap grid cols-2 gap-64 items-center">
-    <div>
-      ${eyebrow(c.pcRemote.kicker)}
-      <h2 id="remote-title" class="t-xl mt-18">${c.pcRemote.title}</h2>
-      <p class="body-l mt-22 measure-520">${c.pcRemote.body}</p>
-      <ul class="check-list check-list-l mt-30" role="list">${c.pcRemote.points.map(p => `<li>${icon('check', 20)}<span>${p}</span></li>`).join('')}
-        <li class="beta-item">${icon('bluetooth', 20)}<span>${c.pcRemote.bluetooth} ${pill('beta', 'Beta', 'pill-inline')}</span></li>
-      </ul>
-      <a class="arrow-link mt-34" href="${r.remote}">${c.pcRemote.link}${icon('arrowRight', 16)}</a>
-    </div>
-    ${pairWindow}
-  </div>
-</section>
-
-<section class="sec pt-96 pb-96" id="${ids[lang].features}" aria-labelledby="features-title">
-  <div class="wrap">
-    <h2 id="features-title" class="t-l measure-820">${f.title}</h2>
-    <div class="grid cols-2 gap-20 mt-48">
-      ${card(f.airing, airingMock, r.anime)}
-      ${card(f.player, playerMock, r.watch)}
-      ${card(f.offline, offlineMock, `${r.watch}#${pageIds.watch.downloads}`)}
-      ${card(f.mal, malMock, `${r.anime}#${pageIds.anime.mal}`)}
-    </div>
-  </div>
-</section>
-
-<section class="sec pt-40 pb-120" aria-labelledby="sync-title">
-  <div class="wrap">
-    <div class="panel-xl grid cols-1-11 gap-48 items-center">
-      <div>
-        ${eyebrow(c.sync.kicker)}
-        <h2 id="sync-title" class="t-l mt-16">${c.sync.title}</h2>
-        <p class="body-m mt-18">${c.sync.body}</p>
-        <a class="arrow-link mt-26" href="${r.sync}">${c.sync.link}${icon('arrowRight', 16)}</a>
-      </div>
-      <div>
-        <div class="sync-flow">
-          <div class="sync-node">${icon('monitor', 30, 'i-thin')}<span>${c.sync.nodes[0]}</span></div>
-          <span class="sync-link" aria-hidden="true"></span>
-          <div class="sync-node sync-node-hub">${markImg('sync-mark', 34)}<span>${c.sync.nodes[1]}</span></div>
-          <span class="sync-link" aria-hidden="true"></span>
-          <div class="sync-node">${icon('phone', 30, 'i-thin')}<span>${c.sync.nodes[2]}</span></div>
-        </div>
-        ${chips(c.sync.items, 'mt-24', c.sync.listLabel)}
-        <p class="small-note mt-16">${c.sync.note}</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="sec pb-128" id="${ids[lang].download}" aria-labelledby="get-title">
-  <div class="wrap">
-    <div class="center">
-      ${markImg('get-mark', 72)}
-      <h2 id="get-title" class="t-get mt-20">${c.get.title}</h2>
-      <p class="body-l mt-20 measure-600 center-block">${c.get.body}</p>
-    </div>
-    <div class="grid cols-2 gap-20 get-tiles mt-44">
-      <a class="get-tile get-tile-accent" href="${r.download}">${icon('monitor', 34, 'i-thin')}<span><b>${c.get.win[0]}</b><span>${c.get.win[1]}</span></span>${icon('download', 22)}</a>
-      <a class="get-tile" href="${r.download}">${icon('phone', 34, 'i-thin')}<span><b>${c.get.android[0]}</b><span>${c.get.android[1]}</span></span>${icon('download', 22)}</a>
+    <div class="get-mark" aria-hidden="true"><span class="get-glow"></span><span class="get-orbit"><span class="get-moon"></span></span>${markImg('get-logo', 132)}</div>
+    <h2 id="get-title" class="t-get reveal">${c.get.title}</h2>
+    <p class="body-l get-body reveal">${c.get.body}</p>
+    <div class="get-tiles">
+      <a class="get-tile get-tile-accent" href="${r.download}">${icon('monitor', 32, 'i-thin')}<span><b>${c.get.win[0]}</b><span>${c.get.win[1]}</span></span>${icon('download', 22)}</a>
+      <a class="get-tile" href="${r.download}">${icon('phone', 32, 'i-thin')}<span><b>${c.get.android[0]}</b><span>${c.get.android[1]}</span></span>${icon('download', 22)}</a>
+      <a class="get-tile" href="${r.download}">${icon('terminal', 32, 'i-thin')}<span><b>${c.get.linux[0]}</b><span>${c.get.linux[1]}</span></span>${icon('download', 22)}</a>
     </div>
   </div>
 </section>`;
