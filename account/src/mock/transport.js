@@ -53,6 +53,13 @@ export async function transport(url, init = {}) {
       if (grant === 'refresh_token') return json(200, backend.auth.refresh(body));
       return json(400, { error: 'unsupported_grant_type', error_description: 'Not available in the mock API' });
     }
+    // Like the real server: a new account waits for email verification (no
+    // session), and a reset request answers the same for any address.
+    if (pathname === '/auth/v1/signup') {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body?.email ?? '')) return json(400, { error_code: 'validation_failed', msg: 'Unable to validate email address: invalid format' });
+      return json(200, { id: 'mock-new-user', email: body.email, confirmation_sent_at: new Date().toISOString() });
+    }
+    if (pathname === '/auth/v1/recover') return json(200, {});
     if (pathname === '/auth/v1/user') return json(200, backend.auth.user(token));
     if (pathname === '/auth/v1/logout') { backend.auth.logout(token, searchParams.get('scope') ?? 'global'); return new Response(null, { status: 204 }); }
     return json(404, { message: 'Not found' });
