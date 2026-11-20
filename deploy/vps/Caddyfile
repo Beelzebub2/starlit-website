@@ -28,10 +28,13 @@
         Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
         Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://starlit-api.rrmtools.uk; manifest-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
     }
+    # no-transform stops the Cloudflare edge from rewriting account pages
+    # (Rocket Loader, injected inline scripts the account CSP then blocks),
+    # as the public pages already ask.
     @accountFonts path /account/fonts/*
-    header @accountFonts Cache-Control "public, max-age=31536000, immutable"
+    header @accountFonts Cache-Control "public, max-age=31536000, immutable, no-transform"
     @accountOther not path /account/fonts/*
-    header @accountOther Cache-Control "private, no-store, max-age=0"
+    header @accountOther Cache-Control "private, no-store, max-age=0, no-transform"
 }
 
 # One static server, distinct CSP for public pages and the account SPA.
