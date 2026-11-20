@@ -63,6 +63,10 @@ test('combined deployment keeps ports closed and separate per-path CSPs', () => 
   assert.match(caddy, /handle @accountAssets \{\s*import account_headers\s*file_server\s*\}/);
   assert.ok(caddy.indexOf('handle @accountAssets') < caddy.indexOf('handle @account {'), 'missing assets must not fall back to the SPA');
   assert.match(caddy, /import account_headers\s*try_files \{path\} \/account\/index\.html/);
+  // The Cloudflare edge must not rewrite account pages (Rocket Loader and
+  // injected inline scripts break under the account CSP).
+  assert.match(caddy, /header @accountOther Cache-Control "private, no-store, max-age=0, no-transform"/);
+  assert.match(caddy, /header @accountFonts Cache-Control "[^"]*no-transform"/);
   assert.match(caddy, /@accountRoot path \/account/);
   assert.match(caddy, /rewrite @accountRoot \/account\/index\.html/);
   assert.match(caddy, /script-src 'self'/);
