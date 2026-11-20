@@ -110,16 +110,34 @@ test('The home page animates with CSS only and honours reduced motion', () => {
     const home = read(fileFor(routes[lang].home));
     assert.match(home, /<svg class="hero-svg"[^>]*role="img"/, 'Animated logo on ' + lang);
     assert.match(home, /#45D6EB[\s\S]*#3965D4[\s\S]*#B250EF/, 'Official mark colours on ' + lang);
-    assert.equal([...home.matchAll(/<svg class="cst"/g)].length, 5, 'Five constellations on ' + lang);
+    // Real app screens: every one sized (no layout shift), described, and
+    // lazy below the fold; only the hero screen loads eagerly.
+    const shots = [...home.matchAll(/<img class="shot-img[^"]*"[^>]*>/g)].map(m => m[0]);
+    assert.ok(shots.length >= 9, 'Real screenshots on ' + lang);
+    for (const img of shots) {
+      assert.match(img, /src="\/assets\/shots\/[a-z-]+-\d+\.webp\?v=[0-9a-f]{10}"/, 'Screenshot source on ' + lang);
+      assert.match(img, /width="\d+" height="\d+"/, 'Screenshot size on ' + lang);
+      assert.match(img, /alt="[^"]{30,}"/, 'Screenshot description on ' + lang);
+    }
+    assert.equal(shots.filter(img => /fetchpriority="high"/.test(img)).length, 1, 'One eager hero screenshot on ' + lang);
+    assert.equal(shots.filter(img => /loading="lazy"/.test(img)).length, shots.length - 1, 'Lazy screenshots on ' + lang);
   }
-  // Every keyframe animation of the sky, hero and constellations sits behind
-  // a reduced-motion check, and the stars only move with transforms.
+  // Every keyframe animation of the sky, hero and screens sits behind a
+  // reduced-motion check, and the stars only move with transforms.
   const motionFree = css.replace(/@media \(prefers-reduced-motion: ?no-preference\)\{(?:[^{}]|\{[^{}]*\})*\}/g, '');
-  for (const cls of ['.sky-l2', '.sky-l3', '.hm-line', '.hm-mark', '.cst-line', '.get-orbit', '.hero-rise']) {
+  for (const cls of ['.sky-l2', '.sky-l3', '.hm-line', '.hm-mark', '.get-orbit', '.hero-rise', '.shot-glow', '.gallery-track', '.scroll-progress']) {
     assert.doesNotMatch(motionFree, new RegExp(cls.replace('.', '\.') + '\{[^}]*animation:'), cls + ' animates without a reduced-motion guard');
   }
   for (const frames of ['drift-384', 'drift-512']) {
     assert.match(css, new RegExp('@keyframes ' + frames + '\{to\{transform:translate3d'), frames);
+  }
+});
+
+test('Product pages never advertise torrent or debrid sources', () => {
+  // The legal pages still describe what the app does (privacy needs it);
+  // the marketing pages and their screenshots stick to generic features.
+  for (const { route, html } of productPages()) {
+    assert.doesNotMatch(strip(html), /torrent|TorrServer|BitTorrent|debrid|Premiumize|TorBox|Real-Debrid|magnet/i, 'Source wording on ' + route);
   }
 });
 

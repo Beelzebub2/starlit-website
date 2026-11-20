@@ -62,7 +62,7 @@
   --app-line: #1f1f1f;
   --player: #2f6feb;
   /* Type */
-  --display: "Bricolage Grotesque", Geist, system-ui, sans-serif;
+  --display: Geist, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sans: Geist, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   /* Section spacing shrinks on small screens */
@@ -138,12 +138,12 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
 
 .t-hero, .t-xl, .t-big, .t-l, .t-m, .t-s, .t-card, .t-get, .t-dl, .prose-title {
   font-family: var(--display);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text);
   text-wrap: balance;
 }
-.t-hero { font-stretch: 86%; font-size: clamp(50px, 6.6vw, 100px); line-height: .93; letter-spacing: -.045em; }
-.page-home .t-hero { line-height: .94; letter-spacing: -.04em; }
+.t-hero { font-size: clamp(44px, 6.2vw, 92px); line-height: .98; letter-spacing: -.045em; }
+.page-home .t-hero { letter-spacing: -.05em; }
 .page-remote .t-hero { font-size: clamp(50px, 6.6vw, 104px); line-height: .92; }
 .t-dl { font-stretch: 86%; font-size: clamp(56px, 8vw, 128px); line-height: .9; letter-spacing: -.05em; }
 .t-big { font-stretch: 88%; font-size: clamp(38px, 4.8vw, 70px); line-height: .98; letter-spacing: -.04em; }
@@ -582,96 +582,73 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
 .news-pill:hover { border-color: #303868; color: var(--text); }
 .news-tag { flex: none; padding: 3px 9px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .06em; }
 
-/* ------------------------------------------------------------ home: app showcase */
+/* ------------------------------------------------------------ home: real screens */
 
-.show-stage { margin-top: calc(72px * var(--s)); perspective: 1400px; }
-.show-win { display: flex; min-height: 440px; overflow: hidden; border: 1px solid rgba(226, 232, 255, .12); border-radius: 22px; background: #0a0d19; box-shadow: 0 50px 140px rgba(0, 0, 0, .6); }
-.show-rail { display: flex; flex: 0 0 72px; flex-direction: column; align-items: center; gap: 8px; padding: 18px 0; border-right: 1px solid rgba(226, 232, 255, .07); }
-.show-mark { width: 32px; height: 32px; margin-bottom: 14px; }
-.show-ico { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; color: var(--dim); }
-.show-ico.on { background: rgba(226, 232, 255, .08); color: #fff; }
-.show-main { display: flex; flex: 1; flex-direction: column; gap: 26px; min-width: 0; padding: 24px; }
-.show-hero {
+/* Screenshots are the real app (see assets/shots/README.md), framed simply:
+   a hairline border, a soft shadow and a glow in the logo's colours behind. */
+.shot-frame {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  min-height: 210px;
-  padding: 26px;
+  display: block;
   overflow: hidden;
+  border: 1px solid rgba(226, 232, 255, .12);
   border-radius: 16px;
-  background: linear-gradient(to top, rgba(5, 7, 15, .92), rgba(5, 7, 15, 0) 72%),
-    radial-gradient(90% 120% at 85% 0%, rgba(69, 214, 235, .55), transparent 60%),
-    linear-gradient(160deg, #3965d4 0%, rgba(178, 80, 239, .6) 55%, #0a0d19 100%);
+  background: #0d0d0d;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 40px 120px -20px rgba(0, 0, 0, .75), 0 0 0 1px rgba(0, 0, 0, .4);
 }
-.show-tag { padding: 4px 10px; border-radius: 999px; background: rgba(5, 7, 15, .6); color: #bff3fa; font-size: 12px; font-weight: 600; }
-.show-title { margin-top: 10px; font-family: var(--display); font-size: clamp(24px, 3vw, 34px); font-weight: 700; letter-spacing: -.02em; }
-.show-when { margin-top: 4px; font-size: 14px; color: var(--text-2); }
-.show-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 9px 16px; border-radius: 999px; background: #eef0fa; color: #06070f; font-size: 13px; font-weight: 600; }
-.show-rows { display: flex; gap: 24px; }
-.show-cont { flex: 1; min-width: 0; }
-.show-head { display: block; margin-bottom: 12px; font-size: 14px; font-weight: 600; }
-.show-posters { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 14px; }
-.show-poster { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 12px; }
-.show-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(5, 7, 15, .95), rgba(5, 7, 15, 0) 60%); }
-.show-ptitle { position: absolute; left: 10px; right: 10px; bottom: 12px; z-index: 1; font-size: 13px; font-weight: 600; line-height: 1.25; }
-.show-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; height: 3px; background: rgba(255, 255, 255, .14); }
-.show-bar > span { display: block; height: 100%; background: linear-gradient(90deg, #45d6eb, #3965d4, #b250ef); }
-.fill-22 { width: 22%; } .fill-40 { width: 40%; } .fill-64 { width: 64%; } .fill-81 { width: 81%; }
-/* Poster art: the app icon's colourways, so the made-up shows still look like Starlit. */
-.p1 { background: radial-gradient(120% 70% at 15% 0%, rgba(77, 227, 255, .5), transparent 60%), linear-gradient(165deg, #3185f5, rgba(77, 85, 232, .6) 48%, #090c18); }
-.p2 { background: radial-gradient(120% 70% at 15% 0%, rgba(201, 89, 69, .5), transparent 60%), linear-gradient(165deg, #de7b45, rgba(236, 174, 98, .6) 48%, #090c18); }
-.p3 { background: radial-gradient(120% 70% at 15% 0%, rgba(183, 90, 255, .5), transparent 60%), linear-gradient(165deg, #ec70a9, rgba(255, 179, 122, .6) 48%, #090c18); }
-.p4 { background: radial-gradient(120% 70% at 15% 0%, rgba(215, 220, 227, .5), transparent 60%), linear-gradient(165deg, #8d96a3, rgba(78, 87, 99, .6) 48%, #090c18); }
-.p5 { background: radial-gradient(120% 70% at 15% 0%, rgba(123, 240, 141, .5), transparent 60%), linear-gradient(165deg, #22d37c, rgba(11, 191, 154, .6) 48%, #090c18); }
-.show-air { flex: 0 0 230px; }
-.show-time { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: rgba(226, 232, 255, .04); font-size: 13px; }
-.show-time b { flex: 0 0 44px; color: #7fdcec; }
-.show-time span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.show-stage .caption { text-align: center; }
-@media (max-width: 860px) {
-  .show-rail, .show-air { display: none; }
-  .show-win { min-height: 0; }
-  .show-main { padding: 14px; gap: 18px; }
-  .show-hero { min-height: 170px; padding: 18px; }
-  .show-posters { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-  .show-poster:nth-child(n+4) { display: none; }
+.shot-img { display: block; width: 100%; height: auto; }
+.shot-glow {
+  position: absolute;
+  inset: 8% 6% -6%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(57, 101, 212, .38), rgba(178, 80, 239, .14) 55%, rgba(6, 7, 15, 0));
+  filter: blur(30px);
 }
+.shot-glow-hero { inset: -6% 4% 0; background: radial-gradient(closest-side, rgba(69, 214, 235, .26), rgba(57, 101, 212, .2) 45%, rgba(178, 80, 239, 0)); }
 
-/* ------------------------------------------------------------ home: constellations */
+.hero-stage { margin-top: calc(76px * var(--s)); perspective: 1600px; }
+.hero-shot { position: relative; isolation: isolate; max-width: 1180px; margin: 0 auto; }
+.hero-shot .shot-frame { border-radius: 18px; }
+.hero-shot .caption { margin-top: 18px; text-align: center; }
 
-.chapters-intro { padding: calc(130px * var(--s)) 0 calc(24px * var(--s)); }
-.chapter { padding-block: calc(56px * var(--s)); }
-.chapter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 5vw, 72px); align-items: center; }
-.chapter-flip .cst-card { order: 2; }
-.cst-card {
-  margin: 0;
-  padding: 24px;
-  border: 1px solid var(--line-2);
-  border-radius: 28px;
-  background: radial-gradient(80% 80% at 50% 40%, rgba(57, 101, 212, .14), rgba(6, 7, 15, 0)), rgba(9, 11, 23, .55);
-  transition: border-color .25s;
-}
-.chapter-flip .cst-card { background: radial-gradient(80% 80% at 50% 40%, rgba(178, 80, 239, .12), rgba(6, 7, 15, 0)), rgba(9, 11, 23, .55); }
-.cst-card:hover { border-color: rgba(127, 220, 236, .35); }
-.cst { display: block; width: 100%; height: auto; }
-.cst-line { fill: none; stroke: rgba(191, 243, 250, .55); stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
-.cst-faint { stroke: rgba(191, 243, 250, .3); stroke-width: 1; }
-.cst-white { fill: #fff; }
-.cst-cyan { fill: #bff3fa; }
-.cst-halo { fill: rgba(69, 214, 235, .13); }
-.cst-star { transform-box: fill-box; transform-origin: center; }
-.cst-card figcaption { display: flex; justify-content: space-between; gap: 12px; padding: 4px 6px 0; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+/* Feature rows: copy and a real screen side by side, alternating. */
+.feats-intro { padding: calc(140px * var(--s)) 0 calc(20px * var(--s)); }
+.feat { padding-block: calc(72px * var(--s)); }
+.feat-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr); gap: clamp(36px, 5vw, 80px); align-items: center; }
+.feat-flip .feat-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, .9fr); }
+.feat-flip .feat-copy { order: 2; }
+.feat-small .feat-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.feat-shot { position: relative; isolation: isolate; margin: 0; }
+.feat-small .shot-frame { border-radius: 14px; }
+.feat-copy .t-l { max-width: 14ch; }
 .sp-list { display: flex; flex-direction: column; gap: 12px; }
 .sp-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; line-height: 1.5; color: var(--text-2); }
 .sp-bullet { flex: none; margin-top: 5px; fill: #7fdcec; }
-.sp-list .i { margin-top: 2px; color: var(--beta); }
-@media (max-width: 860px) {
-  .chapter-grid { grid-template-columns: minmax(0, 1fr); }
-  .chapter-flip .cst-card { order: 0; }
-  .cst-card { padding: 14px; border-radius: 22px; }
+@media (max-width: 900px) {
+  .feat-grid, .feat-flip .feat-grid, .feat-small .feat-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .feat-flip .feat-copy { order: 0; }
+  .feat-copy .t-l { max-width: none; }
 }
+
+/* A strip of screens that slides sideways as the page scrolls. */
+.gallery { padding: calc(120px * var(--s)) 0 calc(40px * var(--s)); overflow-x: clip; }
+.gallery-view { margin-top: 48px; }
+.gallery-track { display: flex; gap: 24px; width: max-content; padding-inline: max(16px, calc((100vw - 1200px) / 2)); }
+.gallery-item { flex: none; width: min(78vw, 720px); border-radius: 14px; }
+
+/* Smaller features without a screen of their own. */
+.extras { padding: calc(110px * var(--s)) 0 calc(40px * var(--s)); }
+.extras-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.extra { padding: 26px 24px; border: 1px solid var(--line-2); border-radius: 20px; background: rgba(11, 13, 26, .78); }
+.extra-icon { color: var(--accent); stroke-width: 1.7; }
+.extra h3 { margin-top: 18px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.extra p { margin-top: 8px; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.extra .extra-tag { margin-top: 14px; font-family: var(--mono); font-size: 12px; color: var(--dim); }
+@media (max-width: 1100px) { .extras-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .extras-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* A hairline at the top of the page that fills as you scroll. */
+.scroll-progress { position: fixed; inset: 0 0 auto; z-index: 60; height: 2px; background: linear-gradient(90deg, #45d6eb, #3965d4 52%, #b250ef); transform: scaleX(0); transform-origin: left; pointer-events: none; display: none; }
 
 /* ------------------------------------------------------------ home: platforms and download */
 
@@ -731,20 +708,27 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
   .get-tiles { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Constellations draw themselves and copy rises as each section scrolls
-   into view, in browsers with scroll-driven animations. Elsewhere, and with
-   reduced motion, everything is simply there. */
+/* Scroll motion, in browsers with scroll-driven animations (elsewhere, and
+   with reduced motion, everything is simply in place). Only transform and
+   opacity change, so it all runs on the compositor:
+   - the hero screen flattens out of a tilt as it comes up the page;
+   - each feature screen rises and settles, its glow drifting more slowly;
+   - copy fades up; the gallery strip slides sideways; a hairline fills. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .reveal, .release, .platform, .faq details { animation: reveal linear both; animation-timeline: view(); animation-range: entry 5% cover 28%; }
-    .cst-line { animation: cst-draw linear both; animation-timeline: view(); animation-range: entry 10% cover 42%; }
-    .cst-star { animation: cst-pop linear both; animation-timeline: view(); animation-range: entry 12% cover 38%; }
-    .show-win { animation: settle linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; }
+    .hero-shot .shot-frame { animation: tilt-in linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
+    .feat-shot .shot-frame { animation: shot-in linear both; animation-timeline: view(); animation-range: entry 0% cover 38%; }
+    .shot-glow { animation: glow-drift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    .gallery-track { animation: gallery-slide linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    .scroll-progress { display: block; animation: progress linear both; animation-timeline: scroll(root); }
   }
 }
-@keyframes cst-draw { from { stroke-dashoffset: 1; } }
-@keyframes cst-pop { from { opacity: 0; transform: scale(.3) rotate(-45deg); } }
-@keyframes settle { from { opacity: .35; transform: perspective(1400px) rotateX(14deg) scale(.95); } }
+@keyframes tilt-in { from { opacity: .5; transform: perspective(1600px) rotateX(20deg) scale(.9) translate3d(0, 40px, 0); } }
+@keyframes shot-in { from { opacity: 0; transform: translate3d(0, 70px, 0) scale(.96); } }
+@keyframes glow-drift { from { transform: translate3d(0, 60px, 0); } to { transform: translate3d(0, -60px, 0); } }
+@keyframes gallery-slide { from { transform: translate3d(6%, 0, 0); } to { transform: translate3d(-34%, 0, 0); } }
+@keyframes progress { to { transform: scaleX(1); } }
 
 /* ------------------------------------------------------------ download */
 

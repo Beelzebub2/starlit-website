@@ -78,7 +78,6 @@ const cssHref = '/assets/site.css?v=' + hash(css);
 // Progressive enhancement only: every page works without it (see site.js).
 const SCRIPT = asset('/assets/site.js');
 const FONT_SANS = asset('/assets/fonts/geist-latin.woff2');
-const FONT_DISPLAY = asset('/assets/fonts/bricolage-grotesque-latin.woff2');
 
 // ---------------------------------------------------------------- layout
 
@@ -101,7 +100,6 @@ function head(lang, { title, description, path, alternates, noindex }) {
 <link rel="icon" href="/assets/starlit-logo.png" type="image/png" sizes="120x120">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="${FONT_SANS}" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="${FONT_DISPLAY}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${cssHref}">
 <script src="${SCRIPT}" defer></script>
 <meta property="og:type" content="website">
