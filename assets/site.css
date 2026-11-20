@@ -630,11 +630,13 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
   .feat-copy .t-l { max-width: none; }
 }
 
-/* A strip of screens that slides sideways as the page scrolls. */
+/* A strip of screens. It swipes sideways everywhere; where scroll-driven
+   animation runs, it slides by itself as the page scrolls instead. */
 .gallery { padding: calc(120px * var(--s)) 0 calc(40px * var(--s)); overflow-x: clip; }
-.gallery-view { margin-top: 48px; }
+.gallery-view { margin-top: 48px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.gallery-view::-webkit-scrollbar { display: none; }
 .gallery-track { display: flex; gap: 24px; width: max-content; padding-inline: max(16px, calc((100vw - 1200px) / 2)); }
-.gallery-item { flex: none; width: min(78vw, 720px); border-radius: 14px; }
+.gallery-item { flex: none; width: min(78vw, 720px); border-radius: 14px; scroll-snap-align: center; }
 
 /* Smaller features without a screen of their own. */
 .extras { padding: calc(110px * var(--s)) 0 calc(40px * var(--s)); }
@@ -720,14 +722,17 @@ main:focus, [tabindex="-1"]:focus { outline: none; }
     .hero-shot .shot-frame { animation: tilt-in linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
     .feat-shot .shot-frame { animation: shot-in linear both; animation-timeline: view(); animation-range: entry 0% cover 38%; }
     .shot-glow { animation: glow-drift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
-    .gallery-track { animation: gallery-slide linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    .gallery-view { overflow-x: clip; }
+    /* While the strip is fully on screen it travels from its first screen to
+       its last, so every screen is seen at any viewport width. */
+    .gallery-track { animation: gallery-slide linear both; animation-timeline: view(); animation-range: contain 0% contain 100%; }
     .scroll-progress { display: block; animation: progress linear both; animation-timeline: scroll(root); }
   }
 }
 @keyframes tilt-in { from { opacity: .5; transform: perspective(1600px) rotateX(20deg) scale(.9) translate3d(0, 40px, 0); } }
 @keyframes shot-in { from { opacity: 0; transform: translate3d(0, 70px, 0) scale(.96); } }
 @keyframes glow-drift { from { transform: translate3d(0, 60px, 0); } to { transform: translate3d(0, -60px, 0); } }
-@keyframes gallery-slide { from { transform: translate3d(6%, 0, 0); } to { transform: translate3d(-34%, 0, 0); } }
+@keyframes gallery-slide { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(calc(100vw - 100%), 0, 0); } }
 @keyframes progress { to { transform: scaleX(1); } }
 
 /* ------------------------------------------------------------ download */

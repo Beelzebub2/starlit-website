@@ -128,6 +128,10 @@ test('The home page animates with CSS only and honours reduced motion', () => {
   for (const cls of ['.sky-l2', '.sky-l3', '.hm-line', '.hm-mark', '.get-orbit', '.hero-rise', '.shot-glow', '.gallery-track', '.scroll-progress']) {
     assert.doesNotMatch(motionFree, new RegExp(cls.replace('.', '\.') + '\{[^}]*animation:'), cls + ' animates without a reduced-motion guard');
   }
+  // Without scroll-driven animation the gallery still reaches its last
+  // screen: it scrolls sideways (swipe or trackpad).
+  assert.match(css, /\.gallery-view\{[^}]*overflow-x:auto/, 'Gallery is swipeable without scroll-driven animation');
+  assert.match(css, /@keyframes gallery-slide\{[^}]*\}to\{transform:translate3d\(calc\(100vw - 100%\)/, 'Gallery slides to its last screen');
   for (const frames of ['drift-384', 'drift-512']) {
     assert.match(css, new RegExp('@keyframes ' + frames + '\{to\{transform:translate3d'), frames);
   }
