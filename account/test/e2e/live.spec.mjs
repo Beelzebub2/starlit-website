@@ -19,8 +19,8 @@ test.use({ baseURL: env.STARLIT_E2E_URL });
 
 async function signIn(page, who) {
   await page.goto('/account?tab=overview');
-  await page.getByLabel('Email').fill(env[`STARLIT_E2E_${who}_EMAIL`]);
-  await page.getByLabel('Password').fill(env[`STARLIT_E2E_${who}_PASSWORD`]);
+  await page.getByLabel('Email', { exact: true }).fill(env[`STARLIT_E2E_${who}_EMAIL`]);
+  await page.getByLabel('Password', { exact: true }).fill(env[`STARLIT_E2E_${who}_PASSWORD`]);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   const chooser = page.getByRole('heading', { name: 'Which profile do you want to manage?' });
   if (await chooser.isVisible({ timeout: 5000 }).catch(() => false)) await page.locator('.choose-card').first().click();

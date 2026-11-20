@@ -6,12 +6,12 @@ import { signIn, go, mock, remoteEdit, TEST_ACCOUNTS } from './helpers.mjs';
 test('a wrong password shows an error and keeps focus on the password', async ({ page }) => {
   await page.goto('/');
   await mock(page, { latencyMs: 0 });
-  await page.getByLabel('Email').fill(TEST_ACCOUNTS.a.email);
-  await page.getByLabel('Password').fill('wrong-password');
+  await page.getByLabel('Email', { exact: true }).fill(TEST_ACCOUNTS.a.email);
+  await page.getByLabel('Password', { exact: true }).fill('wrong-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByText('That email and password do not match.')).toBeVisible();
-  await expect(page.getByLabel('Password')).toBeFocused();
-  await expect(page.getByLabel('Password')).toHaveValue('');
+  await expect(page.getByLabel('Password', { exact: true })).toBeFocused();
+  await expect(page.getByLabel('Password', { exact: true })).toHaveValue('');
 });
 
 test('a deep link survives sign-in and the profile choice', async ({ page }) => {
@@ -58,7 +58,7 @@ test('the session lives in memory only', async ({ page }) => {
 test('Portuguese is available and remembered as a preference', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Português' }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Inicia sessão para gerir a tua conta');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bem-vindo de volta');
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
   await page.reload();
   await expect(page.getByRole('button', { name: 'Iniciar sessão', exact: true })).toBeVisible();

@@ -5,6 +5,10 @@
 import { ApiError, errorFromResponse, networkError } from './errors.js';
 
 const VERIFIER_KEY = 'starlit.pkce';
+// The official server's minimum, as the Starlit app enforces it.
+export const PASSWORD_MIN = 12;
+// The API's password-reset completion page (in GoTrue's redirect allow list).
+export const PASSWORD_RECOVERY_URL = 'https://starlit-api.rrmtools.uk/account/recovery';
 
 export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now(), onChange, credentials = globalThis.navigator?.credentials }) {
   let session = null;      // { accessToken, refreshToken, expiresAt, user }
@@ -136,6 +140,24 @@ export function createAuth({ baseUrl, anonKey, transport, now = () => Date.now()
     current: publicView,
     async signInWithPassword(email, password) {
       return accept(await call('/token?grant_type=password', { body: { email, password } }));
+    },
+    // Same rules as the app's sign-up: GoTrue creates the account and, while
+    // the email is unverified, returns no session and sends a verification
+    // email. A server that already trusts the address may return a session.
+    async signUp(email, password) {
+      if (String(password).length < PASSWORD_MIN) {
+        throw new ApiError('invalid', { code: 'weak_password', message: `Use at least ${PASSWORD_MIN} characters` });
+      }
+      const result = await call('/signup', { body: { email, password } });
+      if (result?.access_token) return { pending: false, user: accept(result) };
+      return { pending: true };
+    },
+    // Password reset email, exactly as the app requests it: no PKCE (the link
+    // may open in another browser) and the API's own HTTPS completion page.
+    // The server replies the same way whether or not the account exists.
+    async requestPasswordReset(email) {
+      await call(`/recover?redirect_to=${encodeURIComponent(PASSWORD_RECOVERY_URL)}`, { body: { email } });
+      return true;
     },
     // GoTrue keeps the WebAuthn challenge, RP and credential verification on
     // the server. Do not change its existing RP ID: native app passkeys use it.
