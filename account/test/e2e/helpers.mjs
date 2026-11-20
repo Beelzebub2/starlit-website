@@ -32,8 +32,8 @@ export async function stored(page, key) {
 export async function signIn(page, which = 'a', { path = '/', profile = which === 'a' ? 'Ana' : null, latency = 0, wait = true } = {}) {
   await page.goto(accountUrl(path));
   await mock(page, { latencyMs: latency });
-  await page.getByLabel('Email').fill(TEST_ACCOUNTS[which].email);
-  await page.getByLabel('Password').fill(TEST_ACCOUNTS[which].password);
+  await page.getByLabel('Email', { exact: true }).fill(TEST_ACCOUNTS[which].email);
+  await page.getByLabel('Password', { exact: true }).fill(TEST_ACCOUNTS[which].password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   if (profile) {
     await expect(page.getByRole('heading', { level: 1, name: 'Which profile do you want to manage?' })).toBeVisible();
