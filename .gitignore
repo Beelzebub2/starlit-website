@@ -7,3 +7,9 @@ node_modules/
 .env.*
 test-results/
 playwright-report/
+
+# Website screenshot tooling output (tools/screenshots/README.md)
+tools/screenshots/img/
+tools/screenshots/captures/
+tools/screenshots/catalog.json
+tools/screenshots/demo.mp4

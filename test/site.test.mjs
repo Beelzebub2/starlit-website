@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { en, pt, routes, CONTACT } from '../content.mjs';
-import { KEYS, PRODUCT, DOCS, VERSION, WINDOWS_FILE, ANDROID_FILE, LATEST, PUBLIC_CSP, RELEASE_DATA } from '../constants.mjs';
+import { KEYS, PRODUCT, DOCS, VERSION, WINDOWS_FILE, ANDROID_FILE, LATEST, PUBLIC_CSP, RELEASE_DATA, LEGACY_REDIRECTS } from '../constants.mjs';
 
 const buildDir = new URL('../dist/', import.meta.url);
 const read = path => readFileSync(new URL(path, buildDir), 'utf8');
@@ -36,7 +36,7 @@ test('TV installer is discoverable without advertising an unverified release', (
   }
 });
 
-test('Both localisations cover the six product pages and the six policy pages', () => {
+test('Both localisations cover the home and download pages and the six policy pages', () => {
   assert.deepEqual(Object.keys(en), DOCS);
   assert.deepEqual(Object.keys(pt), DOCS);
   assert.deepEqual(Object.keys(routes.en), KEYS);
@@ -77,14 +77,71 @@ test('The language switch points at the equivalent page in the other language', 
   }
 });
 
-test('The header links to every product page and marks the current one', () => {
+test('The header points into the one-page home and marks the download page', () => {
+  const sections = { en: ['/#features', '/#platforms', '/download/#whats-new'],
+    pt: ['/pt/#funcionalidades', '/pt/#plataformas', '/pt/transferir/#novidades'] };
   for (const { lang, key, route, html } of allPages()) {
     const nav = html.slice(html.indexOf('<nav class="nav-main"'), html.indexOf('</nav>', html.indexOf('<nav class="nav-main"')));
-    for (const item of ['remote', 'anime', 'watch', 'sync']) {
-      assert.ok(nav.includes(`href="${routes[lang][item]}"`), `Header misses ${item} on ${route}`);
-    }
+    for (const href of sections[lang]) assert.ok(nav.includes(`href="${href}"`), `Header misses ${href} on ${route}`);
     const current = [...html.matchAll(/href="([^"]+)"[^>]*aria-current="page"/g)].map(m => m[1]);
-    if (['remote', 'anime', 'watch', 'sync', 'download'].includes(key)) assert.ok(current.includes(route), 'No current link on ' + route);
+    if (key === 'download') assert.ok(current.includes(route), 'No current link on ' + route);
+  }
+});
+
+test('Old feature pages redirect to their section of the home page on Pages and the VPS', () => {
+  const redirects = read('_redirects');
+  const caddy = readFileSync(new URL('../deploy/vps/Caddyfile', import.meta.url), 'utf8');
+  for (const [from, to] of LEGACY_REDIRECTS) {
+    assert.ok(redirects.includes(`${from} ${to} 301
+`), 'Pages redirect ' + from);
+    assert.ok(redirects.includes(`${from.slice(0, -1)} ${to} 301
+`), 'Pages redirect ' + from.slice(0, -1));
+    assert.ok(caddy.includes(`redir ${from} ${to} 301`), 'VPS redirect ' + from);
+    assert.ok(caddy.includes(`redir ${from.slice(0, -1)} ${to} 301`), 'VPS redirect ' + from.slice(0, -1));
+    assert.ok(!existsSync(new URL(from.slice(1) + 'index.html', buildDir)), 'Retired page still built: ' + from);
+    const [path, id] = to.split('#');
+    assert.ok(read(fileFor(path)).includes(`id="${id}"`), `Redirect target #${id} missing on ${path}`);
+  }
+});
+
+test('The home page animates with CSS only and honours reduced motion', () => {
+  const css = read('assets/site.css');
+  for (const lang of ['en', 'pt']) {
+    const home = read(fileFor(routes[lang].home));
+    assert.match(home, /<svg class="hero-svg"[^>]*role="img"/, 'Animated logo on ' + lang);
+    assert.match(home, /#45D6EB[\s\S]*#3965D4[\s\S]*#B250EF/, 'Official mark colours on ' + lang);
+    // Real app screens: every one sized (no layout shift), described, and
+    // lazy below the fold; only the hero screen loads eagerly.
+    const shots = [...home.matchAll(/<img class="shot-img[^"]*"[^>]*>/g)].map(m => m[0]);
+    assert.ok(shots.length >= 9, 'Real screenshots on ' + lang);
+    for (const img of shots) {
+      assert.match(img, /src="\/assets\/shots\/[a-z-]+-\d+\.webp\?v=[0-9a-f]{10}"/, 'Screenshot source on ' + lang);
+      assert.match(img, /width="\d+" height="\d+"/, 'Screenshot size on ' + lang);
+      assert.match(img, /alt="[^"]{30,}"/, 'Screenshot description on ' + lang);
+    }
+    assert.equal(shots.filter(img => /fetchpriority="high"/.test(img)).length, 1, 'One eager hero screenshot on ' + lang);
+    assert.equal(shots.filter(img => /loading="lazy"/.test(img)).length, shots.length - 1, 'Lazy screenshots on ' + lang);
+  }
+  // Every keyframe animation of the sky, hero and screens sits behind a
+  // reduced-motion check, and the stars only move with transforms.
+  const motionFree = css.replace(/@media \(prefers-reduced-motion: ?no-preference\)\{(?:[^{}]|\{[^{}]*\})*\}/g, '');
+  for (const cls of ['.sky-l2', '.sky-l3', '.hm-line', '.hm-mark', '.get-orbit', '.hero-rise', '.shot-glow', '.gallery-track', '.scroll-progress']) {
+    assert.doesNotMatch(motionFree, new RegExp(cls.replace('.', '\.') + '\{[^}]*animation:'), cls + ' animates without a reduced-motion guard');
+  }
+  // Without scroll-driven animation the gallery still reaches its last
+  // screen: it scrolls sideways (swipe or trackpad).
+  assert.match(css, /\.gallery-view\{[^}]*overflow-x:auto/, 'Gallery is swipeable without scroll-driven animation');
+  assert.match(css, /@keyframes gallery-slide\{[^}]*\}to\{transform:translate3d\(calc\(100vw - 100%\)/, 'Gallery slides to its last screen');
+  for (const frames of ['drift-384', 'drift-512']) {
+    assert.match(css, new RegExp('@keyframes ' + frames + '\{to\{transform:translate3d'), frames);
+  }
+});
+
+test('Product pages never advertise torrent or debrid sources', () => {
+  // The legal pages still describe what the app does (privacy needs it);
+  // the marketing pages and their screenshots stick to generic features.
+  for (const { route, html } of productPages()) {
+    assert.doesNotMatch(strip(html), /torrent|TorrServer|BitTorrent|debrid|Premiumize|TorBox|Real-Debrid|magnet/i, 'Source wording on ' + route);
   }
 });
 
@@ -105,8 +162,8 @@ test('Public privacy pages disclose open registration, aggregate account metrics
   assert.match(ptPrivacy, /Estatísticas operacionais agregadas/);
   assert.match(ptPrivacy, /Artigo 6.º, n.º 1, alínea a\)/);
   assert.match(ptPrivacy, /30 dias/);
-  assert.match(read('sync/index.html'), /Verify your email/i);
-  assert.match(read('pt/conta/index.html'), /Confirma o teu e-mail/i);
+  assert.match(read('index.html'), /verify your email/i);
+  assert.match(read('pt/index.html'), /Confirma o teu e-mail/i);
   for (const { key, html } of allPages()) {
     assert.doesNotMatch(html, /account approval|administrator must approve|approved account|owner approval|request account|approved by hand/i, key);
     assert.doesNotMatch(html, /aprovação de contas|contas aprovadas|administrador tem de aprovar|aprovadas manualmente|pedir conta/i, key);
@@ -179,7 +236,6 @@ test('Feature status labels match the release notes', () => {
   assert.ok(ptHome.includes('Linux x86_64') && ptHome.includes('Disponível'), 'Portuguese home must show Linux as available');
   assert.doesNotMatch(enHome, /iPhone, Mac and Linux|No public Linux builds/);
   assert.doesNotMatch(ptHome, /iPhone, Mac e Linux/);
-  assert.match(strip(read('anime/index.html')), /Windows app · optional tab, off by default/);
 });
 
 test('Download buttons open the latest release and versions come from the release data', () => {

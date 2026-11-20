@@ -2,6 +2,7 @@
 // and (with SCREENSHOTS=1) the documentation screenshots, all synthetic data.
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { signIn, go, remoteEdit } from './helpers.mjs';
 
 const PAGES = ['/', '/library', '/progress', '/collections', '/collections/new', '/addons', '/plugins', '/settings', '/profiles', '/security'];
@@ -9,7 +10,8 @@ const shots = process.env.SCREENSHOTS === '1';
 const dir = new URL('../../docs/screenshots/', import.meta.url);
 if (shots) mkdirSync(dir, { recursive: true });
 const name = (project, path) => `${project}-${path === '/' ? 'overview' : path.slice(1).replace(/\//g, '-')}.jpg`;
-const file = (project, path) => new URL(name(project, path), dir).pathname.replace(/^\/([A-Z]:)/, '$1');
+// fileURLToPath decodes the URL, so folders with spaces ("AI Stuff") resolve correctly.
+const file = (project, path) => fileURLToPath(new URL(name(project, path), dir));
 // Documentation captures: viewport only, no test controls or toasts in the picture.
 // The committed set (docs/screenshots); the other pages are still checked for overflow.
 const KEEP = {

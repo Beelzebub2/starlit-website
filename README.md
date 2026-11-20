@@ -32,12 +32,25 @@ site stays live until that external configuration is complete.
 
 | English | Portuguese (Portugal) | Contents |
 | --- | --- | --- |
-| `/` | `/pt/` | Home: the PC and phone together, feature status, highlights |
-| `/remote/` | `/pt/comando/` | PC remote: pairing, what the phone can do, Wi-Fi and Bluetooth, firewall, security |
-| `/anime/` | `/pt/anime/` | Airing Now, the MyAnimeList tab, rewatches and tracking |
-| `/watch/` | `/pt/ver/` | The player, Google Cast, sources, offline downloads and storage |
-| `/sync/` | `/pt/conta/` | What syncs, self-service registration, sign-in methods, diagnostics |
-| `/download/` | `/pt/transferir/` | Downloads, install steps, what's new, checksums and FAQ |
+| `/` | `/pt/` | One scroll page: the animated Starlit mark, real app screens (Home, details, playback settings, library, themes, sign-in), PC remote, Airing Now, tracking and offline, platform status, shipping log and downloads |
+| `/download/` | `/pt/transferir/` | Downloads, TV Installer, install steps, what's new, checksums and FAQ |
+
+The old feature pages (`/remote/`, `/anime/`, `/watch/`, `/sync/` and their
+Portuguese addresses) redirect to their section of the home page
+(`LEGACY_REDIRECTS` in `constants.mjs`, mirrored in `_redirects` and
+`deploy/vps/Caddyfile`).
+
+**Screens.** Every app picture is a real capture of Starlit with made-up demo
+titles and no streaming sources; see [tools/screenshots](tools/screenshots/README.md)
+for how they're made and refreshed. They ship as WebP at two widths, sized
+and lazy-loaded (only the hero screen loads eagerly).
+
+**Motion.** The night sky behind every page, the logo assembling itself in the
+hero, the hero screen flattening out of a tilt, feature screens rising into
+place, the sliding gallery and the scroll hairline are all CSS. Only
+`transform`, `opacity` and SVG stroke offsets animate; everything sits behind
+`prefers-reduced-motion: no-preference`, and browsers without scroll-driven
+animation simply show everything in place.
 
 Plus the six policy pages (privacy, terms, cookies, delete account, contact,
 legal operator) in both languages, and `404.html` / `pt/404.html`: Cloudflare

@@ -5,6 +5,7 @@ import { formatDate, formatNumber, formatRelative } from '../lib/format.js';
 import { state } from '../lib/state.js';
 import { facts, pageHeader } from '../lib/ui.js';
 import { loadInto, section } from './common.js';
+import { nameOf, posterArt } from './items.js';
 
 const ROWS = [
   ['library_items', 'library', '/library', 'library'],
@@ -36,6 +37,26 @@ export default {
           : t('overview.noChanges'))),
     });
 
+    // Where this profile stopped: the first few resume points, as posters.
+    const continueHost = h('div', { class: 'continue-host' });
+    loadInto(continueHost, ctx, {
+      rows: 1, variant: 'item',
+      fetch: () => ctx.api.items(ctx.profileId, 'watch_progress', null, 6, { signal: ctx.signal }),
+      render: data => (data.items.length
+        ? h('ul', { role: 'list', class: 'continue-row' }, data.items.map(r => {
+          const v = r.value ?? {};
+          const pct = v.duration > 0 ? Math.min(100, Math.round((v.position / v.duration) * 100)) : 0;
+          const fill = h('span', { class: 'bar-fill' });
+          fill.style.setProperty('--pct', `${pct}%`);
+          const ep = v.season != null && v.episode != null ? t('items.episode', { s: v.season, e: v.episode }) : null;
+          return h('li', {}, h('a', { href: ctx.accountUrl('/progress'), 'data-link': '', class: 'continue-card' },
+            posterArt(v), h('span', { class: 'poster-bar' }, h('span', { class: 'bar', role: 'img', 'aria-label': t('items.percent', { pct }) }, fill)),
+            h('span', { class: 'continue-name' }, nameOf(v)),
+            h('span', { class: 'continue-meta' }, [ep, t('items.percent', { pct })].filter(Boolean).join(' · '))));
+        }))
+        : h('p', { class: 'muted' }, t('overview.continueEmpty'))),
+    });
+
     const u = state.user ?? {};
     const providers = (u.providers ?? []).map(x => { const label = t(`provider.${x}`); return label.startsWith('provider.') ? x : label; }).join(', ') || '—';
     const account = facts([
@@ -46,6 +67,8 @@ export default {
     ]);
 
     return h('section', { class: 'page' }, head.el,
+      section(t('overview.continueTitle'), continueHost, { id: 'ov-continue',
+        actions: h('a', { href: ctx.accountUrl('/progress'), 'data-link': '', class: 'text-link' }, t('overview.continueAll')) }),
       section(t('overview.dataTitle'), ledgerHost, { id: 'ov-data', description: t('overview.dataDesc', { name: p.name }) }),
       section(t('overview.accountTitle'), h('div', { class: 'stack' }, account,
         h('p', { class: 'muted' }, t('overview.manageInApp'), ' ', h('a', { href: ctx.accountUrl('/security'), 'data-link': '', class: 'text-link' }, t('overview.securityLink')))),

@@ -3,19 +3,15 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { en, pt } from './content.mjs';
 import { ORIGIN, CONTACT, UPDATED, UPDATED_PT, routes, KEYS, PRODUCT, DOCS, REPO, RELEASES,
-  ISSUES, NUVIO, LICENSE_URL, VERSION, RELEASE_DATA, PUBLIC_CSP } from './constants.mjs';
+  ISSUES, NUVIO, LICENSE_URL, VERSION, RELEASE_DATA, PUBLIC_CSP, LEGACY_REDIRECTS } from './constants.mjs';
 import { hash, asset, markImg } from './ui.mjs';
 import * as home from './pages/home.mjs';
-import * as remote from './pages/remote.mjs';
-import * as anime from './pages/anime.mjs';
-import * as watch from './pages/watch.mjs';
-import * as sync from './pages/sync.mjs';
 import * as download from './pages/download.mjs';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 const dist = join(root, 'dist');
 const docs = { en, pt };
-const product = { home, remote, anime, watch, sync, download };
+const product = { home, download };
 
 const escape = value => String(value).replace(/[&"<>]/g, c =>
   ({ '&':'&amp;', '"':'&quot;', '<':'&lt;', '>':'&gt;' }[c]));
@@ -27,7 +23,7 @@ const ui = {
   en: {
     htmlLang:'en', ogLocale:'en_GB', other:'pt', otherLang:'pt-PT', otherShort:'PT', otherName:'Português',
     skip:'Skip to content', mainNav:'Main', home:'Starlit home',
-    nav:{ remote:'PC remote', anime:'Anime', watch:'Watch &amp; download', sync:'Account &amp; sync', download:'Download' },
+    nav:{ features:'Features', platforms:'Platforms', news:'What’s new', download:'Download' },
     labels:{ home:'Home', privacy:'Privacy policy', terms:'Terms of use', cookies:'Cookies and storage',
       delete:'Delete account', contact:'Contact and support', legal:'Legal information' },
     onThisPage:'On this page', documents:'Policies and help', updated:'Last updated:',
@@ -47,7 +43,7 @@ const ui = {
   pt: {
     htmlLang:'pt-PT', ogLocale:'pt_PT', other:'en', otherLang:'en', otherShort:'EN', otherName:'English',
     skip:'Saltar para o conteúdo', mainNav:'Principal', home:'Início do Starlit',
-    nav:{ remote:'Comando do PC', anime:'Anime', watch:'Ver e transferir', sync:'Conta e sincronização', download:'Transferir' },
+    nav:{ features:'Funcionalidades', platforms:'Plataformas', news:'Novidades', download:'Transferir' },
     labels:{ home:'Início', privacy:'Política de privacidade', terms:'Termos de utilização', cookies:'Cookies e armazenamento',
       delete:'Apagar conta', contact:'Contacto e suporte', legal:'Informações legais' },
     onThisPage:'Nesta página', documents:'Políticas e ajuda', updated:'Última atualização:',
@@ -82,7 +78,6 @@ const cssHref = '/assets/site.css?v=' + hash(css);
 // Progressive enhancement only: every page works without it (see site.js).
 const SCRIPT = asset('/assets/site.js');
 const FONT_SANS = asset('/assets/fonts/geist-latin.woff2');
-const FONT_DISPLAY = asset('/assets/fonts/bricolage-grotesque-latin.woff2');
 
 // ---------------------------------------------------------------- layout
 
@@ -105,7 +100,6 @@ function head(lang, { title, description, path, alternates, noindex }) {
 <link rel="icon" href="/assets/starlit-logo.png" type="image/png" sizes="120x120">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="${FONT_SANS}" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="${FONT_DISPLAY}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${cssHref}">
 <script src="${SCRIPT}" defer></script>
 <meta property="og:type" content="website">
@@ -130,11 +124,18 @@ const brand = (lang, cls, size) => `<a class="brand ${cls}" href="${routes[lang]
 // explicitly enables these links, alongside the actual account app.
 const accountLinksAvailable = process.env.STARLIT_COMBINED_VPS_SITE === '1';
 
+// The site is one scroll page plus Download: the header points into the
+// home page's sections and at the release notes on the download page.
+const navLinks = lang => {
+  const r = routes[lang], h = home.ids[lang], d = download.ids[lang];
+  return [[r.home + '#' + h.features, 'features'], [r.home + '#' + h.platforms, 'platforms'],
+    [r.download + '#' + d.news, 'news']];
+};
+
 function header(lang, key, otherPath) {
   const t = ui[lang], r = routes[lang];
   const current = item => key === item ? ' aria-current="page"' : '';
-  const items = ['remote', 'anime', 'watch', 'sync'].map(item =>
-    `<a href="${r[item]}"${current(item)}>${t.nav[item]}</a>`).join('');
+  const items = navLinks(lang).map(([href, item]) => `<a href="${href}">${t.nav[item]}</a>`).join('');
   return `
 <a href="#main" class="skip">${t.skip}</a>
 <header class="site-header">
@@ -163,7 +164,7 @@ function footer(lang, otherPath) {
         ${brand(lang, 'brand-footer', 28)}
         <p>${f.about}</p>
       </div>
-      ${column('product', f.product, ['remote', 'anime', 'watch', 'sync', 'download'].map(k => li(r[k], t.nav[k])).join('') + (accountLinksAvailable ? li('/account?tab=overview', t.accountNav) : ''))}
+      ${column('product', f.product, navLinks(lang).map(([href, k]) => li(href, t.nav[k])).join('') + li(r.download, t.nav.download) + (accountLinksAvailable ? li('/account?tab=overview', t.accountNav) : ''))}
       ${column('project', f.project, f.projectLinks.map(([href, label]) => li(href, label)).join(''))}
       ${column('legal', f.legal, DOCS.map(k => li(r[k], f.legalLinks[k])).join(''))}
     </div>
@@ -177,7 +178,8 @@ function footer(lang, otherPath) {
 
 function page(lang, key, opts, main) {
   return head(lang, opts) + `
-<body class="${opts.bodyClass}" data-release="${VERSION}">` + header(lang, key, opts.otherPath) + `
+<body class="${opts.bodyClass}" data-release="${VERSION}">
+<div class="sky" aria-hidden="true"><span class="sky-glow sky-glow-a"></span><span class="sky-glow sky-glow-b"></span><span class="sky-l sky-l1"></span><span class="sky-l sky-l2"></span><span class="sky-l sky-l3"></span><span class="sky-shoot"></span></div>` + header(lang, key, opts.otherPath) + `
 <main id="main" tabindex="-1">${main}
 </main>` + footer(lang, opts.otherPath) + `
 </body></html>
@@ -273,7 +275,7 @@ for (const lang of ['en', 'pt']) {
   for (const key of KEYS) {
     const isProduct = PRODUCT.includes(key);
     const info = isProduct ? product[key].meta[lang] : docs[lang][key];
-    const main = isProduct ? product[key].render(lang, { r: routes[lang], pageIds })
+    const main = isProduct ? product[key].render(lang, { r: routes[lang], pageIds, account: accountLinksAvailable })
       : renderDoc(lang, key, docs[lang][key]);
     const html = page(lang, key, {
       title: key === 'home' ? info.title : info.title + (isProduct ? '' : ' | Starlit'),
@@ -312,7 +314,8 @@ write(join(dist, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n' +
 write(join(dist, '.well-known', 'security.txt'),
   'Contact: mailto:' + CONTACT + '\nExpires: 2027-11-01T00:00:00Z\nPreferred-Languages: pt, en\n' +
   'Canonical: ' + ORIGIN + '/.well-known/security.txt\n');
-write(join(dist, '_redirects'), '/en / 301\n/en/* /:splat 301\n');
+write(join(dist, '_redirects'), '/en / 301\n/en/* /:splat 301\n' +
+  LEGACY_REDIRECTS.flatMap(([from, to]) => [`${from} ${to} 301`, `${from.slice(0, -1)} ${to} 301`]).join('\n') + '\n');
 write(join(dist, '_headers'), `/*
   Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff
