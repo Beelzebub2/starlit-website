@@ -6,8 +6,8 @@ async function openTv(page, code = 'ABCD-EFGH') {
   await page.goto('/tv#code=' + code + '&endpoint=https://untrusted.example');
   await expect(page).toHaveURL(/\?tab=signin$/);
   await mock(page, { latencyMs: 0 });
-  await page.getByLabel('Email').fill(TEST_ACCOUNTS.a.email);
-  await page.getByLabel('Password').fill(TEST_ACCOUNTS.a.password);
+  await page.getByLabel('Email', { exact: true }).fill(TEST_ACCOUNTS.a.email);
+  await page.getByLabel('Password', { exact: true }).fill(TEST_ACCOUNTS.a.password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page).toHaveURL(/\/tv$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Sign in on your TV');
@@ -59,8 +59,8 @@ test('mobile code survives reload, network failure never grants consent, Portugu
   await openTv(page);
   await page.reload();
   await mock(page, { latencyMs: 0 });
-  await page.getByLabel('Email').fill(TEST_ACCOUNTS.a.email);
-  await page.getByLabel('Password').fill(TEST_ACCOUNTS.a.password);
+  await page.getByLabel('Email', { exact: true }).fill(TEST_ACCOUNTS.a.email);
+  await page.getByLabel('Password', { exact: true }).fill(TEST_ACCOUNTS.a.password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByLabel('TV code', { exact: true })).toHaveValue('ABCD-EFGH');
   await mock(page, { failNext: 'offline' });
