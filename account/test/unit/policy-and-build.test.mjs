@@ -63,8 +63,8 @@ test('no reference screenshots, other brands or images beyond the Starlit mark',
     assert.ok(!/\.(jpe?g|png|gif|webp)$/i.test(rel), `${rel}: the app ships no raster images`);
   }
   // The existing discovery protocol has a historical, fixed well-known path, and
-  // older app builds a historical, fixed user agent.
-  for (const f of files) assert.ok(!/nuvio/i.test(read(f).replace("'/.well-known/nuvio'", "''").replace("'NuvioMobile/'", "''").replace(/\/\/.*$/gm, '')), `${relative(root, f)} mentions another product outside comments`);
+  // older app builds a historical, fixed user agent and app name.
+  for (const f of files) assert.ok(!/nuvio/i.test(read(f).replace("'/.well-known/nuvio'", "''").replace("'NuvioMobile/'", "''").replace("'Nuvio Mobile'", "''").replace(/\/\/.*$/gm, '')), `${relative(root, f)} mentions another product outside comments`);
 });
 
 function build(env, outName) {

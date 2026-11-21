@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { anilistIdOf, addonBase, createMeta, peekMeta, resetMetaCache, servesMeta } from '../../src/lib/meta.js';
-import { describeClient, groupSessions } from '../../src/lib/clients.js';
+import { appName, describeClient, groupInstallations, groupSessions } from '../../src/lib/clients.js';
 
 const json = body => ({ ok: true, json: async () => body });
 const missing = { ok: false, json: async () => ({}) };
@@ -103,4 +103,19 @@ test('sessions group by client, this browser first, newest activity next', () =>
   ]);
   assert.deepEqual(groups.map(g => [g.client.key, g.sessions.length, g.current]),
     [['browser:Chrome:Windows', 2, true], ['app:', 2, false], ['tool', 1, false]]);
+});
+
+test('installations group by device, newest sync shown; the old app name reads Starlit', () => {
+  const rows = groupInstallations([
+    { device_name: 'LISBOAKART', platform: 'Windows 11 10.0', updated_at: '2026-11-17T10:00:00Z', client_version: '0.5.5' },
+    { device_name: 'phone', platform: 'Android 17', updated_at: '2026-11-20T10:00:00Z' },
+    { device_name: 'lisboakart', platform: 'Windows 11 10.0', updated_at: '2026-11-20T12:00:00Z', client_version: '0.5.6' },
+    { device_name: '', platform: 'Linux', updated_at: '2026-11-01T10:00:00Z', installation_id: 'x' },
+    { device_name: '', platform: 'Linux', updated_at: '2026-11-02T10:00:00Z', installation_id: 'y' },
+  ]);
+  assert.deepEqual(rows.map(r => [r.latest.device_name, r.count, r.latest.client_version ?? null]),
+    [['lisboakart', 2, '0.5.6'], ['phone', 1, null], ['', 1, null], ['', 1, null]]);
+  assert.equal(appName('Nuvio Mobile'), 'Starlit');
+  assert.equal(appName(null), 'Starlit');
+  assert.equal(appName('Starlit Desktop'), 'Starlit Desktop');
 });

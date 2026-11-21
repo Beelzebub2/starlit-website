@@ -7,7 +7,7 @@ import { t, lang } from '../lib/i18n.js';
 import { formatDate, formatRelative } from '../lib/format.js';
 import { announce, button, confirmDialog, emptyState, notice, pageHeader, pill } from '../lib/ui.js';
 import { loadInto, section } from './common.js';
-import { groupSessions } from '../lib/clients.js';
+import { appName, groupInstallations, groupSessions } from '../lib/clients.js';
 import { tvDevices } from './tv-devices.js';
 
 export default {
@@ -83,11 +83,13 @@ export default {
     loadInto(devicesHost, ctx, {
       rows: 3, variant: 'item',
       fetch: () => ctx.api.devices(100, { signal: ctx.signal }),
-      render: list => (list.length ? h('ul', { role: 'list', class: 'items' }, list.map(d => h('li', { class: 'item-row' },
-        h('span', { class: 'monogram' }, icon(d.platform === 'android' || d.platform === 'ios' ? 'phone' : 'device', { size: 16 })),
+      // One row per device: reinstalls of the same device show once, newest first.
+      render: list => (list.length ? h('ul', { role: 'list', class: 'items' }, groupInstallations(list).map(({ latest: d, count }) => h('li', { class: 'item-row' },
+        h('span', { class: 'monogram' }, icon(/^(android|ios)/i.test(String(d.platform ?? '')) ? 'phone' : 'device', { size: 16 })),
         h('div', { class: 'item-main' },
           h('p', { class: 'item-name' }, d.device_name || t('security.unnamedDevice')),
-          h('p', { class: 'item-meta' }, [platformName(d.platform), d.client_version ? `${d.client_name ?? 'Starlit'} ${d.client_version}` : null].filter(Boolean).join(' · '),
+          h('p', { class: 'item-meta' }, [platformName(d.platform), d.client_version ? `${appName(d.client_name)} ${d.client_version}` : null,
+            count > 1 ? t('security.installs', { n: count }) : null].filter(Boolean).join(' · '),
             ' · ', t('security.lastSync'), ' ', h('time', { datetime: d.updated_at, title: formatDate(d.updated_at) }, formatRelative(d.updated_at)))))))
         : emptyState({ title: t('security.noDevices') })),
     });
