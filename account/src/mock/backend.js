@@ -5,6 +5,8 @@
 // keyset paging, native item validation and the five-try PIN lockout.
 import { buildFixtures } from './fixtures.js';
 
+const MOCK_AGENTS = ['Starlit/1.33.0 (Android 15)', 'Starlit/1.32.0 (Android 15)'];
+
 export class RpcFailure extends Error {
   constructor(status, code, message) { super(message); this.status = status; this.code = code; }
 }
@@ -71,10 +73,12 @@ export function createBackend({ now = () => Date.now() } = {}) {
       for (const s of d.servers ?? []) { const ts2 = stamp(); const id = random(); servers.set(id, { server_id: id, ...s, created_at: ts2, updated_at: ts2 }); }
       u.servers.set(p.profile_index, servers);
     }
-    for (const signedIn of f.otherSessions) {
+    // Other sign-ins come from the app on a phone, so the sessions page has
+    // more than one device to show.
+    f.otherSessions.forEach((signedIn, i) => {
       const id = random();
-      u.sessions.set(id, { id, created_at: signedIn, not_after: null });
-    }
+      u.sessions.set(id, { id, created_at: signedIn, not_after: null, user_agent: MOCK_AGENTS[i % MOCK_AGENTS.length] });
+    });
     accounts.set(u.id, u);
   }
 
@@ -313,7 +317,8 @@ export function createBackend({ now = () => Date.now() } = {}) {
       const { u, sessionId } = session(token);
       if (!Number.isInteger(limit) || limit < 1 || limit > 50) throw invalid('Invalid session limit');
       return [...u.sessions.values()].sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).slice(0, limit)
-        .map(s => ({ session_id: s.id, signed_in_at: s.created_at, expires_at: s.not_after, is_current: s.id === sessionId }));
+        .map(s => ({ session_id: s.id, signed_in_at: s.created_at, expires_at: s.not_after, last_active_at: s.created_at,
+          user_agent: s.user_agent ?? null, is_current: s.id === sessionId }));
     },
     account_media_servers(token, { p_profile_id: pid, p_limit: limit = 50 }) {
       const { u } = session(token); requireProfile(u, pid);
@@ -387,7 +392,7 @@ export function createBackend({ now = () => Date.now() } = {}) {
       const u = [...accounts.values()].find(a => a.email === String(email ?? '').trim().toLowerCase());
       if (!u || u.password !== password) throw new RpcFailure(400, 'invalid_grant', 'Invalid login credentials');
       const id = random();
-      u.sessions.set(id, { id, created_at: stamp(), not_after: null });
+      u.sessions.set(id, { id, created_at: stamp(), not_after: null, user_agent: globalThis.navigator?.userAgent ?? null });
       return issue(u, id);
     },
     refresh({ refresh_token: token }) {

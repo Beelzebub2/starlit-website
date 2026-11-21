@@ -16,6 +16,8 @@ test('sign-in page', async ({ page }) => {
 });
 
 test('every signed-in page', async ({ page }) => {
+  // Thirteen axe scans in one test: give it room when every worker is busy.
+  test.setTimeout(90_000);
   await signIn(page, 'a', { wait: false, profile: null });
   await check(page, 'choose-profile');
   await page.getByRole('button', { name: /^Ana\b/ }).click();

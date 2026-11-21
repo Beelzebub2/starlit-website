@@ -114,7 +114,9 @@ for (const file of readdirSync(join(siteAssets, 'fonts'))) {
 cpSync(join(siteAssets, 'starlit-mark.svg'), join(dist, 'starlit-mark.svg'));
 if (existsSync(join(siteAssets, 'icons', 'favicon.ico'))) cpSync(join(siteAssets, 'icons', 'favicon.ico'), join(dist, 'favicon.ico'));
 
-const connect = mode === 'live' ? `'self' ${apiUrl}` : `'self'`;
+// Live accounts also look up titles, artwork and addon names from https
+// sources (Cinemeta, the profile's own addons; see src/lib/meta.js).
+const connect = mode === 'live' ? `'self' ${apiUrl} https:` : `'self'`;
 const csp = [
   "default-src 'none'",
   "script-src 'self'",

@@ -77,7 +77,9 @@ STARLIT_ACCOUNT_MODE=live STARLIT_ANON_KEY=<public anon key> npm run build
   `/.well-known/webauthn` with the exact official website Origin in its
   `origins` array, and GoTrue must allow that Origin. Browsers without
   Related Origin Requests support can use their password or Google instead.
-* The CSP adds the API origin to `connect-src`, and nothing else.
+* The CSP adds the API origin and https sources to `connect-src`: the
+  account pages look up titles, artwork and addon names the app did not sync
+  (Cinemeta, the Starlit metadata gateway and the profile's own addons).
 
 The combined VPS deployment uses the existing HTTPS Caddy edge and an
 isolated, non-root static container with no separate public port. See the

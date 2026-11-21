@@ -71,7 +71,10 @@ test('library: removing asks first and announces the result', async ({ page }) =
 
 test('progress: change a resume point, and handle a change from another device', async ({ page }) => {
   await go(page, '/progress');
-  const name = await page.locator('.item-name').first().textContent();
+  // The shelf reads newest first; the other device edits the first title by key.
+  await expect(page.locator('.item-row').first()).toBeVisible();
+  const name = await page.locator('.item-row').evaluateAll(rows =>
+    [...rows].sort((a, b) => (a.dataset.key < b.dataset.key ? -1 : 1))[0].querySelector('.item-name').textContent);
   await page.getByRole('button', { name: `Change the resume point for ${name}` }).click();
   let dialog = page.getByRole('dialog', { name: 'Change the resume point' });
   await dialog.getByLabel('Resume at').fill('5:00');

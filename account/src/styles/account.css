@@ -312,7 +312,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .ext-row { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px 14px; padding: 14px 4px; border-bottom: 1px solid var(--line); }
 .ext-pos { font: 500 13px/1.9 var(--mono); color: var(--dim); }
 .ext-main { display: grid; gap: 4px; min-width: 0; }
-.ext-name { font-weight: 600; }
+.ext-name { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-weight: 600; }
+.ext-title-guess { color: var(--muted); }
+.ext-logo { display: none; flex: none; width: 24px; height: 24px; overflow: hidden; border-radius: 6px; background: rgba(226, 232, 255, .06); }
+.ext-logo.has-img { display: inline-block; }
+.ext-logo img { width: 100%; height: 100%; object-fit: contain; }
 .ext-url { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; min-width: 0; }
 .ext-url code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ext-url .i { color: var(--dim); }
@@ -737,3 +741,10 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .items-grid .item-open:hover { transform: none; }
 }
+
+/* Sessions, one row per device */
+.session-details { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.session-details summary { width: fit-content; cursor: pointer; color: var(--accent); }
+.session-details summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 4px; }
+.session-list { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.session-list code { font-size: 12px; }

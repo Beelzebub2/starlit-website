@@ -13,6 +13,7 @@ import { t } from '../lib/i18n.js';
 import { deleteKeyFor } from '../lib/api.js';
 import { isConflict } from '../lib/errors.js';
 import { readPref, writePref } from '../lib/state.js';
+import { peekMeta } from '../lib/meta.js';
 import { formatClock, formatDate, formatNumber, formatRelative, parseClock } from '../lib/format.js';
 import { announce, button, confirmDialog, emptyState, errorState, facts, field, iconButton, input, loading, notice, openDialog, pageHeader, select } from '../lib/ui.js';
 import { readOnlyNotice, refetchOnReturn } from './common.js';
@@ -31,36 +32,74 @@ export const library = makeView('library');
 export const progress = makeView('progress');
 export const history = makeView('history');
 
-export const nameOf = v => v?.name || v?.title || v?.content_id || '—';
+// Progress rows sync only an id; a looked-up name (lib/meta.js) fills the gap.
+export const nameOf = v => v?.name || v?.title || peekMeta(v?.content_id)?.name || v?.content_id || '—';
 const episodeOf = v => (v?.season != null && v?.episode != null ? t('items.episode', { s: v.season, e: v.episode }) : null);
 const typeOf = v => (v?.content_type === 'movie' ? t('items.movie') : v?.content_type === 'series' ? t('items.series') : v?.content_type ?? '');
 const whenOf = (id, v) => (id === 'library' ? v.added_at : id === 'progress' ? v.last_watched : v.watched_at);
 const yearOf = v => { const m = String(v?.release_info ?? '').match(/\d{4}/); return m ? Number(m[0]) : null; };
+const stamp = when => { const n = new Date(when ?? 0).getTime(); return Number.isFinite(n) ? n : 0; };
 const percentOf = v => (v?.duration > 0 ? Math.min(100, Math.round((v.position / v.duration) * 100)) : 0);
 
 // ------------------------------------------------------------------ artwork
 
-// The app syncs the poster address it showed. Only https artwork is loaded
-// (the account CSP allows https images), without a referrer; anything else,
-// or a poster that fails to load, gets a stand-in in one of the Starlit app
-// icon's colourways, picked from the title so it never changes.
+// The app syncs the poster address it showed for some library titles. The
+// rest are looked up once the poster scrolls into view (lib/meta.js). Only
+// https artwork is loaded (the account CSP allows https images), without a
+// referrer; anything else, or a poster that fails to load, gets a stand-in in
+// one of the Starlit app icon's colourways, picked from the title so it never
+// changes.
 const ART = 6;
 const artFor = name => { let n = 0; for (const c of String(name)) n = (n * 31 + c.codePointAt(0)) >>> 0; return 'art-' + (n % ART); };
 const safeImage = url => (typeof url === 'string' && /^https:\/\/[^\s"'<>]+$/i.test(url) ? url : null);
 
-export function posterArt(v, { size = 'poster' } = {}) {
+const pick = (v, found, size) => safeImage(size === 'backdrop'
+  ? (v?.background || found?.background || v?.poster || found?.poster)
+  : (v?.poster || found?.poster));
+
+/** Run fn once el is near the viewport (or at once where that can't be told). */
+function whenVisible(el, fn) {
+  if (typeof IntersectionObserver !== 'function') { fn(); return; }
+  const io = new IntersectionObserver(entries => {
+    if (entries.some(e => e.isIntersecting)) { io.disconnect(); fn(); }
+  }, { rootMargin: '400px 0px' });
+  io.observe(el);
+}
+
+/**
+ * A title's artwork. With `meta` (the profile's lookup service), a title
+ * without synced artwork or name is looked up when it comes into view, and
+ * `onMeta` hears what was found so the caller can fill in the name.
+ */
+export function posterArt(v, { size = 'poster', meta = null, onMeta = null } = {}) {
   const name = nameOf(v);
+  const fallbackName = h('span', { class: 'poster-fallback-name' }, name);
+  const mono = h('span', { class: 'poster-mono', dataset: { letter: name.trim().slice(0, 1).toUpperCase() } });
   const fallback = h('span', { class: ['poster-fallback', artFor(name)], 'aria-hidden': 'true' },
     // The big initial is drawn by CSS from data-letter, so it never becomes part of the button's text.
-    h('span', { class: 'poster-mono', dataset: { letter: name.trim().slice(0, 1).toUpperCase() } }),
-    h('span', { class: 'poster-fallback-name' }, name));
+    mono, fallbackName);
   const wrap = h('span', { class: ['poster-art', `poster-${size}`] }, fallback);
-  const src = safeImage(size === 'backdrop' ? (v?.background || v?.poster) : v?.poster);
-  if (src) {
+  const show = src => {
+    if (!src || wrap.querySelector('img')) return;
     const img = h('img', { src, alt: '', loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer', class: 'poster-img' });
     img.addEventListener('load', () => wrap.classList.add('has-img'), { once: true });
     img.addEventListener('error', () => img.remove(), { once: true });
     wrap.append(img);
+  };
+  const known = peekMeta(v?.content_id);
+  show(pick(v, known, size));
+  const needsName = !v?.name && !v?.title && !known?.name;
+  if (meta && v?.content_id && (needsName || !wrap.querySelector('img'))) {
+    whenVisible(wrap, async () => {
+      const found = await meta.resolve(v);
+      if (!found) return;
+      show(pick(v, found, size));
+      if (found.name && needsName) {
+        fallbackName.textContent = found.name;
+        mono.dataset.letter = found.name.trim().slice(0, 1).toUpperCase();
+        onMeta?.(found);
+      }
+    });
   }
   return wrap;
 }
@@ -120,12 +159,14 @@ function render(ctx, id) {
       return b;
     }));
 
-  let rows = [], cursor = null, done = false, total = null, busy = false, searching = false;
+  let rows = [], cursor = null, done = false, total = null, busy = false, searching = false, filling = false;
 
   filter.addEventListener('input', () => { draw(); if (filter.value.trim()) loadAllForSearch(); });
 
+  /** Fetch the next page; true when it arrived. */
   async function page({ reset = false } = {}) {
-    if (busy) return;
+    if (busy) return true;
+    let ok = false;
     busy = true; more.disabled = true;
     if (reset) { rows = []; cursor = null; done = false; listHost.replaceChildren(loading(8, 'item')); }
     try {
@@ -135,8 +176,9 @@ function render(ctx, id) {
       cursor = data.next_cursor;
       done = data.items.length < PAGE || !data.next_cursor;
       draw();
+      ok = true;
       // Keep keyboard users in place: focus the first newly loaded title.
-      if (!reset && !searching && data.items.length) listHost.querySelectorAll('.item-row')[firstNew]?.querySelector('.item-open')?.focus();
+      if (!reset && !searching && !filling && data.items.length) listHost.querySelectorAll('.item-row')[firstNew]?.querySelector('.item-open')?.focus();
     } catch (error) {
       if (ctx.signal.aborted || error.kind === 'auth' || error.kind === 'aborted') return;
       if (reset) listHost.replaceChildren(errorState(error, { onRetry: () => page({ reset: true }) }));
@@ -144,6 +186,7 @@ function render(ctx, id) {
     } finally {
       busy = false; more.disabled = false;
     }
+    return ok;
   }
 
   /** A search covers the whole shelf: fetch what isn't loaded yet, one page at a time. */
@@ -153,7 +196,7 @@ function render(ctx, id) {
     try {
       while (!done && rows.length < SEARCH_LIMIT && filter.value.trim() && !ctx.signal.aborted) {
         if (busy) { await new Promise(r => setTimeout(r, 50)); continue; }
-        await page();
+        if (!(await page())) break;
       }
     } finally { searching = false; draw(); }
   }
@@ -168,6 +211,7 @@ function render(ctx, id) {
     if (type !== 'all') list = list.filter(r => r.value?.content_type === type);
     if (q) list = list.filter(r => nameOf(r.value).toLowerCase().includes(q));
     if (sort === 'az') list = [...list].sort((a, b) => nameOf(a.value).localeCompare(nameOf(b.value)));
+    else if (sort === 'recent') list = [...list].sort((a, b) => stamp(whenOf(id, b.value)) - stamp(whenOf(id, a.value)));
     else if (sort === 'year') list = [...list].sort((a, b) => (yearOf(b.value) ?? -1) - (yearOf(a.value) ?? -1));
     return list;
   }
@@ -213,21 +257,31 @@ function render(ctx, id) {
   function row(r) {
     const v = r.value ?? {};
     const name = nameOf(v);
-    const open = h('button', { type: 'button', class: 'item-open', 'aria-label': t('library.details', { name }), onclick: () => details(r) },
-      posterArt(v, { size: view === 'grid' ? 'poster' : 'thumb' }),
+    const title = h('p', { class: 'item-name' }, name);
+    let open, actions;
+    // When a lookup finds the name of a title the app synced only by id, the
+    // visible name and the buttons' labels follow.
+    const onMeta = found => {
+      title.textContent = found.name;
+      open.setAttribute('aria-label', t('library.details', { name: found.name }));
+      actions.replaceWith(actions = actionsFor(r, found.name));
+    };
+    open = h('button', { type: 'button', class: 'item-open', 'aria-label': t('library.details', { name }), onclick: () => details(r) },
+      posterArt(v, { size: view === 'grid' ? 'poster' : 'thumb', meta: ctx.meta, onMeta }),
       id === 'progress' && view === 'grid' ? h('span', { class: 'poster-bar' }, progressBar(v, { compact: true })) : null);
+    actions = actionsFor(r, name);
     if (view === 'grid') {
       return h('li', { class: 'item-row item-tile', dataset: { key: r.key } }, open,
         h('div', { class: 'tile-foot' },
-          h('div', { class: 'tile-text' }, h('p', { class: 'item-name' }, name), metaLine(v),
+          h('div', { class: 'tile-text' }, title, metaLine(v),
             id === 'progress' ? h('p', { class: 'progress-text' }, t('items.positionOf', { pos: formatClock(v.position), dur: formatClock(v.duration) })) : null),
-          actionsFor(r, name)));
+          actions));
     }
     return h('li', { class: 'item-row', dataset: { key: r.key } }, open,
       h('div', { class: 'item-main' },
-        h('p', { class: 'item-name' }, name), metaLine(v),
+        title, metaLine(v),
         id === 'progress' ? progressBar(v) : null),
-      actionsFor(r, name));
+      actions);
   }
 
   /** Everything the app synced about one title, with its actions. */
@@ -237,7 +291,7 @@ function render(ctx, id) {
     const when = whenOf(id, v);
     const rating = Number(v.imdb_rating);
     const content = h('div', { class: 'details' },
-      h('div', { class: 'details-art' }, posterArt(v, { size: 'backdrop' }), posterArt(v, { size: 'poster' })),
+      h('div', { class: 'details-art' }, posterArt(v, { size: 'backdrop', meta: ctx.meta }), posterArt(v, { size: 'poster', meta: ctx.meta })),
       v.description ? h('p', { class: 'details-desc' }, String(v.description)) : null,
       id === 'progress' ? progressBar(v) : null,
       facts([
@@ -337,8 +391,22 @@ function render(ctx, id) {
     if (again === 'remove') return removeRow(latest);
   }
 
-  refetchOnReturn(ctx, () => page({ reset: true }));
-  page({ reset: true });
+  // Continue watching and History read newest first, and the server pages by
+  // key, not by date, so those shelves load whole (up to SEARCH_LIMIT) before
+  // the order means anything. The library keeps "Load more".
+  async function open() {
+    if (!(await page({ reset: true })) || id === 'library') return;
+    filling = true;
+    try {
+      while (!done && rows.length < SEARCH_LIMIT && !ctx.signal.aborted) {
+        if (busy) { await new Promise(r => setTimeout(r, 50)); continue; }
+        if (!(await page())) break;
+      }
+    } finally { filling = false; }
+  }
+
+  refetchOnReturn(ctx, open);
+  open();
   loadTotal();
 
   const toolbar = h('div', { class: 'lib-toolbar' },

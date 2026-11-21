@@ -37,24 +37,34 @@ export default {
           : t('overview.noChanges'))),
     });
 
-    // Where this profile stopped: the first few resume points, as posters.
+    // Where this profile stopped: the most recent unfinished titles, as
+    // posters. The server pages by key, not date, so one page of up to 100 is
+    // sorted here; titles past 95% count as finished, as in the app.
     const continueHost = h('div', { class: 'continue-host' });
+    const stamp = when => { const n = new Date(when ?? 0).getTime(); return Number.isFinite(n) ? n : 0; };
     loadInto(continueHost, ctx, {
       rows: 1, variant: 'item',
-      fetch: () => ctx.api.items(ctx.profileId, 'watch_progress', null, 6, { signal: ctx.signal }),
-      render: data => (data.items.length
-        ? h('ul', { role: 'list', class: 'continue-row' }, data.items.map(r => {
-          const v = r.value ?? {};
-          const pct = v.duration > 0 ? Math.min(100, Math.round((v.position / v.duration) * 100)) : 0;
-          const fill = h('span', { class: 'bar-fill' });
-          fill.style.setProperty('--pct', `${pct}%`);
-          const ep = v.season != null && v.episode != null ? t('items.episode', { s: v.season, e: v.episode }) : null;
-          return h('li', {}, h('a', { href: ctx.accountUrl('/progress'), 'data-link': '', class: 'continue-card' },
-            posterArt(v), h('span', { class: 'poster-bar' }, h('span', { class: 'bar', role: 'img', 'aria-label': t('items.percent', { pct }) }, fill)),
-            h('span', { class: 'continue-name' }, nameOf(v)),
-            h('span', { class: 'continue-meta' }, [ep, t('items.percent', { pct })].filter(Boolean).join(' · '))));
-        }))
-        : h('p', { class: 'muted' }, t('overview.continueEmpty'))),
+      fetch: () => ctx.api.items(ctx.profileId, 'watch_progress', null, 100, { signal: ctx.signal }),
+      render: data => {
+        const pctOf = v => (v.duration > 0 ? Math.min(100, Math.round((v.position / v.duration) * 100)) : 0);
+        const recent = data.items.filter(r => pctOf(r.value ?? {}) < 95)
+          .sort((a, b) => stamp(b.value?.last_watched) - stamp(a.value?.last_watched)).slice(0, 6);
+        return recent.length
+          ? h('ul', { role: 'list', class: 'continue-row' }, recent.map(r => {
+            const v = r.value ?? {};
+            const pct = pctOf(v);
+            const fill = h('span', { class: 'bar-fill' });
+            fill.style.setProperty('--pct', `${pct}%`);
+            const ep = v.season != null && v.episode != null ? t('items.episode', { s: v.season, e: v.episode }) : null;
+            const name = h('span', { class: 'continue-name' }, nameOf(v));
+            return h('li', {}, h('a', { href: ctx.accountUrl('/progress'), 'data-link': '', class: 'continue-card' },
+              posterArt(v, { meta: ctx.meta, onMeta: found => { name.textContent = found.name; } }),
+              h('span', { class: 'poster-bar' }, h('span', { class: 'bar', role: 'img', 'aria-label': t('items.percent', { pct }) }, fill)),
+              name,
+              h('span', { class: 'continue-meta' }, [ep, t('items.percent', { pct })].filter(Boolean).join(' · '))));
+          }))
+          : h('p', { class: 'muted' }, t('overview.continueEmpty'));
+      },
     });
 
     const u = state.user ?? {};

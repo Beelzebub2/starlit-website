@@ -4,6 +4,7 @@ import { transport, mountMockPanel } from './transport.js';
 import { createApi } from './lib/api.js';
 import { createAuth } from './lib/auth.js';
 import { createTvApi } from './lib/tv.js';
+import { createMeta } from './lib/meta.js';
 import { captureTvIntent, pendingTvIntent, clearTvIntent } from './lib/tv-intent.js';
 import { h, icon, replace } from './lib/dom.js';
 import { t, lang, setLang } from './lib/i18n.js';
@@ -70,6 +71,21 @@ const api = createApi({
   onAuthError: (_error, token) => auth.invalidateIfToken(token, 'revoked'),
 });
 export const canWrite = () => config.writesEnabled && state.online;
+// Titles and artwork the app didn't sync (see lib/meta.js). Live accounts only:
+// the synthetic demo never contacts outside services.
+const metaByProfile = new Map();
+function metaFor(profileId) {
+  if (config.mode !== 'live' || !profileId) return null;
+  // Profile numbers repeat across accounts, so the account is part of the key.
+  const key = `${state.user?.email ?? ''}:${profileId}`;
+  if (!metaByProfile.has(key)) {
+    metaByProfile.set(key, createMeta({
+      gatewayUrl: config.apiUrl,
+      addons: async () => (await api.extensions(profileId, 'addons'))?.items ?? [],
+    }));
+  }
+  return metaByProfile.get(key);
+}
 const tv = createTvApi({
   baseUrl: config.apiUrl, anonKey: config.anonKey, transport,
   getAccessToken: () => auth.ensureAccessToken(),
@@ -263,6 +279,7 @@ function mount(route, view, params, query = new URLSearchParams()) {
   const ctx = {
     api, auth, tv, config, params, query, navigate, accountUrl, selectProfile, canWrite, refreshProfiles,
     signal: controller.signal, profileId: state.profileId, profile: activeProfile(),
+    meta: metaFor(state.profileId),
     isDirty: () => false, destroy: null,
     finishSignIn,
     setTitle: title => { document.title = `${title} · Starlit ${t('shell.account')}`; },

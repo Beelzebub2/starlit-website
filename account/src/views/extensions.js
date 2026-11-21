@@ -84,6 +84,28 @@ function render(ctx, kind) {
         button(t('ext.refresh'), { icon: 'refresh', size: 's', onClick: refresh, disabled: busy }),
         button(t('ext.deleteAll'), { variant: 'danger', icon: 'trash', size: 's', disabled: !writable || draft.length === 0, onClick: deleteAll }),
         button(t(`ext.${kind}.addAction`), { variant: 'accent', icon: 'plus', size: 's', disabled: !writable, onClick: openAdd })));
+    // The app often syncs an addon without a name; show the name and logo the
+    // addon gives itself in its manifest (asked from the addon, once per page),
+    // and its host until that arrives. Nothing is saved unless you rename it.
+    const addonTitle = item => {
+      let host = '';
+      try { host = new URL(item.url).hostname; } catch { /* shown as unnamed */ }
+      const text = h('span', { class: ['ext-title', !item.name && 'ext-title-guess'] }, item.name || host || t('ext.unnamed'));
+      const logo = h('span', { class: 'ext-logo', 'aria-hidden': 'true' });
+      if (kind === 'addons' && ctx.meta) {
+        ctx.meta.addonInfo(item.url).then(info => {
+          if (!info) return;
+          if (!item.name && info.name) { text.textContent = info.name; text.classList.remove('ext-title-guess'); }
+          if (info.logo && !logo.firstChild) {
+            const img = h('img', { src: info.logo, alt: '', loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' });
+            img.addEventListener('load', () => logo.classList.add('has-img'), { once: true });
+            img.addEventListener('error', () => img.remove(), { once: true });
+            logo.append(img);
+          }
+        });
+      }
+      return [logo, text];
+    };
     const rows = draft.map((item, i) => {
       const was = base.find(b => b.url === item.url);
       const { display, hidden } = redactUrl(item.url);
@@ -91,7 +113,7 @@ function render(ctx, kind) {
       return h('li', { class: ['ext-row', !was && 'ext-new', item.enabled === false && 'ext-off'], dataset: { key: item.url } },
         h('span', { class: 'ext-pos', 'aria-hidden': 'true' }, String(i + 1).padStart(2, '0')),
         h('div', { class: 'ext-main' },
-          h('p', { class: 'ext-name', id: nameId }, item.name || t('ext.unnamed'), !was ? h('span', { class: 'pill pill-ok' }, t('ext.new')) : null),
+          h('p', { class: 'ext-name', id: nameId }, addonTitle(item), !was ? h('span', { class: 'pill pill-ok' }, t('ext.new')) : null),
           h('p', { class: 'ext-url' }, hidden ? icon('lock', { size: 13, label: t('ext.hiddenParts') }) : null, h('code', {}, display))),
         h('div', { class: 'ext-controls' },
           toggle({ label: t('ext.enabled'), checked: item.enabled !== false, disabled: !writable, onChange: v => { item.enabled = v; sync(); } }),
