@@ -26,7 +26,7 @@
         Cross-Origin-Opener-Policy "same-origin"
         Cross-Origin-Resource-Policy "same-origin"
         Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
-        Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://starlit-api.rrmtools.uk; manifest-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
+        Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://starlit-api.rrmtools.uk https:; manifest-src 'self'; object-src 'none'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; upgrade-insecure-requests"
     }
     # no-transform stops the Cloudflare edge from rewriting account pages
     # (Rocket Loader, injected inline scripts the account CSP then blocks),
