@@ -33,12 +33,14 @@ test('tokens never go to persistent storage', () => {
     const text = code(f);
     const name = relative(src, f).replace(/\\/g, '/');
     if (/localStorage/.test(text)) assert.equal(name, 'lib/state.js', `${name} touches localStorage`);
-    if (/sessionStorage/.test(text)) assert.ok(['lib/auth.js', 'lib/tv-intent.js'].includes(name), `${name} touches sessionStorage`);
+    // lib/meta.js keeps looked-up titles and artwork (public data, by content id) for the tab's life.
+    if (/sessionStorage/.test(text)) assert.ok(['lib/auth.js', 'lib/tv-intent.js', 'lib/meta.js'].includes(name), `${name} touches sessionStorage`);
     assert.ok(!/document\.cookie/.test(text), `${name} touches cookies`);
   }
   const auth = read(join(src, 'lib', 'auth.js'));
   assert.match(auth, /sessionStorage\.setItem\(VERIFIER_KEY/);
   assert.ok(!/(local|session)Storage\.setItem\([^)]*(access|refresh|token)/i.test(auth));
+  assert.ok(!/token|apikey|authorization/i.test(code(join(src, 'lib', 'meta.js')).replace(/\/\/.*$/gm, '')), 'meta lookups carry no credentials');
 });
 
 test('every interface string exists in English and Portuguese', () => {
@@ -60,8 +62,9 @@ test('no reference screenshots, other brands or images beyond the Starlit mark',
     if (rel.startsWith('docs')) continue;   // documentation screenshots are synthetic captures of this app
     assert.ok(!/\.(jpe?g|png|gif|webp)$/i.test(rel), `${rel}: the app ships no raster images`);
   }
-  // The existing discovery protocol has a historical, fixed well-known path.
-  for (const f of files) assert.ok(!/nuvio/i.test(read(f).replace("'/.well-known/nuvio'", "''").replace(/\/\/.*$/gm, '')), `${relative(root, f)} mentions another product outside comments`);
+  // The existing discovery protocol has a historical, fixed well-known path, and
+  // older app builds a historical, fixed user agent.
+  for (const f of files) assert.ok(!/nuvio/i.test(read(f).replace("'/.well-known/nuvio'", "''").replace("'NuvioMobile/'", "''").replace(/\/\/.*$/gm, '')), `${relative(root, f)} mentions another product outside comments`);
 });
 
 function build(env, outName) {
@@ -95,7 +98,7 @@ test('live build: no mock code, API origin in connect-src, read-only by default'
     assert.equal(status, 0, stderr);
     assert.ok(!existsSync(join(out, 'mock')), 'mock API must not ship');
     for (const account of Object.values(TEST_ACCOUNTS)) assert.ok(!walk(out).some(f => read(f).includes(account.password)), 'test passwords must not ship');
-    assert.match(readFileSync(join(out, '_headers'), 'utf8'), /connect-src 'self' https:\/\/api\.example\.test;/);
+    assert.match(readFileSync(join(out, '_headers'), 'utf8'), /connect-src 'self' https:\/\/api\.example\.test https:;/);
     const config = readFileSync(join(out, 'config.js'), 'utf8');
     assert.match(config, /"writesEnabled": false/);
     assert.match(config, /"tvApprovalEnabled": false/);

@@ -7,6 +7,7 @@ import { t, lang } from '../lib/i18n.js';
 import { formatDate, formatRelative } from '../lib/format.js';
 import { announce, button, confirmDialog, emptyState, notice, pageHeader, pill } from '../lib/ui.js';
 import { loadInto, section } from './common.js';
+import { groupSessions } from '../lib/clients.js';
 import { tvDevices } from './tv-devices.js';
 
 export default {
@@ -22,20 +23,62 @@ export default {
       fetch: () => ctx.api.sessions(50, { signal: ctx.signal }),
       render: list => {
         const others = list.filter(s => !s.is_current).length;
+        // Servers that report each sign-in's client get one row per device;
+        // older ones only list sign-ins.
+        const grouped = list.some(s => 'user_agent' in s);
         return h('div', { class: 'stack' },
-          h('ul', { role: 'list', class: 'items' }, list.map(s => h('li', { class: 'item-row' },
-            h('span', { class: 'monogram' }, icon(s.is_current ? 'device' : 'globe', { size: 16 })),
-            h('div', { class: 'item-main' },
-              h('p', { class: 'item-name' }, t('security.signedIn'), ' ', h('time', { datetime: s.signed_in_at, title: formatDate(s.signed_in_at) }, formatRelative(s.signed_in_at)),
-                s.is_current ? pill(t('security.thisBrowser'), 'ok') : null),
-              h('p', { class: 'item-meta' }, s.expires_at ? t('security.expires', { when: formatDate(s.expires_at) }) : t('security.noExpiry'),
-                ' · ', h('code', { title: t('security.sessionId') }, String(s.session_id).slice(0, 8))))))),
+          grouped
+            ? h('ul', { role: 'list', class: 'items' }, groupSessions(list).map(deviceRow))
+            : h('ul', { role: 'list', class: 'items' }, list.map(s => h('li', { class: 'item-row' },
+              h('span', { class: 'monogram' }, icon(s.is_current ? 'device' : 'globe', { size: 16 })),
+              h('div', { class: 'item-main' },
+                h('p', { class: 'item-name' }, t('security.signedIn'), ' ', when(s.signed_in_at),
+                  s.is_current ? pill(t('security.thisBrowser'), 'ok') : null),
+                h('p', { class: 'item-meta' }, s.expires_at ? t('security.expires', { when: formatDate(s.expires_at) }) : t('security.noExpiry'),
+                  ' · ', h('code', { title: t('security.sessionId') }, String(s.session_id).slice(0, 8))))))),
           h('div', { class: 'row-actions' },
             button(t('security.signOutOthers', { n: others }), { icon: 'signout', disabled: !others, onClick: () => signOut('others') }),
             button(t('security.signOutEverywhere'), { variant: 'danger', icon: 'signout', onClick: () => signOut('global') })),
           h('p', { class: 'muted small' }, t('security.noSingle')));
       },
     });
+
+    function when(at) {
+      return h('time', { datetime: at, title: formatDate(at) }, formatRelative(at));
+    }
+
+    function clientName(c) {
+      if (c.kind === 'app') return c.os ? t('client.appOn', { os: c.os }) : t('client.app');
+      if (c.kind === 'tv') return t('client.tv', { brand: c.brand });
+      if (c.kind === 'tool') return t('client.tool');
+      if (c.kind === 'browser') {
+        const browser = c.browser ?? t('client.browser');
+        return c.os ? t('client.browserOn', { browser, os: c.os }) : browser;
+      }
+      return t('client.unknown');
+    }
+
+    /** One device: its sign-ins folded into a single row you can open. */
+    function deviceRow(g) {
+      const c = g.client;
+      const iconName = c.kind === 'app' && (c.os === 'Android' || c.os === 'iOS') ? 'phone'
+        : c.kind === 'browser' ? 'globe' : 'device';
+      const signIns = [...g.sessions].sort((a, b) => Number(Boolean(b.is_current)) - Number(Boolean(a.is_current))
+        || new Date(b.signed_in_at) - new Date(a.signed_in_at));
+      return h('li', { class: 'item-row session-device' },
+        h('span', { class: 'monogram' }, icon(iconName, { size: 16 })),
+        h('div', { class: 'item-main' },
+          h('p', { class: 'item-name' }, clientName(c), g.current ? pill(t('security.thisBrowser'), 'ok') : null),
+          h('p', { class: 'item-meta' }, t('security.signIns', { n: g.sessions.length }), ' · ', t('security.lastActive'), ' ',
+            when(new Date(g.lastActive).toISOString())),
+          h('details', { class: 'session-details' },
+            h('summary', {}, t('security.showSignIns', { n: g.sessions.length })),
+            h('ul', { role: 'list', class: 'session-list' }, signIns.map(s => h('li', {},
+              t('security.signedIn'), ' ', when(s.signed_in_at),
+              s.last_active_at ? [' · ', t('security.lastActive'), ' ', when(s.last_active_at)] : null,
+              ' · ', h('code', { title: t('security.sessionId') }, String(s.session_id).slice(0, 8)),
+              s.is_current ? [' · ', h('strong', {}, t('security.currentSignIn'))] : null))))));
+    }
 
     loadInto(devicesHost, ctx, {
       rows: 3, variant: 'item',
