@@ -7,6 +7,14 @@
 
 // Older app builds still send their historical, fixed user agent.
 const LEGACY_APP_AGENT = 'NuvioMobile/';
+// ...and their historical app name with each installation they register.
+const LEGACY_APP_NAME = 'Nuvio Mobile';
+
+/** The app name an installation reports, with the historical name shown as Starlit. */
+export function appName(name) {
+  const s = String(name ?? '').trim();
+  return !s || s === LEGACY_APP_NAME ? 'Starlit' : s;
+}
 
 const OS = [
   [/Windows NT|Windows/i, 'Windows'],
@@ -60,4 +68,22 @@ export function groupSessions(list) {
     groups.set(client.key, g);
   }
   return [...groups.values()].sort((a, b) => Number(b.current) - Number(a.current) || b.lastActive - a.lastActive);
+}
+
+/**
+ * Installations grouped by device: the same device name on the same system
+ * (a reinstall, or a new data folder) is one row, shown with its newest sync.
+ */
+export function groupInstallations(list) {
+  const groups = new Map();
+  for (const d of list) {
+    const system = String(d.platform ?? '').trim().split(/\s+/)[0].toLowerCase();
+    const name = String(d.device_name ?? '').trim().toLowerCase();
+    const key = name ? `${system}|${name}` : `id|${d.installation_id ?? d.id ?? groups.size}`;
+    const g = groups.get(key) ?? { latest: d, count: 0 };
+    g.count++;
+    if (time(d.updated_at) > time(g.latest.updated_at)) g.latest = d;
+    groups.set(key, g);
+  }
+  return [...groups.values()].sort((a, b) => time(b.latest.updated_at) - time(a.latest.updated_at));
 }
